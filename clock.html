@@ -5,17 +5,18 @@
     <style>
         body { 
             margin: 0; 
-            background: transparent; 
+            background: rgba(0, 0, 0, 0.5); /* 背景を半透明の黒にする */
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             justify-content: center; 
             height: 100vh; 
             font-family: -apple-system, sans-serif; 
-            color: #ffffff; 
+            color: #ffffff; /* 文字は白 */
+            border-radius: 10px;
         }
-        #time { font-size: 3.5rem; font-weight: bold; letter-spacing: -1px; }
-        #date { font-size: 1.2rem; opacity: 0.7; margin-top: -5px; }
+        #time { font-size: 3rem; font-weight: bold; }
+        #date { font-size: 1rem; opacity: 0.8; }
     </style>
 </head>
 <body>
