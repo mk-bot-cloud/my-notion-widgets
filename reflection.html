@@ -8,32 +8,33 @@
         .q-text { font-size: 1rem; margin-bottom: 15px; line-height: 1.5; color: #ddd; min-height: 3em; }
         textarea { width: 100%; background: #252525; border: 1px solid #444; color: #fff; border-radius: 8px; padding: 10px; box-sizing: border-box; resize: vertical; font-size: 14px; margin-bottom: 10px; }
         .score-container { display: flex; justify-content: space-between; margin-top: 10px; }
-        .score-btn { background: #333; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; cursor: pointer; width: 18%; font-weight: bold; }
+        .score-btn { background: #333; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; cursor: pointer; width: 18%; font-weight: bold; transition: 0.2s; }
         .score-btn:hover { background: #444; }
         .score-btn.active { background: #3b82f6; border-color: #3b82f6; }
-        button.main-btn { background: #3b82f6; color: white; border: none; border-radius: 6px; padding: 10px 20px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; margin-top: 10px; }
+        button.main-btn { background: #3b82f6; color: white; border: none; border-radius: 6px; padding: 12px 20px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; margin-top: 10px; }
         button.main-btn:hover { background: #2563eb; }
         .hidden { display: none; }
         .save-link { background: transparent; border: 2px solid #3b82f6; color: #3b82f6; text-decoration: none; display: block; margin-top: 20px; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; }
+        .save-link:hover { background: rgba(59, 130, 246, 0.1); }
     </style>
 </head>
 <body>
     <div class="title">Reflection Mentor</div>
     
     <div id="step-start">
-        <p style="font-size: 14px; opacity: 0.8;">日付を確認してください</p>
+        <p style="font-size: 14px; opacity: 0.8;">リフレクションの日付を確認</p>
         <input type="date" id="ref-date" style="width:100%; padding:10px; border-radius:8px; background:#252525; color:#fff; border:1px solid #444;">
-        <button class="main-btn" onclick="start()">開始</button>
+        <button class="main-btn" onclick="start()">開始する</button>
     </div>
 
     <div id="step-q" class="hidden">
         <div id="q-text" class="q-text"></div>
-        <textarea id="a-input" rows="4" placeholder="ここに入力..."></textarea>
-        <button class="main-btn" onclick="next()">次へ</button>
+        <textarea id="a-input" rows="4" placeholder="ここに入力してください..."></textarea>
+        <button class="main-btn" onclick="next()">次へ進む</button>
     </div>
 
     <div id="step-score" class="hidden">
-        <div class="q-text">今日の満足度は？（1〜5点）</div>
+        <div class="q-text">今日という日に点数をつけるなら？</div>
         <div class="score-container">
             <button class="score-btn" onclick="setScore(1)">1</button>
             <button class="score-btn" onclick="setScore(2)">2</button>
@@ -41,21 +42,22 @@
             <button class="score-btn" onclick="setScore(4)">4</button>
             <button class="score-btn" onclick="setScore(5)">5</button>
         </div>
-        <button id="finish-btn" class="main-btn hidden" onclick="finish()">結果を保存</button>
+        <button id="finish-btn" class="main-btn hidden" onclick="finish()">振り返りを完了する</button>
     </div>
 
     <div id="step-end" class="hidden">
-        <p style="text-align:center;">完了！</p>
-        <a id="save-link" href="#" target="_blank" class="save-link">【Notionに保存する】</a>
+        <p style="text-align:center; line-height: 1.6;">お疲れ様でした！<br>下のボタンを押してNotionに記録します。</p>
+        <a id="save-link" href="#" target="_blank" class="save-link">【Notionに保存】</a>
+        <p style="font-size: 11px; color: #666; text-align: center; margin-top: 10px;">※保存後、この画面は閉じてOKです</p>
     </div>
 
     <script>
         const qs = [
-            { key: "Objective", text: "O：今日はどのような１日でしたか？" },
-            { key: "Reflective", text: "R：その時、どう感じましたか？" },
-            { key: "Interpretive", text: "I：なぜそう感じたのだと思いますか？" },
-            { key: "Meaning", text: "M：この経験からの学びは何ですか？" },
-            { key: "Decisive", text: "D：明日意識する小さな挑戦は？" }
+            { key: "Objective", text: "O（事実）：今日はどのような１日でしたか？" },
+            { key: "Reflective", text: "R（感情）：その時、どう感じましたか？" },
+            { key: "Interpretive", text: "I（解釈）：なぜそう感じたのだと思いますか？" },
+            { key: "Meaning", text: "M（意味）：この経験からの学びは何ですか？" },
+            { key: "Decisive", text: "D（決定）：明日意識する「小さな挑戦」は？" }
         ];
         
         let step = 0; let results = {}; let refDate = ""; let selectedScore = 0;
@@ -71,13 +73,17 @@
         function showQ() {
             document.getElementById('q-text').textContent = qs[step].text;
             document.getElementById('a-input').value = "";
+            document.getElementById('a-input').focus();
         }
 
         function next() {
-            results[qs[step].key] = document.getElementById('a-input').value;
+            const val = document.getElementById('a-input').value;
+            if(!val) return alert("回答を入力してください");
+            results[qs[step].key] = val;
             step++;
-            if(step < qs.length) { showQ(); } 
-            else {
+            if(step < qs.length) { 
+                showQ(); 
+            } else {
                 document.getElementById('step-q').classList.add('hidden');
                 document.getElementById('step-score').classList.remove('hidden');
             }
@@ -91,20 +97,22 @@
         }
 
         function finish() {
-            // 星マークの作成
+            // 星マークの作成（視覚用）
             const stars = "★".repeat(selectedScore) + "☆".repeat(5 - selectedScore);
             
-            // Webhookに送るデータを整理
+            // Makeに送るパラメータ（URLに変換される）
             const params = new URLSearchParams({
                 date: refDate,
                 ...results,
-                score: selectedScore, // ここを「数字のみ」に変更
-                mood: stars,          // 星マークはmoodとして別に送る
-                Summary: results.Objective.substring(0, 50)
+                score: selectedScore, // 純粋な数字
+                mood: stars,          // 星マーク
+                Summary: results.Objective.substring(0, 30) + "..."
             });
 
-            const webhookUrl = "https://hook.eu2.make.com/7q2dfhyhr12b499lavqtp4zcqyiqb837";
+            // 新しいWebhook URL
+            const webhookUrl = "https://hook.eu2.make.com/8wk2uwkjqs3sijn2t1dfxvw28c56alli";
             document.getElementById('save-link').href = `${webhookUrl}?${params.toString()}`;
+            
             document.getElementById('step-score').classList.add('hidden');
             document.getElementById('step-end').classList.remove('hidden');
         }
