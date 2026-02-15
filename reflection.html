@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        /* 幅を500pxに微調整 */
         body { 
             font-family: -apple-system, sans-serif; 
             background: #191919; 
@@ -29,20 +28,25 @@
         
         .hidden { display: none; }
         .save-link { background: #3b82f6; color: #fff; text-decoration: none; display: block; margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; }
+        
+        input[type="date"] { 
+            width: 100%; padding: 12px; border-radius: 8px; background: #252525; color: #fff; 
+            border: 1px solid #444; font-size: 1rem; box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
     <div class="title">Reflection Mentor</div>
     
     <div id="step-start">
-        <p style="font-size: 14px; opacity: 0.8; text-align:center;">日付を確認してください</p>
-        <input type="date" id="ref-date" style="width:100%; padding:10px; border-radius:8px; background:#252525; color:#fff; border:1px solid #444;">
+        <p style="font-size: 14px; opacity: 0.8; text-align:center;">振り返る日付を確認してください</p>
+        <input type="date" id="ref-date">
         <button class="main-btn" onclick="start()" style="width:100%; margin-top:15px;">開始</button>
     </div>
 
     <div id="step-q" class="hidden">
         <div id="q-text" class="q-text"></div>
-        <textarea id="a-input" rows="4"></textarea>
+        <textarea id="a-input" rows="4" placeholder="ここに入力..."></textarea>
         <div class="btn-group">
             <button class="back-btn" onclick="back()">戻る</button>
             <button class="main-btn" onclick="next()">次へ</button>
@@ -78,7 +82,15 @@
         ];
         
         let step = 0; let results = {}; let selectedScore = 0;
-        document.getElementById('ref-date').valueAsDate = new Date();
+
+        // ページ読み込み時に常に「その時の今日」をセット
+        window.onload = function() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            document.getElementById('ref-date').value = `${y}-${m}-${d}`;
+        };
 
         function start() {
             document.getElementById('step-start').classList.add('hidden');
