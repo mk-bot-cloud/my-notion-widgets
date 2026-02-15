@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: sans-serif; background: #191919; color: #fff; padding: 20px; border-radius: 12px; border: 1px solid #333; max-width: 400px; margin: auto; }
+        .title { color: #3b82f6; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .q-text { font-size: 1rem; margin-bottom: 15px; line-height: 1.5; color: #ddd; }
+        textarea { width: 100%; background: #252525; border: 1px solid #444; color: #fff; border-radius: 8px; padding: 10px; box-sizing: border-box; resize: vertical; font-size: 14px; }
+        button { background: #3b82f6; color: white; border: none; border-radius: 6px; padding: 10px 20px; margin-top: 15px; cursor: pointer; font-weight: bold; width: 100%; }
+        button:hover { background: #2563eb; }
+        .hidden { display: none; }
+        .save-btn { background: transparent; border: 2px solid #3b82f6; color: #3b82f6; text-decoration: none; display: block; margin-top: 20px; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="title">Personal Reflection Mentor</div>
+    <div id="step-start">
+        <p style="font-size: 14px; opacity: 0.8;">日付を選択して開始してください</p>
+        <input type="date" id="ref-date" style="width:100%; padding:10px; border-radius:8px; background:#252525; color:#fff; border:1px solid #444;">
+        <button onclick="start()">リフレクションを開始</button>
+    </div>
+    <div id="step-q" class="hidden">
+        <div id="q-text" class="q-text"></div>
+        <textarea id="a-input" rows="4" placeholder="あなたの本音を教えてください..."></textarea>
+        <button onclick="next()">回答を記録して次へ</button>
+    </div>
+    <div id="step-end" class="hidden">
+        <p style="text-align:center;">今日のエッセンスがまとまりました。</p>
+        <a id="save-link" href="#" target="_blank" class="save-btn">【Notionに保存する】</a>
+    </div>
+
+    <script>
+        const qs = [
+            "O（事実）: 今日はどのような１日でしたか？客観的な出来事を教えてください。",
+            "R（感情）: その時、あなたの心はどう動きましたか？",
+            "I（解釈）: なぜそう感じたのだと思いますか？（こだわりや理想）",
+            "M（意味）: この経験は、あなたにとってどんな「ギフト（学び）」になりましたか？",
+            "D（決定）: 明日、意識することや「小さな挑戦」を教えてください。",
+            "最後に、今日という日に点数（1〜5）をつけてください。"
+        ];
+        const keys = ["Objective", "Reflective", "Interpretive", "Meaning", "Decisive", "score"];
+        let step = 0; let results = {}; let refDate = "";
+
+        function start() {
+            refDate = document.getElementById('ref-date').value;
+            if(!refDate) return alert("日付を選択してください");
+            document.getElementById('step-start').classList.add('hidden');
+            document.getElementById('step-q').classList.remove('hidden');
+            showQ();
+        }
+        function showQ() { document.getElementById('q-text').textContent = qs[step]; document.getElementById('a-input').value = ""; }
+        function next() {
+            const val = document.getElementById('a-input').value;
+            if(!val) return alert("入力を入力してください");
+            results[keys[step]] = val;
+            step++;
+            if(step < qs.length) { showQ(); } else { finish(); }
+        }
+        function finish() {
+            document.getElementById('step-q').classList.add('hidden');
+            document.getElementById('step-end').classList.remove('hidden');
+            const summary = Object.values(results).join(" ").substring(0, 100);
+            const score = results.score;
+            const moodMap = ["", "%E2%98%85", "%E2%98%85%E2%98%85", "%E2%98%85%E2%98%85%E2%98%85", "%E2%98%85%E2%98%85%E2%98%85%E2%98%85", "%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85"];
+            const params = new URLSearchParams({
+                date: refDate, ...results, Summary: summary,
+                mood: moodMap[score] || moodMap[3]
+            });
+            document.getElementById('save-link').href = `https://hook.eu2.make.com/7q2dfhyhr12b499lavqtp4zcqyiqb837?${params.toString()}`;
+        }
+    </script>
+</body>
+</html>
