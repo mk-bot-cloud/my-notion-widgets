@@ -3,29 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <style>
+        :root {
+            --bg-color: #191919; /* Notionのダークモード背景色 */
+            --accent-color: #3b82f6;
+            --text-main: #ffffff;
+            --text-sub: #888888;
+        }
         body { 
             margin: 0; 
-            background: rgba(0, 0, 0, 0.5); /* 背景を半透明の黒にする */
+            background: transparent; 
             display: flex; 
-            flex-direction: column; 
             align-items: center; 
             justify-content: center; 
             height: 100vh; 
-            font-family: -apple-system, sans-serif; 
-            color: #ffffff; /* 文字は白 */
-            border-radius: 10px;
+            font-family: 'Inter', -apple-system, sans-serif; 
+            color: var(--text-main);
         }
-        #time { font-size: 3rem; font-weight: bold; }
-        #date { font-size: 1rem; opacity: 0.8; }
+        .container {
+            text-align: center;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        #time { 
+            font-size: 4rem; 
+            font-weight: 800; 
+            letter-spacing: -2px; 
+            line-height: 1;
+            background: linear-gradient(180deg, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        #date { 
+            font-size: 1rem; 
+            font-weight: 500;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .sec {
+            font-size: 1.5rem;
+            margin-left: 5px;
+            opacity: 0.5;
+            -webkit-text-fill-color: #fff; /* 秒数だけグラデーション解除 */
+        }
     </style>
 </head>
 <body>
-    <div id="time">00:00:00</div>
-    <div id="date">2026.02.15 SUN</div>
+    <div class="container">
+        <div id="time">00:00<span class="sec" id="sec">00</span></div>
+        <div id="date">2026.02.15 SUN</div>
+    </div>
+
     <script>
         function update() {
             const now = new Date();
-            document.getElementById('time').textContent = now.toLocaleTimeString('ja-JP');
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('time').innerHTML = `${h}:${m}<span class="sec">${s}</span>`;
+            
             const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
             const d = now.getFullYear() + '.' + 
                       String(now.getMonth() + 1).padStart(2, '0') + '.' + 
