@@ -3,132 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        /* 枠の幅を 400px → 600px に広げ、ゆとりを持たせました */
+        /* 幅を500pxに微調整 */
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            font-family: -apple-system, sans-serif; 
             background: #191919; 
             color: #fff; 
-            padding: 30px; 
-            border-radius: 16px; 
+            padding: 25px; 
+            border-radius: 12px; 
             border: 1px solid #333; 
-            max-width: 600px; 
-            margin: 20px auto; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 500px; 
+            margin: auto; 
         }
-        .title { 
-            color: #3b82f6; 
-            font-weight: bold; 
-            margin-bottom: 25px; 
-            border-bottom: 1px solid #333; 
-            padding-bottom: 10px; 
-            font-size: 1.4rem; 
-            text-align: center;
-        }
-        .q-text { 
-            font-size: 1.1rem; 
-            margin-bottom: 20px; 
-            line-height: 1.6; 
-            color: #eee; 
-            min-height: 3em; 
-        }
-        textarea { 
-            width: 100%; 
-            background: #252525; 
-            border: 1px solid #444; 
-            color: #fff; 
-            border-radius: 10px; 
-            padding: 15px; 
-            box-sizing: border-box; 
-            resize: vertical; 
-            font-size: 16px; 
-            margin-bottom: 15px; 
-            line-height: 1.5;
-        }
-        textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-        .score-container { 
-            display: flex; 
-            justify-content: space-between; 
-            margin: 20px 0; 
-        }
-        .score-btn { 
-            background: #333; 
-            color: #fff; 
-            border: 1px solid #444; 
-            padding: 15px; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            width: 18%; 
-            font-weight: bold; 
-            font-size: 1.2rem;
-            transition: 0.2s; 
-        }
-        .score-btn:hover { background: #444; border-color: #666; }
-        .score-btn.active { background: #3b82f6; border-color: #3b82f6; transform: scale(1.05); }
+        .title { color: #3b82f6; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 5px; font-size: 1.1rem; text-align: center; }
+        .q-text { font-size: 1rem; margin-bottom: 15px; line-height: 1.5; color: #ddd; min-height: 3em; }
+        textarea { width: 100%; background: #252525; border: 1px solid #444; color: #fff; border-radius: 8px; padding: 12px; box-sizing: border-box; resize: vertical; font-size: 14px; margin-bottom: 10px; }
         
-        button.main-btn { 
-            background: #3b82f6; 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            padding: 15px 20px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 1.1rem;
-            width: 100%; 
-            transition: 0.2s; 
-            margin-top: 10px; 
-        }
-        button.main-btn:hover { background: #2563eb; transform: translateY(-1px); }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        button.main-btn { background: #3b82f6; color: white; border: none; border-radius: 6px; padding: 10px 20px; cursor: pointer; font-weight: bold; flex: 2; transition: 0.2s; }
+        button.back-btn { background: #444; color: #ccc; border: none; border-radius: 6px; padding: 10px 15px; cursor: pointer; flex: 1; font-size: 14px; }
+        button:hover { opacity: 0.8; }
+        
+        .score-container { display: flex; justify-content: space-between; margin: 15px 0; }
+        .score-btn { background: #333; color: #fff; border: 1px solid #444; padding: 12px; border-radius: 8px; cursor: pointer; width: 18%; font-weight: bold; }
+        .score-btn.active { background: #3b82f6; border-color: #3b82f6; }
         
         .hidden { display: none; }
-        
-        .save-link { 
-            background: #3b82f6; 
-            color: #fff; 
-            text-decoration: none; 
-            display: block; 
-            margin-top: 25px; 
-            padding: 18px; 
-            border-radius: 10px; 
-            text-align: center; 
-            font-weight: bold; 
-            font-size: 1.2rem;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-        }
-        .save-link:hover { background: #2563eb; }
-        
-        input[type="date"] {
-            width: 100%; 
-            padding: 12px; 
-            border-radius: 8px; 
-            background: #252525; 
-            color: #fff; 
-            border: 1px solid #444; 
-            font-size: 1rem;
-            margin-top: 10px;
-        }
+        .save-link { background: #3b82f6; color: #fff; text-decoration: none; display: block; margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="title">Reflection Mentor</div>
     
     <div id="step-start">
-        <p style="font-size: 15px; opacity: 0.8; text-align: center;">リフレクションの日付を確認</p>
-        <input type="date" id="ref-date">
-        <button class="main-btn" onclick="start()">リフレクションを開始する</button>
+        <p style="font-size: 14px; opacity: 0.8; text-align:center;">日付を確認してください</p>
+        <input type="date" id="ref-date" style="width:100%; padding:10px; border-radius:8px; background:#252525; color:#fff; border:1px solid #444;">
+        <button class="main-btn" onclick="start()" style="width:100%; margin-top:15px;">開始</button>
     </div>
 
     <div id="step-q" class="hidden">
         <div id="q-text" class="q-text"></div>
-        <textarea id="a-input" rows="5" placeholder="ここに入力してください..."></textarea>
-        <button class="main-btn" onclick="next()">次へ進む</button>
+        <textarea id="a-input" rows="4"></textarea>
+        <div class="btn-group">
+            <button class="back-btn" onclick="back()">戻る</button>
+            <button class="main-btn" onclick="next()">次へ</button>
+        </div>
     </div>
 
     <div id="step-score" class="hidden">
-        <div class="q-text" style="text-align: center;">今日という日に点数をつけるなら？</div>
+        <div class="q-text">今日の満足度を教えてください</div>
         <div class="score-container">
             <button class="score-btn" onclick="setScore(1)">1</button>
             <button class="score-btn" onclick="setScore(2)">2</button>
@@ -136,29 +58,29 @@
             <button class="score-btn" onclick="setScore(4)">4</button>
             <button class="score-btn" onclick="setScore(5)">5</button>
         </div>
-        <button id="finish-btn" class="main-btn hidden" onclick="finish()">振り返りを完了する</button>
+        <div class="btn-group">
+            <button class="back-btn" onclick="backToQ()">戻る</button>
+            <button id="finish-btn" class="main-btn hidden" onclick="finish()">完了</button>
+        </div>
     </div>
 
     <div id="step-end" class="hidden">
-        <p style="text-align:center; line-height: 1.8; font-size: 1.1rem;">お疲れ様でした！✨<br>下のボタンを押してNotionに記録を送信します。</p>
         <a id="save-link" href="#" target="_blank" class="save-link">Notionに保存して終了</a>
-        <p style="font-size: 12px; color: #777; text-align: center; margin-top: 15px;">※保存後、この画面は閉じてOKです</p>
     </div>
 
     <script>
         const qs = [
-            { key: "Objective", text: "O（事実）：今日はどのような１日でしたか？" },
-            { key: "Reflective", text: "R（感情）：その時、どう感じましたか？" },
-            { key: "Interpretive", text: "I（解釈）：なぜそう感じたのだと思いますか？" },
-            { key: "Meaning", text: "M（意味）：この経験からの学びは何ですか？" },
-            { key: "Decisive", text: "D（決定）：明日意識する「小さな挑戦」は？" }
+            { key: "Objective", text: "O：今日はどのような１日でしたか？" },
+            { key: "Reflective", text: "R：その時、どう感じましたか？" },
+            { key: "Interpretive", text: "I：なぜそう感じたのだと思いますか？" },
+            { key: "Meaning", text: "M：この経験からの学びは何ですか？" },
+            { key: "Decisive", text: "D：明日意識する小さな挑戦は？" }
         ];
         
-        let step = 0; let results = {}; let refDate = ""; let selectedScore = 0;
+        let step = 0; let results = {}; let selectedScore = 0;
         document.getElementById('ref-date').valueAsDate = new Date();
 
         function start() {
-            refDate = document.getElementById('ref-date').value;
             document.getElementById('step-start').classList.add('hidden');
             document.getElementById('step-q').classList.remove('hidden');
             showQ();
@@ -166,21 +88,36 @@
 
         function showQ() {
             document.getElementById('q-text').textContent = qs[step].text;
-            document.getElementById('a-input').value = "";
+            document.getElementById('a-input').value = results[qs[step].key] || "";
             document.getElementById('a-input').focus();
         }
 
         function next() {
-            const val = document.getElementById('a-input').value;
-            if(!val) return alert("回答を入力してください");
-            results[qs[step].key] = val;
+            results[qs[step].key] = document.getElementById('a-input').value;
             step++;
-            if(step < qs.length) { 
-                showQ(); 
-            } else {
+            if(step < qs.length) { showQ(); } 
+            else {
                 document.getElementById('step-q').classList.add('hidden');
                 document.getElementById('step-score').classList.remove('hidden');
             }
+        }
+
+        function back() {
+            if (step > 0) {
+                results[qs[step].key] = document.getElementById('a-input').value;
+                step--;
+                showQ();
+            } else {
+                document.getElementById('step-q').classList.add('hidden');
+                document.getElementById('step-start').classList.remove('hidden');
+            }
+        }
+
+        function backToQ() {
+            step = qs.length - 1;
+            document.getElementById('step-score').classList.add('hidden');
+            document.getElementById('step-q').classList.remove('hidden');
+            showQ();
         }
 
         function setScore(s) {
@@ -193,16 +130,14 @@
         function finish() {
             const stars = "★".repeat(selectedScore);
             const params = new URLSearchParams({
-                date: refDate,
+                date: document.getElementById('ref-date').value,
                 ...results,
                 score: selectedScore, 
                 mood: stars,
                 Summary: results.Objective.substring(0, 30) + "..."
             });
-
             const webhookUrl = "https://hook.eu2.make.com/8wk2uwkjqs3sijn2t1dfxvw28c56alli";
             document.getElementById('save-link').href = `${webhookUrl}?${params.toString()}`;
-            
             document.getElementById('step-score').classList.add('hidden');
             document.getElementById('step-end').classList.remove('hidden');
         }
