@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <style>
         body { 
-            font-family: -apple-system, sans-serif; 
+            /* 数字も含め、システム標準のサンセリフ体（ゴシック体）を強制 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
             background: #191919; 
             color: #fff; 
             padding: 25px; 
@@ -32,6 +33,8 @@
         input[type="date"] { 
             width: 100%; padding: 12px; border-radius: 8px; background: #252525; color: #fff; 
             border: 1px solid #444; font-size: 1rem; box-sizing: border-box;
+            /* 数字が明朝体にならないよう、親要素のフォントを継承 */
+            font-family: inherit;
         }
     </style>
 </head>
@@ -39,7 +42,7 @@
     <div class="title">Reflection Mentor</div>
     
     <div id="step-start">
-        <p style="font-size: 14px; opacity: 0.8; text-align:center;">振り返る日付を確認してください</p>
+        <p style="font-size: 14px; opacity: 0.8; text-align:center; margin-bottom: 15px;">日付を確認してください</p>
         <input type="date" id="ref-date">
         <button class="main-btn" onclick="start()" style="width:100%; margin-top:15px;">開始</button>
     </div>
@@ -83,7 +86,6 @@
         
         let step = 0; let results = {}; let selectedScore = 0;
 
-        // ページ読み込み時に常に「その時の今日」をセット
         window.onload = function() {
             const now = new Date();
             const y = now.getFullYear();
@@ -146,7 +148,7 @@
                 ...results,
                 score: selectedScore, 
                 mood: stars,
-                Summary: results.Objective.substring(0, 30) + "..."
+                Summary: results.Objective ? results.Objective.substring(0, 30) + "..." : ""
             });
             const webhookUrl = "https://hook.eu2.make.com/8wk2uwkjqs3sijn2t1dfxvw28c56alli";
             document.getElementById('save-link').href = `${webhookUrl}?${params.toString()}`;
