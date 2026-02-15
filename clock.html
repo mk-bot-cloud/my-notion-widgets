@@ -5,7 +5,8 @@
     <style>
         :root {
             --accent: #3b82f6;
-            --bg: rgba(25, 25, 25, 0.8);
+            --bg: #191919; /* Notionのダークモード背景色 */
+            --border: #333333;
         }
         body { 
             margin: 0; background: transparent; 
@@ -15,51 +16,54 @@
         .widget {
             background: var(--bg);
             padding: 30px;
-            border-radius: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border-radius: 16px; /* Reflectionウィジェットに合わせて少し角をシャープに */
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             text-align: center;
-            min-width: 280px;
-            backdrop-filter: blur(12px);
+            min-width: 300px;
         }
         #greeting {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 3px;
             color: var(--accent);
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             font-weight: 600;
         }
         #time { 
-            font-size: 4.5rem; 
+            font-size: 4.2rem; 
             font-weight: 900; 
             line-height: 1;
             margin: 10px 0;
             font-variant-numeric: tabular-nums;
+            letter-spacing: -2px;
         }
         #date {
-            font-size: 1.1rem;
+            font-size: 1rem;
             opacity: 0.6;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
         }
+        .progress-group { margin-bottom: 18px; }
         .progress-container {
             width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
+            height: 8px;
+            background: #252525;
             border-radius: 10px;
             overflow: hidden;
-            position: relative;
+            border: 1px solid #333;
         }
-        #progress-bar {
+        .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent), #60a5fa);
+            background: var(--accent);
             width: 0%;
             transition: width 1s ease-in-out;
         }
         .label {
             display: flex; justify-content: space-between;
-            font-size: 0.7rem; opacity: 0.4; margin-top: 8px;
+            font-size: 0.7rem; color: #888; margin-top: 6px;
             text-transform: uppercase;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -67,14 +71,26 @@
     <div class="widget">
         <div id="greeting">HELLO</div>
         <div id="time">00:00</div>
-        <div id="date">2026.02.15 SUN</div>
+        <div id="date">2026.02.16 MON</div>
         
-        <div class="progress-container">
-            <div id="progress-bar"></div>
+        <div class="progress-group">
+            <div class="progress-container">
+                <div id="day-bar" class="progress-bar"></div>
+            </div>
+            <div class="label">
+                <span>Day Progress</span>
+                <span id="day-text">0%</span>
+            </div>
         </div>
-        <div class="label">
-            <span>Week Progress</span>
-            <span id="progress-text">0%</span>
+
+        <div class="progress-group" style="margin-bottom: 0;">
+            <div class="progress-container">
+                <div id="week-bar" class="progress-bar" style="background: #6366f1;"></div>
+            </div>
+            <div class="label">
+                <span>Week Progress</span>
+                <span id="week-text">0%</span>
+            </div>
         </div>
     </div>
 
@@ -82,28 +98,29 @@
         function update() {
             const now = new Date();
             
-            // 時計
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('time').textContent = `${h}:${m}`;
+            const h = now.getHours();
+            const m = now.getMinutes();
+            document.getElementById('time').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
             
-            // 挨拶
             let g = "Good Night";
             if(h >= 5 && h < 12) g = "Good Morning";
             else if(h >= 12 && h < 18) g = "Good Afternoon";
             else if(h >= 18 && h < 22) g = "Good Evening";
             document.getElementById('greeting').textContent = g;
 
-            // 日付
             const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
             document.getElementById('date').textContent = 
                 `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${days[now.getDay()]}`;
 
-            // 週の進捗
-            const dayOfWeek = now.getDay(); // 0(Sun) to 6(Sat)
-            const weekProgress = ((dayOfWeek + 1) / 7 * 100).toFixed(0);
-            document.getElementById('progress-bar').style.width = weekProgress + "%";
-            document.getElementById('progress-text').textContent = weekProgress + "%";
+            const dayProgress = ((h * 60 + m) / 1440 * 100).toFixed(0);
+            document.getElementById('day-bar').style.width = dayProgress + "%";
+            document.getElementById('day-text').textContent = dayProgress + "%";
+
+            let dayIdx = now.getDay(); 
+            let dayNum = dayIdx === 0 ? 7 : dayIdx; 
+            const weekProgress = (dayNum / 7 * 100).toFixed(0);
+            document.getElementById('week-bar').style.width = weekProgress + "%";
+            document.getElementById('week-text').textContent = weekProgress + "%";
         }
         
         setInterval(update, 1000);
