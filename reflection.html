@@ -3,38 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: -apple-system, sans-serif; background: #191919; color: #fff; padding: 20px; border-radius: 12px; border: 1px solid #333; max-width: 400px; margin: auto; }
-        .title { color: #3b82f6; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px; font-size: 1.1rem; }
-        .q-text { font-size: 1rem; margin-bottom: 15px; line-height: 1.5; color: #ddd; min-height: 3em; }
-        textarea { width: 100%; background: #252525; border: 1px solid #444; color: #fff; border-radius: 8px; padding: 10px; box-sizing: border-box; resize: vertical; font-size: 14px; margin-bottom: 10px; }
-        .score-container { display: flex; justify-content: space-between; margin-top: 10px; }
-        .score-btn { background: #333; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; cursor: pointer; width: 18%; font-weight: bold; transition: 0.2s; }
-        .score-btn:hover { background: #444; }
-        .score-btn.active { background: #3b82f6; border-color: #3b82f6; }
-        button.main-btn { background: #3b82f6; color: white; border: none; border-radius: 6px; padding: 12px 20px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; margin-top: 10px; }
-        button.main-btn:hover { background: #2563eb; }
+        /* 枠の幅を 400px → 600px に広げ、ゆとりを持たせました */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: #191919; 
+            color: #fff; 
+            padding: 30px; 
+            border-radius: 16px; 
+            border: 1px solid #333; 
+            max-width: 600px; 
+            margin: 20px auto; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .title { 
+            color: #3b82f6; 
+            font-weight: bold; 
+            margin-bottom: 25px; 
+            border-bottom: 1px solid #333; 
+            padding-bottom: 10px; 
+            font-size: 1.4rem; 
+            text-align: center;
+        }
+        .q-text { 
+            font-size: 1.1rem; 
+            margin-bottom: 20px; 
+            line-height: 1.6; 
+            color: #eee; 
+            min-height: 3em; 
+        }
+        textarea { 
+            width: 100%; 
+            background: #252525; 
+            border: 1px solid #444; 
+            color: #fff; 
+            border-radius: 10px; 
+            padding: 15px; 
+            box-sizing: border-box; 
+            resize: vertical; 
+            font-size: 16px; 
+            margin-bottom: 15px; 
+            line-height: 1.5;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .score-container { 
+            display: flex; 
+            justify-content: space-between; 
+            margin: 20px 0; 
+        }
+        .score-btn { 
+            background: #333; 
+            color: #fff; 
+            border: 1px solid #444; 
+            padding: 15px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            width: 18%; 
+            font-weight: bold; 
+            font-size: 1.2rem;
+            transition: 0.2s; 
+        }
+        .score-btn:hover { background: #444; border-color: #666; }
+        .score-btn.active { background: #3b82f6; border-color: #3b82f6; transform: scale(1.05); }
+        
+        button.main-btn { 
+            background: #3b82f6; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            padding: 15px 20px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 1.1rem;
+            width: 100%; 
+            transition: 0.2s; 
+            margin-top: 10px; 
+        }
+        button.main-btn:hover { background: #2563eb; transform: translateY(-1px); }
+        
         .hidden { display: none; }
-        .save-link { background: transparent; border: 2px solid #3b82f6; color: #3b82f6; text-decoration: none; display: block; margin-top: 20px; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; }
-        .save-link:hover { background: rgba(59, 130, 246, 0.1); }
+        
+        .save-link { 
+            background: #3b82f6; 
+            color: #fff; 
+            text-decoration: none; 
+            display: block; 
+            margin-top: 25px; 
+            padding: 18px; 
+            border-radius: 10px; 
+            text-align: center; 
+            font-weight: bold; 
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        .save-link:hover { background: #2563eb; }
+        
+        input[type="date"] {
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 8px; 
+            background: #252525; 
+            color: #fff; 
+            border: 1px solid #444; 
+            font-size: 1rem;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="title">Reflection Mentor</div>
     
     <div id="step-start">
-        <p style="font-size: 14px; opacity: 0.8;">リフレクションの日付を確認</p>
-        <input type="date" id="ref-date" style="width:100%; padding:10px; border-radius:8px; background:#252525; color:#fff; border:1px solid #444;">
-        <button class="main-btn" onclick="start()">開始する</button>
+        <p style="font-size: 15px; opacity: 0.8; text-align: center;">リフレクションの日付を確認</p>
+        <input type="date" id="ref-date">
+        <button class="main-btn" onclick="start()">リフレクションを開始する</button>
     </div>
 
     <div id="step-q" class="hidden">
         <div id="q-text" class="q-text"></div>
-        <textarea id="a-input" rows="4" placeholder="ここに入力してください..."></textarea>
+        <textarea id="a-input" rows="5" placeholder="ここに入力してください..."></textarea>
         <button class="main-btn" onclick="next()">次へ進む</button>
     </div>
 
     <div id="step-score" class="hidden">
-        <div class="q-text">今日という日に点数をつけるなら？</div>
+        <div class="q-text" style="text-align: center;">今日という日に点数をつけるなら？</div>
         <div class="score-container">
             <button class="score-btn" onclick="setScore(1)">1</button>
             <button class="score-btn" onclick="setScore(2)">2</button>
@@ -46,9 +140,9 @@
     </div>
 
     <div id="step-end" class="hidden">
-        <p style="text-align:center; line-height: 1.6;">お疲れ様でした！<br>下のボタンを押してNotionに記録します。</p>
-        <a id="save-link" href="#" target="_blank" class="save-link">【Notionに保存】</a>
-        <p style="font-size: 11px; color: #666; text-align: center; margin-top: 10px;">※保存後、この画面は閉じてOKです</p>
+        <p style="text-align:center; line-height: 1.8; font-size: 1.1rem;">お疲れ様でした！✨<br>下のボタンを押してNotionに記録を送信します。</p>
+        <a id="save-link" href="#" target="_blank" class="save-link">Notionに保存して終了</a>
+        <p style="font-size: 12px; color: #777; text-align: center; margin-top: 15px;">※保存後、この画面は閉じてOKです</p>
     </div>
 
     <script>
@@ -97,19 +191,15 @@
         }
 
         function finish() {
-            // 星マークの作成（視覚用）
-            const stars = "★".repeat(selectedScore) + "☆".repeat(5 - selectedScore);
-            
-            // Makeに送るパラメータ（URLに変換される）
+            const stars = "★".repeat(selectedScore);
             const params = new URLSearchParams({
                 date: refDate,
                 ...results,
-                score: selectedScore, // 純粋な数字
-                mood: stars,          // 星マーク
+                score: selectedScore, 
+                mood: stars,
                 Summary: results.Objective.substring(0, 30) + "..."
             });
 
-            // 新しいWebhook URL
             const webhookUrl = "https://hook.eu2.make.com/8wk2uwkjqs3sijn2t1dfxvw28c56alli";
             document.getElementById('save-link').href = `${webhookUrl}?${params.toString()}`;
             
