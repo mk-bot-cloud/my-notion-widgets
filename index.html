@@ -2,38 +2,54 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Input Filter & Distiller</title>
+    <title>Minimal Chronos</title>
     <style>
-        :root { --bg: #ffffff; --text: #191919; --accent: #7b2ff7; }
+        :root { --bg: #ffffff; --text: #191919; --accent: #2383e2; --sub: #888; }
         @media (prefers-color-scheme: dark) { :root { --bg: #191919; --text: #efefef; } }
-        body { background: var(--bg); color: var(--text); font-family: "Georgia", serif; margin: 0; padding: 30px; line-height: 1.8; }
-        .section { margin-bottom: 40px; }
-        .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 10px; font-weight: bold; }
-        .quote-box { font-size: 1.1rem; font-style: italic; border-left: 2px solid var(--accent); padding-left: 20px; margin: 20px 0; outline: none; }
-        .distilled { font-size: 0.95rem; opacity: 0.8; outline: none; }
-        .essence { font-size: 1.5rem; font-weight: bold; color: var(--accent); border-bottom: 1px solid rgba(123, 47, 247, 0.2); display: inline-block; padding-bottom: 5px; outline: none; }
+        body { background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; margin: 0; padding: 20px; text-align: center; }
+        .month { font-size: 10px; text-transform: uppercase; letter-spacing: 0.3em; margin-bottom: 20px; color: var(--accent); font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; max-width: 300px; margin: 0 auto; }
+        .day { font-size: 13px; padding: 10px 0; border-radius: 8px; transition: 0.3s; }
+        .day.today { background: var(--accent); color: white; font-weight: bold; box-shadow: 0 4px 10px rgba(35,131,226,0.3); }
+        .day.past { opacity: 0.3; }
+        .weekday { font-size: 9px; color: var(--sub); margin-bottom: 5px; }
     </style>
 </head>
 <body>
+    <div id="month-label" class="month">January</div>
+    <div class="grid" id="calendar-grid"></div>
 
-    <div class="section">
-        <div class="label">Step 1: Raw Knowledge (文献や情報の断片を置く)</div>
-        <div class="quote-box" contenteditable="true">
-            ここに「気になった文献の一節」や「誰かの言葉」を貼り付けてください。
-        </div>
-    </div>
+    <script>
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const today = now.getDate();
+        
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        document.getElementById('month-label').innerText = monthNames[month] + " " + year;
 
-    <div class="section">
-        <div class="label">Step 2: Digestion (自分の言葉で咀嚼する)</div>
-        <div class="distilled" contenteditable="true">
-            それを自分の臨床や研究に引き寄せると、どういう意味になりますか？
-        </div>
-    </div>
+        const firstDay = new Date(year, month, 1).getDay();
+        const lastDate = new Date(year, month + 1, 0).getDate();
+        const grid = document.getElementById('calendar-grid');
 
-    <div class="section">
-        <div class="label">Step 3: The Essence (一言で、何？)</div>
-        <div class="essence" contenteditable="true">一言の「結晶」にする</div>
-    </div>
+        // 曜日の見出し
+        ['S','M','T','W','T','F','S'].forEach(d => {
+            const el = document.createElement('div');
+            el.className = 'weekday'; el.innerText = d; grid.appendChild(el);
+        });
 
+        // 空白
+        for(let i=0; i<firstDay; i++) { grid.appendChild(document.createElement('div')); }
+
+        // 日付
+        for(let i=1; i<=lastDate; i++) {
+            const el = document.createElement('div');
+            el.className = 'day';
+            if(i < today) el.className += ' past';
+            if(i === today) el.className += ' today';
+            el.innerText = i;
+            grid.appendChild(el);
+        }
+    </script>
 </body>
 </html>
