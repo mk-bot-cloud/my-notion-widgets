@@ -2,90 +2,76 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Academic & Clinical Progress Gear</title>
+    <title>The Thinker's Monolith</title>
     <style>
-        :root { --bg: #0f0f0f; --card: #1a1a1a; --acc: #3a86ff; --text: #d1d1d1; --border: #333; }
-        body { background: var(--bg); color: var(--text); font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        .widget { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        h3 { margin: 0 0 15px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--acc); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-        textarea, input, select { width: 100%; background: #252525; border: 1px solid var(--border); color: #fff; border-radius: 6px; padding: 10px; margin-bottom: 10px; font-size: 13px; outline: none; }
-        button { background: var(--acc); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; }
-        button:hover { filter: brightness(1.2); }
-        .tag { display: inline-block; background: #333; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-right: 5px; }
-        .result-box { background: #000; border: 1px dashed var(--border); padding: 10px; border-radius: 6px; font-size: 12px; min-height: 50px; white-space: pre-wrap; }
+        :root { --accent: #2383e2; --bg: #ffffff; --text: #191919; }
+        /* Notionのダークモードにも対応 */
+        @media (prefers-color-scheme: dark) {
+            :root { --bg: #191919; --text: #efefef; }
+        }
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: "Inter", "Helvetica Neue", sans-serif;
+            margin: 0; padding: 40px 20px;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; height: 80vh; overflow: hidden;
+        }
+        #focus-point {
+            font-size: 2.5rem; font-weight: 700; letter-spacing: -0.05em;
+            text-align: center; max-width: 800px; line-height: 1.2;
+            cursor: pointer; transition: 0.5s; position: relative;
+        }
+        #focus-point:hover { transform: scale(1.02); }
+        #focus-point::after {
+            content: ''; position: absolute; bottom: -10px; left: 0;
+            width: 0%; height: 2px; background: var(--accent);
+            transition: 0.5s;
+        }
+        #focus-point:hover::after { width: 100%; }
+        .sub-text {
+            margin-top: 30px; font-size: 0.9rem; color: #888;
+            letter-spacing: 0.2em; text-transform: uppercase;
+        }
+        #timer { font-family: monospace; margin-top: 10px; font-size: 1.2rem; opacity: 0.5; }
+        .bg-pulse {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 500px; height: 500px; background: var(--accent);
+            filter: blur(150px); opacity: 0.05; border-radius: 50%; z-index: -1;
+            animation: pulse 8s infinite alternate;
+        }
+        @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); opacity: 0.05; } to { transform: translate(-50%, -50%) scale(1.3); opacity: 0.1; } }
+        input {
+            background: transparent; border: none; color: inherit;
+            font: inherit; text-align: center; width: 100%; outline: none;
+        }
     </style>
 </head>
 <body>
-
-<div class="widget">
-    <h3>💡 Paper Structure Builder</h3>
-    <textarea id="rawInput" rows="4" placeholder="Inputメモ（文献の要旨や気づき）を入力..."></textarea>
-    <div style="margin-bottom: 10px;">
-        <span class="tag" onclick="toStruct('【背景】')">背景</span>
-        <span class="tag" onclick="toStruct('【目的】')">目的</span>
-        <span class="tag" onclick="toStruct('【考察】')">考察</span>
+    <div class="bg-pulse"></div>
+    <div class="sub-text">Current Focus</div>
+    <div id="focus-point">
+        <input type="text" id="target" value="ここに「最高の問い」を入力" onfocus="this.value=''">
     </div>
-    <div id="structRes" class="result-box" contenteditable="true">ここに構成案が組み上がります</div>
-</div>
+    <div id="timer">00:00:00</div>
 
-<div class="widget">
-    <h3>📢 Presentation Strategy</h3>
-    <div style="display:flex; gap:10px;">
-        <input type="number" id="presTime" placeholder="発表時間（分）">
-        <button onclick="calcPres()">配分計算</button>
-    </div>
-    <div id="presRes" class="result-box" style="font-size: 11px;">時間を入力して計算してください</div>
-</div>
+    <script>
+        // シンプルな経過時間カウンター（没入時間の可視化）
+        let seconds = 0;
+        const timerEl = document.getElementById('timer');
+        setInterval(() => {
+            seconds++;
+            const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+            const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            timerEl.innerText = `${h}:${m}:${s}`;
+        }, 1000);
 
-<div class="widget">
-    <h3>✍️ Academic Phrase Converter</h3>
-    <select id="phraseSelect" onchange="convertPhrase()">
-        <option value="">表現を選択...</option>
-        <option value="良くなった">良くなった → 改善を認めた / 有意な向上を示した</option>
-        <option value="だと思う">だと思う → と推察される / と考えられる</option>
-        <option value="やった">やった → 実施した / 遂行した</option>
-        <option value="関係がある">関係がある → 関連性が示唆された</option>
-        <option value="だいたい">だいたい → おおむね / 約</option>
-    </select>
-    <div id="phraseRes" class="result-box" onclick="copyThis(this.innerText)">選択するとここに変換結果が出ます（クリックでコピー）</div>
-</div>
-
-<script>
-    function toStruct(type) {
-        const input = document.getElementById('rawInput').value;
-        const res = document.getElementById('structRes');
-        if(!input) return;
-        res.innerText += `\n${type}\n${input}\n`;
-        document.getElementById('rawInput').value = '';
-    }
-
-    function calcPres() {
-        const t = document.getElementById('presTime').value;
-        if(!t) return;
-        const intro = Math.round(t * 0.15);
-        const method = Math.round(t * 0.2);
-        const result = Math.round(t * 0.35);
-        const discuss = Math.round(t * 0.3);
-        document.getElementById('presRes').innerText = 
-            `【推奨配分】\n・導入: ${intro}分\n・方法: ${method}分\n・結果: ${result}分\n・考察: ${discuss}分\n\n※結果と考察に全精力を注ぎましょう。`;
-    }
-
-    function convertPhrase() {
-        const val = document.getElementById('phraseSelect').value;
-        const map = {
-            "良くなった": "有意な改善を認めた。向上を示した。",
-            "だと思う": "と推察される。と考えられる。",
-            "やった": "を後方視的に調査した。を実施した。",
-            "関係がある": "との間に有意な相関を認めた。",
-            "だいたい": "おおむね。約。"
-        };
-        document.getElementById('phraseRes').innerText = map[val] || "";
-    }
-
-    function copyThis(text) {
-        navigator.clipboard.writeText(text);
-        alert("コピーしました！論文に貼り付けてください。");
-    }
-</script>
+        // 入力内容をブラウザに保存
+        const input = document.getElementById('target');
+        if(localStorage.getItem('myFocus')) input.value = localStorage.getItem('myFocus');
+        input.addEventListener('input', () => {
+            localStorage.setItem('myFocus', input.value);
+        });
+    </script>
 </body>
 </html>
