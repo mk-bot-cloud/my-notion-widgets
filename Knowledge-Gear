@@ -3,138 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Progress Gear Box</title>
+    <title>Progress Gear Box - Ultimate</title>
     <style>
-        :root {
-            --bg-color: #191919;
-            --card-bg: #212121;
-            --border: #373737;
-            --text: #efefef;
-            --accent: #2383e2;
-        }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text);
-            font-family: sans-serif;
-            margin: 0;
-            padding: 15px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-        }
-        .widget {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 15px;
-        }
-        h3 { margin-top: 0; font-size: 0.9rem; color: #888; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-        textarea, input, select {
-            width: 100%; background: #2c2c2c; border: 1px solid var(--border);
-            color: white; border-radius: 4px; padding: 8px; box-sizing: border-box; margin-bottom: 10px;
-        }
-        button {
-            background: var(--accent); color: white; border: none; padding: 8px 12px;
-            border-radius: 4px; cursor: pointer; width: 100%;
-        }
-        .result { background: #111; padding: 8px; font-size: 0.85rem; border-radius: 4px; min-height: 20px; white-space: pre-wrap; }
-        .progress-container { background: #333; border-radius: 10px; height: 10px; margin: 10px 0; }
-        .progress-bar { background: var(--accent); height: 100%; border-radius: 10px; transition: width 0.3s; }
+        :root { --bg: #191919; --card: #222; --brd: #333; --txt: #efefef; --acc: #2383e2; }
+        body { background: var(--bg); color: var(--txt); font-family: system-ui; margin: 0; padding: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; font-size: 13px; }
+        .widget { background: var(--card); border: 1px solid var(--brd); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; }
+        h3 { margin: 0 0 10px 0; font-size: 0.8rem; color: #888; border-bottom: 1px solid #333; padding-bottom: 5px; display: flex; justify-content: space-between; }
+        textarea, input, select { width: 100%; background: #2c2c2c; border: 1px solid #444; color: #fff; border-radius: 4px; padding: 6px; box-sizing: border-box; margin-bottom: 8px; font-size: 12px; }
+        button { background: var(--acc); color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        button:hover { opacity: 0.8; }
+        .res { background: #111; padding: 6px; border-radius: 4px; min-height: 1.2rem; font-family: monospace; word-break: break-all; margin-top: 5px; }
+        .bar-bg { background: #333; border-radius: 10px; height: 6px; margin: 5px 0; }
+        .bar-fill { background: var(--acc); height: 100%; border-radius: 10px; width: 0%; transition: 0.5s; }
+        .flex { display: flex; gap: 5px; align-items: center; }
     </style>
 </head>
 <body>
 
 <div class="widget">
     <h3>📝 執筆・講義シミュレーター</h3>
-    <textarea id="textInput" placeholder="ここに原稿をペースト..." rows="4"></textarea>
-    <div style="display: flex; gap: 10px; font-size: 0.8rem;">
-        <div>文字数: <span id="charCount">0</span></div>
-        <div>想定時間: <span id="timeEst">0</span> 分</div>
+    <textarea id="txtIn" placeholder="原稿を入力..." rows="3"></textarea>
+    <div class="flex">
+        <span>目安: <b id="timeE">0</b>分</span>
+        <input type="number" id="targ" placeholder="目標数" style="width:70px; margin:0;">
     </div>
-    <div class="progress-container"><div id="targetBar" class="progress-bar" style="width: 0%"></div></div>
-    <input type="number" id="targetCount" placeholder="目標文字数 (例: 2000)" style="font-size: 0.7rem;">
+    <div class="bar-bg"><div id="tBar" class="bar-fill"></div></div>
 </div>
 
 <div class="widget">
-    <h3>📚 Citation Generator</h3>
-    <input type="text" id="auth" placeholder="著者名 (例: 山田太郎)">
-    <input type="text" id="year" placeholder="発行年 (例: 2024)">
-    <input type="text" id="title" placeholder="論文タイトル">
-    <button onclick="generateCitation()">APA形式でコピー</button>
-    <div id="citeResult" class="result" style="margin-top:10px; display:none;"></div>
+    <h3>📚 文献引用 (APA風)</h3>
+    <div class="flex">
+        <input id="cA" placeholder="著者"> <input id="cY" placeholder="年" style="width:60px;">
+    </div>
+    <input id="cT" placeholder="タイトル">
+    <button onclick="copyCite()">形式変換 & コピー</button>
 </div>
 
 <div class="widget">
-    <h3>⏳ Life Progress (Year)</h3>
-    <div id="yearLabel" style="font-size: 0.8rem; margin-bottom: 5px;"></div>
-    <div class="progress-container"><div id="yearBar" class="progress-bar"></div></div>
-    <div id="dayCountdown" style="font-size: 1.2rem; font-weight: bold; text-align: center;"></div>
+    <h3>⏱ プレゼン進行管理</h3>
+    <div id="pClock" style="font-size: 1.5rem; text-align: center; margin: 5px 0;">00:00</div>
+    <div class="flex">
+        <button onclick="pStart()">Start</button>
+        <button onclick="pReset()" style="background:#444">Reset</button>
+    </div>
 </div>
 
 <div class="widget">
-    <h3>📊 統計検定ナビゲーター</h3>
-    <select id="statType">
-        <option value="none">目的を選択...</option>
-        <option value="2group">2群の差を比較したい</option>
-        <option value="multi">3群以上の差を比較したい</option>
-        <option value="rel">2変数の関係を知りたい</option>
+    <h3>📊 統計手法ナビ</h3>
+    <select onchange="stat(this.value)">
+        <option>目的を選択...</option>
+        <option value="t">2群の差 (正規分布あり)</option>
+        <option value="u">2群の差 (正規分布なし)</option>
+        <option value="a">3群以上の差</option>
+        <option value="r">相関を知りたい</option>
     </select>
-    <div id="statResult" class="result">条件を選んでください</div>
+    <div id="sRes" class="res">手法が表示されます</div>
+</div>
+
+<div class="widget">
+    <h3>⏳ Life Progress</h3>
+    <div id="lLab" style="font-size: 0.7rem;">Year Progress</div>
+    <div class="bar-bg"><div id="lBar" class="bar-fill"></div></div>
+    <div id="lDay" style="font-weight: bold; text-align: center;"></div>
+</div>
+
+<div class="widget">
+    <h3>🎧 集中ノイズ</h3>
+    <div class="flex" style="justify-content: space-around;">
+        <button onclick="playN('brown')" style="background:#553311">🟤 Brown</button>
+        <button onclick="playN('white')" style="background:#444466">⚪ White</button>
+        <button onclick="stopN()" style="background:#882222">Stop</button>
+    </div>
 </div>
 
 <script>
-    // 1. 文字数・時間計算
-    const textInput = document.getElementById('textInput');
-    textInput.addEventListener('input', () => {
-        const text = textInput.value;
-        const count = text.length;
-        document.getElementById('charCount').innerText = count;
-        // 一般的な読み上げ速度 400文字/分で計算
-        document.getElementById('timeEst').innerText = (count / 400).toFixed(1);
-        
-        const target = document.getElementById('targetCount').value;
-        if(target > 0) {
-            const percent = Math.min((count / target) * 100, 100);
-            document.getElementById('targetBar').style.width = percent + '%';
-        }
+    // 執筆系
+    const txtIn = document.getElementById('txtIn');
+    txtIn.addEventListener('input', () => {
+        const len = txtIn.value.length;
+        document.getElementById('timeE').innerText = (len/400).toFixed(1);
+        const tg = document.getElementById('targ').value;
+        if(tg) document.getElementById('tBar').style.width = Math.min((len/tg)*100, 100) + '%';
     });
 
-    // 2. Citation生成
-    function generateCitation() {
-        const a = document.getElementById('auth').value;
-        const y = document.getElementById('year').value;
-        const t = document.getElementById('title').value;
-        const res = `${a} (${y}). ${t}.`;
-        const el = document.getElementById('citeResult');
-        el.innerText = res;
-        el.style.display = 'block';
+    // Citation
+    function copyCite() {
+        const res = `${document.getElementById('cA').value} (${document.getElementById('cY').value}). ${document.getElementById('cT').value}.`;
         navigator.clipboard.writeText(res);
+        alert("Copied!");
     }
 
-    // 3. ライフプログレス計算
-    function updateLife() {
-        const now = new Date();
-        const start = new Date(now.getFullYear(), 0, 1);
-        const end = new Date(now.getFullYear() + 1, 0, 1);
-        const percent = ((now - start) / (end - start)) * 100;
-        document.getElementById('yearBar').style.width = percent + '%';
-        document.getElementById('yearLabel').innerText = `${now.getFullYear()}年 進捗: ${percent.toFixed(1)}%`;
-        
-        const lastDay = new Date(now.getFullYear(), 11, 31);
-        const diff = Math.ceil((lastDay - now) / (1000 * 60 * 60 * 24));
-        document.getElementById('dayCountdown').innerText = `今年の残り: あと ${diff} 日`;
+    // プレゼンタイマー
+    let pT = 0, pI;
+    function pStart() {
+        if(pI) { clearInterval(pI); pI=null; return; }
+        pI = setInterval(() => {
+            pT++;
+            const m = String(Math.floor(pT/60)).padStart(2,'0');
+            const s = String(pT%60).padStart(2,'0');
+            document.getElementById('pClock').innerText = `${m}:${s}`;
+        }, 1000);
     }
-    updateLife();
+    function pReset() { clearInterval(pI); pI=null; pT=0; document.getElementById('pClock').innerText = "00:00"; }
 
-    // 4. 統計ナビ簡易ロジック
-    document.getElementById('statType').addEventListener('change', (e) => {
-        const val = e.target.value;
-        let res = "";
-        if(val === "2group") res = "正規分布あり：t検定\nなし：マン・ホイットニーのU検定";
-        if(val === "multi") res = "正規分布あり：一元配置分散分析\nなし：クラスカル・ウォリス検定";
-        if(val === "rel") res = "正規分布あり：ピアソンの相関係数\nなし：スピアマンの順位相関係数";
-        document.getElementById('statResult').innerText = res || "条件を選んでください";
-    });
+    // 統計
+    function stat(v) {
+        const m = {t:"t検定", u:"マン・ホイットニーのU検定", a:"一元配置分散分析 / Kruskal-Wallis", r:"Pearson / Spearman"};
+        document.getElementById('sRes').innerText = m[v] || "選択してください";
+    }
+
+    // ライフ
+    function upL() {
+        const n = new Date(), s = new Date(n.getFullYear(), 0, 1), e = new Date(n.getFullYear()+1, 0, 1);
+        const p = ((n-s)/(e-s))*100;
+        document.getElementById('lBar').style.width = p + '%';
+        document.getElementById('lDay').innerText = `今年の残り: ${Math.ceil((new Date(n.getFullYear(),11,31)-n)/(1000*60*60*24))}日`;
+    }
+    upL();
+
+    // ノイズ（Web Audio APIを使用）
+    let audioCtx, noiseSource;
+    function playN(type) {
+        if(audioCtx) stopN();
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const bufferSize = 4096;
+        noiseSource = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+        let lastOut = 0;
+        noiseSource.onaudioprocess = (e) => {
+            const out = e.outputBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                let white = Math.random() * 2 - 1;
+                if(type === 'brown') {
+                    out[i] = (lastOut + (0.02 * white)) / 1.02;
+                    lastOut = out[i];
+                    out[i] *= 3.5; // 音量補正
+                } else { out[i] = white * 0.5; }
+            }
+        };
+        noiseSource.connect(audioCtx.destination);
+    }
+    function stopN() { if(audioCtx) { audioCtx.close(); audioCtx = null; } }
 </script>
 </body>
 </html>
