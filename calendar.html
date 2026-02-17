@@ -8,19 +8,34 @@
         @media (prefers-color-scheme: dark) { :root { --bg: #191919; --text: #efefef; } }
         body { background: var(--bg); color: var(--text); font-family: "Inter", "Hiragino Kaku Gothic ProN", sans-serif; margin: 0; padding: 20px; text-align: center; overflow: hidden; }
         
-        /* ヘッダー周りの調整 */
-        .header { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px; }
-        .month { font-size: 14px; text-transform: uppercase; letter-spacing: 0.3em; color: var(--text); font-weight: 800; min-width: 150px; }
-        .nav-btn { background: none; border: 1px solid #888; color: var(--text); border-radius: 4px; cursor: pointer; padding: 2px 8px; font-size: 12px; transition: 0.2s; }
-        .nav-btn:hover { background: var(--text); color: var(--bg); }
+        /* ヘッダー周り：ボタンと月の表示 */
+        .header { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .month { font-size: 14px; text-transform: uppercase; letter-spacing: 0.3em; color: var(--text); font-weight: 800; min-width: 160px; }
+        .nav-btn { background: none; border: none; color: #888; cursor: pointer; padding: 5px; font-size: 16px; transition: 0.2s; line-height: 1; }
+        .nav-btn:hover { color: var(--text); }
 
+        /* カレンダーグリッド */
         .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; max-width: 320px; margin: 0 auto; }
-        .day { font-size: 13px; padding: 10px 0; border-radius: 8px; position: relative; cursor: default; transition: background 0.2s; }
-        .day.today { background: var(--text); color: var(--bg); font-weight: bold; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
-        .day.sat { color: var(--sat); }
-        .day.sun, .day.holiday { color: var(--sun-hol); }
         .weekday { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 5px; }
         
+        /* 各日付のスタイル */
+        .day-container { height: 32px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .day { font-size: 13px; cursor: default; transition: background 0.2s; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        
+        /* 今日の正円デザイン */
+        .day.today { 
+            background: var(--text); 
+            color: var(--bg); 
+            font-weight: bold; 
+            width: 28px; 
+            height: 28px; 
+            border-radius: 50%; 
+        }
+
+        .day.sat { color: var(--sat); }
+        .day.sun, .day.holiday { color: var(--sun-hol); }
+        
+        /* 祝日名のツールチップ */
         .day[title]:hover::before {
             content: attr(title); position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
             background: rgba(0,0,0,0.8); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 10px; white-space: nowrap; z-index: 10; font-weight: normal;
@@ -29,9 +44,9 @@
 </head>
 <body>
     <div class="header">
-        <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
+        <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
         <div id="month-label" class="month">Loading...</div>
-        <button class="nav-btn" onclick="changeMonth(1)">▶</button>
+        <button class="nav-btn" onclick="changeMonth(1)">›</button>
     </div>
     <div class="grid" id="calendar-grid"></div>
 
@@ -45,20 +60,20 @@
             "2026-10-12": "スポーツの日", "2026-11-03": "文化の日", "2026-11-23": "勤労感謝の日"
         };
 
-        let currentViewDate = new Date(); // 現在表示している月の基準日
+        let currentViewDate = new Date(); 
 
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
-            grid.innerHTML = ''; // 一旦クリア
+            grid.innerHTML = ''; 
 
             const year = currentViewDate.getFullYear();
             const month = currentViewDate.getMonth();
-            const todayDate = new Date();
+            const now = new Date();
             
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             document.getElementById('month-label').innerText = monthNames[month] + " " + year;
 
-            // 曜日ヘッダー
+            // 曜日ラベル
             ['S','M','T','W','T','F','S'].forEach((d, i) => {
                 const el = document.createElement('div');
                 el.className = 'weekday';
@@ -70,11 +85,14 @@
             const firstDay = new Date(year, month, 1).getDay();
             const lastDate = new Date(year, month + 1, 0).getDate();
 
-            // 空白埋め
+            // 前の月の空白
             for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
 
-            // 日付生成
+            // 日付の描画
             for(let i=1; i<=lastDate; i++) {
+                const container = document.createElement('div');
+                container.className = 'day-container';
+                
                 const el = document.createElement('div');
                 el.className = 'day';
                 const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
@@ -87,23 +105,22 @@
                     el.title = holidays[dateStr];
                 }
 
-                // 「本当の今日」かつ「表示月が今月」なら強調
-                if(i === todayDate.getDate() && month === todayDate.getMonth() && year === todayDate.getFullYear()) {
+                // 今日判定（年・月・日がすべて一致する場合のみ）
+                if(i === now.getDate() && month === now.getMonth() && year === now.getFullYear()) {
                     el.classList.add('today');
                 }
 
                 el.innerText = i;
-                grid.appendChild(el);
+                container.appendChild(el);
+                grid.appendChild(container);
             }
         }
 
-        // 月を変更する関数
         function changeMonth(diff) {
             currentViewDate.setMonth(currentViewDate.getMonth() + diff);
             renderCalendar();
         }
 
-        // 初回実行
         renderCalendar();
     </script>
 </body>
