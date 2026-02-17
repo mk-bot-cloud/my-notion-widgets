@@ -2,147 +2,90 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Progress Gear Box - Ultimate</title>
+    <title>Academic & Clinical Progress Gear</title>
     <style>
-        :root { --bg: #191919; --card: #222; --brd: #333; --txt: #efefef; --acc: #2383e2; }
-        body { background: var(--bg); color: var(--txt); font-family: system-ui; margin: 0; padding: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; font-size: 13px; }
-        .widget { background: var(--card); border: 1px solid var(--brd); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; }
-        h3 { margin: 0 0 10px 0; font-size: 0.8rem; color: #888; border-bottom: 1px solid #333; padding-bottom: 5px; display: flex; justify-content: space-between; }
-        textarea, input, select { width: 100%; background: #2c2c2c; border: 1px solid #444; color: #fff; border-radius: 4px; padding: 6px; box-sizing: border-box; margin-bottom: 8px; font-size: 12px; }
-        button { background: var(--acc); color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
-        button:hover { opacity: 0.8; }
-        .res { background: #111; padding: 6px; border-radius: 4px; min-height: 1.2rem; font-family: monospace; word-break: break-all; margin-top: 5px; }
-        .bar-bg { background: #333; border-radius: 10px; height: 6px; margin: 5px 0; }
-        .bar-fill { background: var(--acc); height: 100%; border-radius: 10px; width: 0%; transition: 0.5s; }
-        .flex { display: flex; gap: 5px; align-items: center; }
+        :root { --bg: #0f0f0f; --card: #1a1a1a; --acc: #3a86ff; --text: #d1d1d1; --border: #333; }
+        body { background: var(--bg); color: var(--text); font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .widget { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h3 { margin: 0 0 15px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--acc); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        textarea, input, select { width: 100%; background: #252525; border: 1px solid var(--border); color: #fff; border-radius: 6px; padding: 10px; margin-bottom: 10px; font-size: 13px; outline: none; }
+        button { background: var(--acc); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; }
+        button:hover { filter: brightness(1.2); }
+        .tag { display: inline-block; background: #333; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-right: 5px; }
+        .result-box { background: #000; border: 1px dashed var(--border); padding: 10px; border-radius: 6px; font-size: 12px; min-height: 50px; white-space: pre-wrap; }
     </style>
 </head>
 <body>
 
 <div class="widget">
-    <h3>📝 執筆・講義シミュレーター</h3>
-    <textarea id="txtIn" placeholder="原稿を入力..." rows="3"></textarea>
-    <div class="flex">
-        <span>目安: <b id="timeE">0</b>分</span>
-        <input type="number" id="targ" placeholder="目標数" style="width:70px; margin:0;">
+    <h3>💡 Paper Structure Builder</h3>
+    <textarea id="rawInput" rows="4" placeholder="Inputメモ（文献の要旨や気づき）を入力..."></textarea>
+    <div style="margin-bottom: 10px;">
+        <span class="tag" onclick="toStruct('【背景】')">背景</span>
+        <span class="tag" onclick="toStruct('【目的】')">目的</span>
+        <span class="tag" onclick="toStruct('【考察】')">考察</span>
     </div>
-    <div class="bar-bg"><div id="tBar" class="bar-fill"></div></div>
+    <div id="structRes" class="result-box" contenteditable="true">ここに構成案が組み上がります</div>
 </div>
 
 <div class="widget">
-    <h3>📚 文献引用 (APA風)</h3>
-    <div class="flex">
-        <input id="cA" placeholder="著者"> <input id="cY" placeholder="年" style="width:60px;">
+    <h3>📢 Presentation Strategy</h3>
+    <div style="display:flex; gap:10px;">
+        <input type="number" id="presTime" placeholder="発表時間（分）">
+        <button onclick="calcPres()">配分計算</button>
     </div>
-    <input id="cT" placeholder="タイトル">
-    <button onclick="copyCite()">形式変換 & コピー</button>
+    <div id="presRes" class="result-box" style="font-size: 11px;">時間を入力して計算してください</div>
 </div>
 
 <div class="widget">
-    <h3>⏱ プレゼン進行管理</h3>
-    <div id="pClock" style="font-size: 1.5rem; text-align: center; margin: 5px 0;">00:00</div>
-    <div class="flex">
-        <button onclick="pStart()">Start</button>
-        <button onclick="pReset()" style="background:#444">Reset</button>
-    </div>
-</div>
-
-<div class="widget">
-    <h3>📊 統計手法ナビ</h3>
-    <select onchange="stat(this.value)">
-        <option>目的を選択...</option>
-        <option value="t">2群の差 (正規分布あり)</option>
-        <option value="u">2群の差 (正規分布なし)</option>
-        <option value="a">3群以上の差</option>
-        <option value="r">相関を知りたい</option>
+    <h3>✍️ Academic Phrase Converter</h3>
+    <select id="phraseSelect" onchange="convertPhrase()">
+        <option value="">表現を選択...</option>
+        <option value="良くなった">良くなった → 改善を認めた / 有意な向上を示した</option>
+        <option value="だと思う">だと思う → と推察される / と考えられる</option>
+        <option value="やった">やった → 実施した / 遂行した</option>
+        <option value="関係がある">関係がある → 関連性が示唆された</option>
+        <option value="だいたい">だいたい → おおむね / 約</option>
     </select>
-    <div id="sRes" class="res">手法が表示されます</div>
-</div>
-
-<div class="widget">
-    <h3>⏳ Life Progress</h3>
-    <div id="lLab" style="font-size: 0.7rem;">Year Progress</div>
-    <div class="bar-bg"><div id="lBar" class="bar-fill"></div></div>
-    <div id="lDay" style="font-weight: bold; text-align: center;"></div>
-</div>
-
-<div class="widget">
-    <h3>🎧 集中ノイズ</h3>
-    <div class="flex" style="justify-content: space-around;">
-        <button onclick="playN('brown')" style="background:#553311">🟤 Brown</button>
-        <button onclick="playN('white')" style="background:#444466">⚪ White</button>
-        <button onclick="stopN()" style="background:#882222">Stop</button>
-    </div>
+    <div id="phraseRes" class="result-box" onclick="copyThis(this.innerText)">選択するとここに変換結果が出ます（クリックでコピー）</div>
 </div>
 
 <script>
-    // 執筆系
-    const txtIn = document.getElementById('txtIn');
-    txtIn.addEventListener('input', () => {
-        const len = txtIn.value.length;
-        document.getElementById('timeE').innerText = (len/400).toFixed(1);
-        const tg = document.getElementById('targ').value;
-        if(tg) document.getElementById('tBar').style.width = Math.min((len/tg)*100, 100) + '%';
-    });
-
-    // Citation
-    function copyCite() {
-        const res = `${document.getElementById('cA').value} (${document.getElementById('cY').value}). ${document.getElementById('cT').value}.`;
-        navigator.clipboard.writeText(res);
-        alert("Copied!");
+    function toStruct(type) {
+        const input = document.getElementById('rawInput').value;
+        const res = document.getElementById('structRes');
+        if(!input) return;
+        res.innerText += `\n${type}\n${input}\n`;
+        document.getElementById('rawInput').value = '';
     }
 
-    // プレゼンタイマー
-    let pT = 0, pI;
-    function pStart() {
-        if(pI) { clearInterval(pI); pI=null; return; }
-        pI = setInterval(() => {
-            pT++;
-            const m = String(Math.floor(pT/60)).padStart(2,'0');
-            const s = String(pT%60).padStart(2,'0');
-            document.getElementById('pClock').innerText = `${m}:${s}`;
-        }, 1000);
-    }
-    function pReset() { clearInterval(pI); pI=null; pT=0; document.getElementById('pClock').innerText = "00:00"; }
-
-    // 統計
-    function stat(v) {
-        const m = {t:"t検定", u:"マン・ホイットニーのU検定", a:"一元配置分散分析 / Kruskal-Wallis", r:"Pearson / Spearman"};
-        document.getElementById('sRes').innerText = m[v] || "選択してください";
+    function calcPres() {
+        const t = document.getElementById('presTime').value;
+        if(!t) return;
+        const intro = Math.round(t * 0.15);
+        const method = Math.round(t * 0.2);
+        const result = Math.round(t * 0.35);
+        const discuss = Math.round(t * 0.3);
+        document.getElementById('presRes').innerText = 
+            `【推奨配分】\n・導入: ${intro}分\n・方法: ${method}分\n・結果: ${result}分\n・考察: ${discuss}分\n\n※結果と考察に全精力を注ぎましょう。`;
     }
 
-    // ライフ
-    function upL() {
-        const n = new Date(), s = new Date(n.getFullYear(), 0, 1), e = new Date(n.getFullYear()+1, 0, 1);
-        const p = ((n-s)/(e-s))*100;
-        document.getElementById('lBar').style.width = p + '%';
-        document.getElementById('lDay').innerText = `今年の残り: ${Math.ceil((new Date(n.getFullYear(),11,31)-n)/(1000*60*60*24))}日`;
-    }
-    upL();
-
-    // ノイズ（Web Audio APIを使用）
-    let audioCtx, noiseSource;
-    function playN(type) {
-        if(audioCtx) stopN();
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const bufferSize = 4096;
-        noiseSource = audioCtx.createScriptProcessor(bufferSize, 1, 1);
-        let lastOut = 0;
-        noiseSource.onaudioprocess = (e) => {
-            const out = e.outputBuffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                let white = Math.random() * 2 - 1;
-                if(type === 'brown') {
-                    out[i] = (lastOut + (0.02 * white)) / 1.02;
-                    lastOut = out[i];
-                    out[i] *= 3.5; // 音量補正
-                } else { out[i] = white * 0.5; }
-            }
+    function convertPhrase() {
+        const val = document.getElementById('phraseSelect').value;
+        const map = {
+            "良くなった": "有意な改善を認めた。向上を示した。",
+            "だと思う": "と推察される。と考えられる。",
+            "やった": "を後方視的に調査した。を実施した。",
+            "関係がある": "との間に有意な相関を認めた。",
+            "だいたい": "おおむね。約。"
         };
-        noiseSource.connect(audioCtx.destination);
+        document.getElementById('phraseRes').innerText = map[val] || "";
     }
-    function stopN() { if(audioCtx) { audioCtx.close(); audioCtx = null; } }
+
+    function copyThis(text) {
+        navigator.clipboard.writeText(text);
+        alert("コピーしました！論文に貼り付けてください。");
+    }
 </script>
 </body>
 </html>
