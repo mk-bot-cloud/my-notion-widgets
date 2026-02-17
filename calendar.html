@@ -2,23 +2,24 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Academic Smart Calendar</title>
+    <title>Clean Academic Calendar</title>
     <style>
         :root { --bg: #ffffff; --text: #191919; --accent: #2383e2; --sat: #2383e2; --sun-hol: #eb5757; }
         @media (prefers-color-scheme: dark) { :root { --bg: #191919; --text: #efefef; } }
-        body { background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; margin: 0; padding: 20px; text-align: center; }
+        body { background: var(--bg); color: var(--text); font-family: "Inter", "Hiragino Kaku Gothic ProN", sans-serif; margin: 0; padding: 20px; text-align: center; overflow: hidden; }
         .month { font-size: 14px; text-transform: uppercase; letter-spacing: 0.3em; margin-bottom: 20px; color: var(--text); font-weight: 800; }
         .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; max-width: 320px; margin: 0 auto; }
-        .day { font-size: 13px; padding: 10px 0; border-radius: 8px; position: relative; cursor: default; }
+        .day { font-size: 13px; padding: 10px 0; border-radius: 8px; position: relative; cursor: default; transition: background 0.2s; }
         .day.today { background: var(--text); color: var(--bg); font-weight: bold; }
         .day.sat { color: var(--sat); }
         .day.sun, .day.holiday { color: var(--sun-hol); }
-        .day.holiday::after { content: '●'; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); font-size: 6px; }
+        /* 赤点(::after)を削除しました */
         .weekday { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 5px; }
-        /* 祝日名のツールチップ */
+        
+        /* 祝日名の表示をよりスマートに */
         .day[title]:hover::before {
             content: attr(title); position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
-            background: #333; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; white-space: nowrap; z-index: 10;
+            background: rgba(0,0,0,0.8); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 10px; white-space: nowrap; z-index: 10; font-weight: normal;
         }
     </style>
 </head>
@@ -27,6 +28,7 @@
     <div class="grid" id="calendar-grid"></div>
 
     <script>
+        // 2026年 祝日データ
         const holidays = {
             "2026-01-01": "元日", "2026-01-12": "成人の日", "2026-02-11": "建国記念の日",
             "2026-02-23": "天皇誕生日", "2026-03-20": "春分の日", "2026-04-29": "昭和の日",
