@@ -2,44 +2,54 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Deep Thought Layer</title>
+    <title>Output Streamer</title>
     <style>
-        :root { --bg: #ffffff; --text: #191919; --accent: #2383e2; --layer-bg: #f5f5f7; }
+        :root { --bg: #ffffff; --text: #191919; --accent: #e91e63; }
         @media (prefers-color-scheme: dark) {
-            :root { --bg: #191919; --text: #efefef; --layer-bg: #222; }
+            :root { --bg: #191919; --text: #efefef; }
         }
-        body { background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; margin: 0; padding: 15px; display: flex; flex-direction: column; gap: 10px; height: 100vh; box-sizing: border-box; }
-        .layer { flex: 1; display: flex; flex-direction: column; border-radius: 8px; border: 1px solid rgba(128,128,128,0.2); overflow: hidden; }
-        .label { font-size: 10px; font-weight: bold; padding: 5px 10px; background: var(--layer-bg); color: #888; text-transform: uppercase; letter-spacing: 0.1em; }
-        textarea { flex: 1; background: transparent; border: none; color: inherit; padding: 10px; resize: none; outline: none; font-size: 14px; line-height: 1.6; }
-        .top { border-left: 4px solid #ff4b2b; } /* 抽象：つまり？ */
-        .mid { border-left: 4px solid var(--accent); } /* 本質：キーワード */
-        .btm { border-left: 4px solid #00d2ff; } /* 具体：根拠・事例 */
+        body { background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; margin: 0; padding: 20px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .stream-container { flex: 1; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column-reverse; }
+        .chunk { font-size: 1.8rem; font-weight: 800; line-height: 1.1; margin-bottom: 20px; opacity: 0.3; transition: 0.3s; }
+        .chunk.active { opacity: 1; color: var(--accent); }
+        .footer { height: 60px; border-top: 1px solid rgba(128,128,128,0.2); display: flex; align-items: center; gap: 15px; }
+        #input-field { flex: 1; background: transparent; border: none; color: inherit; font-size: 1rem; outline: none; }
+        .status { font-size: 10px; font-weight: bold; text-transform: uppercase; color: #888; }
     </style>
 </head>
 <body>
-
-    <div class="layer top">
-        <div class="label">Abstract / Conclusion（結局、何が言える？）</div>
-        <textarea id="abs" placeholder="ここには『結論』や『タイトル』を..."></textarea>
+    <div class="stream-container" id="stream">
+        <div class="chunk active">さあ、思考を言葉にして打ち込んで。</div>
     </div>
-
-    <div class="layer mid">
-        <div class="label">Core Logic / Mechanism（その理屈、メカニズムは？）</div>
-        <textarea id="core" placeholder="ここには『思考の核』や『キーワード』を..."></textarea>
-    </div>
-
-    <div class="layer btm">
-        <div class="label">Evidence / Cases（具体的なデータ、先行研究、症例は？）</div>
-        <textarea id="evid" placeholder="ここには『エビデンス』や『生データ』を..."></textarea>
+    <div class="footer">
+        <input type="text" id="input-field" placeholder="書かずに、吐き出す..." autofocus>
+        <div class="status">Live Flow</div>
     </div>
 
     <script>
-        const ids = ['abs', 'core', 'evid'];
-        ids.forEach(id => {
-            const el = document.getElementById(id);
-            if(localStorage.getItem(id)) el.value = localStorage.getItem(id);
-            el.addEventListener('input', () => localStorage.setItem(id, el.value));
+        const input = document.getElementById('input-field');
+        const stream = document.getElementById('stream');
+
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && input.value.trim() !== '') {
+                // 前の文字を薄くする
+                const oldActive = document.querySelector('.chunk.active');
+                if(oldActive) oldActive.classList.remove('active');
+
+                // 新しい文字を追加
+                const div = document.createElement('div');
+                div.className = 'chunk active';
+                div.innerText = input.value;
+                stream.prepend(div);
+
+                input.value = '';
+                
+                // 溜まった文字はクリックでコピー可能に
+                div.onclick = () => {
+                    navigator.clipboard.writeText(div.innerText);
+                    div.style.color = '#4caf50';
+                };
+            }
         });
     </script>
 </body>
