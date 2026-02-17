@@ -2,24 +2,40 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Minimal Chronos</title>
+    <title>Academic Smart Calendar</title>
     <style>
-        :root { --bg: #ffffff; --text: #191919; --accent: #2383e2; --sub: #888; }
+        :root { --bg: #ffffff; --text: #191919; --accent: #2383e2; --sat: #2383e2; --sun-hol: #eb5757; }
         @media (prefers-color-scheme: dark) { :root { --bg: #191919; --text: #efefef; } }
         body { background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; margin: 0; padding: 20px; text-align: center; }
-        .month { font-size: 10px; text-transform: uppercase; letter-spacing: 0.3em; margin-bottom: 20px; color: var(--accent); font-weight: bold; }
-        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; max-width: 300px; margin: 0 auto; }
-        .day { font-size: 13px; padding: 10px 0; border-radius: 8px; transition: 0.3s; }
-        .day.today { background: var(--accent); color: white; font-weight: bold; box-shadow: 0 4px 10px rgba(35,131,226,0.3); }
-        .day.past { opacity: 0.3; }
-        .weekday { font-size: 9px; color: var(--sub); margin-bottom: 5px; }
+        .month { font-size: 14px; text-transform: uppercase; letter-spacing: 0.3em; margin-bottom: 20px; color: var(--text); font-weight: 800; }
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; max-width: 320px; margin: 0 auto; }
+        .day { font-size: 13px; padding: 10px 0; border-radius: 8px; position: relative; cursor: default; }
+        .day.today { background: var(--text); color: var(--bg); font-weight: bold; }
+        .day.sat { color: var(--sat); }
+        .day.sun, .day.holiday { color: var(--sun-hol); }
+        .day.holiday::after { content: '●'; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); font-size: 6px; }
+        .weekday { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 5px; }
+        /* 祝日名のツールチップ */
+        .day[title]:hover::before {
+            content: attr(title); position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+            background: #333; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; white-space: nowrap; z-index: 10;
+        }
     </style>
 </head>
 <body>
-    <div id="month-label" class="month">January</div>
+    <div id="month-label" class="month">Loading...</div>
     <div class="grid" id="calendar-grid"></div>
 
     <script>
+        const holidays = {
+            "2026-01-01": "元日", "2026-01-12": "成人の日", "2026-02-11": "建国記念の日",
+            "2026-02-23": "天皇誕生日", "2026-03-20": "春分の日", "2026-04-29": "昭和の日",
+            "2026-05-03": "憲法記念日", "2026-05-04": "みどりの日", "2026-05-05": "こどもの日",
+            "2026-05-06": "振替休日", "2026-07-20": "海の日", "2026-08-11": "山の日",
+            "2026-09-21": "敬老の日", "2026-09-22": "国民の休日", "2026-09-23": "秋分の日",
+            "2026-10-12": "スポーツの日", "2026-11-03": "文化の日", "2026-11-23": "勤労感謝の日"
+        };
+
         const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth();
@@ -28,25 +44,33 @@
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         document.getElementById('month-label').innerText = monthNames[month] + " " + year;
 
-        const firstDay = new Date(year, month, 1).getDay();
-        const lastDate = new Date(year, month + 1, 0).getDate();
         const grid = document.getElementById('calendar-grid');
-
-        // 曜日の見出し
-        ['S','M','T','W','T','F','S'].forEach(d => {
+        ['S','M','T','W','T','F','S'].forEach((d, i) => {
             const el = document.createElement('div');
-            el.className = 'weekday'; el.innerText = d; grid.appendChild(el);
+            el.className = 'weekday';
+            if(i === 0) el.style.color = 'var(--sun-hol)';
+            if(i === 6) el.style.color = 'var(--sat)';
+            el.innerText = d; grid.appendChild(el);
         });
 
-        // 空白
-        for(let i=0; i<firstDay; i++) { grid.appendChild(document.createElement('div')); }
+        const firstDay = new Date(year, month, 1).getDay();
+        const lastDate = new Date(year, month + 1, 0).getDate();
+        for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
 
-        // 日付
         for(let i=1; i<=lastDate; i++) {
             const el = document.createElement('div');
             el.className = 'day';
-            if(i < today) el.className += ' past';
-            if(i === today) el.className += ' today';
+            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+            const dayOfWeek = new Date(year, month, i).getDay();
+
+            if(dayOfWeek === 0) el.classList.add('sun');
+            if(dayOfWeek === 6) el.classList.add('sat');
+            if(holidays[dateStr]) {
+                el.classList.add('holiday');
+                el.title = holidays[dateStr];
+            }
+            if(i === today) el.classList.add('today');
+
             el.innerText = i;
             grid.appendChild(el);
         }
