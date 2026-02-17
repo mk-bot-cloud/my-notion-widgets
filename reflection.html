@@ -19,6 +19,7 @@
         .btn-group { display: flex; gap: 10px; margin-top: 10px; }
         button.main-btn { background: #3b82f6; color: white; border: none; border-radius: 6px; padding: 10px 20px; cursor: pointer; font-weight: bold; flex: 2; transition: 0.2s; }
         button.back-btn { background: #444; color: #ccc; border: none; border-radius: 6px; padding: 10px 15px; cursor: pointer; flex: 1; font-size: 14px; }
+        button.main-btn:disabled { background: #555; cursor: not-allowed; }
         button:hover { opacity: 0.8; }
         
         .score-container { display: flex; justify-content: space-between; margin: 15px 0; }
@@ -26,7 +27,7 @@
         .score-btn.active { background: #3b82f6; border-color: #3b82f6; }
         
         .hidden { display: none; }
-        .save-link { background: #3b82f6; color: #fff; text-decoration: none; display: block; margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; }
+        .status-msg { margin-top: 20px; padding: 20px; border-radius: 8px; text-align: center; background: #1e3a8a; color: #fff; font-weight: bold; }
         
         input[type="date"] { 
             width: 100%; padding: 12px; border-radius: 8px; background: #252525; color: #fff; 
@@ -62,12 +63,17 @@
         </div>
         <div class="btn-group">
             <button class="back-btn" onclick="backToQ()">戻る</button>
-            <button id="finish-btn" class="main-btn hidden" onclick="finish()">完了</button>
+            <button id="finish-btn" class="main-btn hidden" onclick="finish()">保存する</button>
         </div>
     </div>
 
     <div id="step-end" class="hidden">
-        <a id="save-link" href="#" target="_blank" class="save-link">Notionに保存して終了</a>
+        <div class="status-msg">
+            <div style="font-size: 24px; margin-bottom: 10px;">✓</div>
+            Notionに保存しました！<br>
+            <span style="font-size: 12px; font-weight: normal; opacity: 0.8;">画面はこのまま閉じてOKです</span>
+        </div>
+        <button class="back-btn" onclick="location.reload()" style="width:100%; margin-top:15px;">新しく入力する</button>
     </div>
 
     <script>
@@ -136,7 +142,11 @@
             document.getElementById('finish-btn').classList.remove('hidden');
         }
 
-        function finish() {
+        async function finish() {
+            const btn = document.getElementById('finish-btn');
+            btn.disabled = true;
+            btn.textContent = "送信中...";
+
             const stars = "★".repeat(selectedScore);
             const params = new URLSearchParams({
                 date: document.getElementById('ref-date').value,
@@ -145,10 +155,24 @@
                 mood: stars,
                 Summary: results.Objective ? results.Objective.substring(0, 30) + "..." : ""
             });
+
             const webhookUrl = "https://hook.eu2.make.com/8wk2uwkjqs3sijn2t1dfxvw28c56alli";
-            document.getElementById('save-link').href = `${webhookUrl}?${params.toString()}`;
-            document.getElementById('step-score').classList.add('hidden');
-            document.getElementById('step-end').classList.remove('hidden');
+
+            try {
+                // Fetchを使用してバックグラウンドで送信
+                await fetch(`${webhookUrl}?${params.toString()}`, {
+                    method: 'GET',
+                    mode: 'no-cors' // MakeのWebhook受け取りを許可
+                });
+                
+                document.getElementById('step-score').classList.add('hidden');
+                document.getElementById('step-end').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('送信に失敗しました。ネット接続を確認してください。');
+                btn.disabled = false;
+                btn.textContent = "再試行";
+            }
         }
     </script>
 </body>
