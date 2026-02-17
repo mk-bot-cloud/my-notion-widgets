@@ -8,10 +8,18 @@
         @media (prefers-color-scheme: dark) { :root { --bg: #191919; --text: #efefef; } }
         body { background: var(--bg); color: var(--text); font-family: "Inter", "Hiragino Kaku Gothic ProN", sans-serif; margin: 0; padding: 20px; text-align: center; overflow: hidden; }
         
-        /* ヘッダー周り：ボタンと月の表示 */
+        /* ヘッダー周り */
         .header { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .month { font-size: 14px; text-transform: uppercase; letter-spacing: 0.3em; color: var(--text); font-weight: 800; min-width: 160px; }
-        .nav-btn { background: none; border: none; color: #888; cursor: pointer; padding: 5px; font-size: 16px; transition: 0.2s; line-height: 1; }
+        .month { 
+            font-size: 16px; 
+            /* 頭文字だけ大文字にする設定 */
+            text-transform: capitalize; 
+            letter-spacing: 0.05em; 
+            color: var(--text); 
+            font-weight: 700; 
+            min-width: 160px; 
+        }
+        .nav-btn { background: none; border: none; color: #888; cursor: pointer; padding: 5px; font-size: 18px; transition: 0.2s; line-height: 1; }
         .nav-btn:hover { color: var(--text); }
 
         /* カレンダーグリッド */
@@ -51,6 +59,7 @@
     <div class="grid" id="calendar-grid"></div>
 
     <script>
+        // 2026年 祝日データ
         const holidays = {
             "2026-01-01": "元日", "2026-01-12": "成人の日", "2026-02-11": "建国記念の日",
             "2026-02-23": "天皇誕生日", "2026-03-20": "春分の日", "2026-04-29": "昭和の日",
@@ -70,10 +79,10 @@
             const month = currentViewDate.getMonth();
             const now = new Date();
             
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            // 小文字で定義しておき、CSSの capitalize で頭文字を大きくします
+            const monthNames = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
             document.getElementById('month-label').innerText = monthNames[month] + " " + year;
 
-            // 曜日ラベル
             ['S','M','T','W','T','F','S'].forEach((d, i) => {
                 const el = document.createElement('div');
                 el.className = 'weekday';
@@ -85,10 +94,8 @@
             const firstDay = new Date(year, month, 1).getDay();
             const lastDate = new Date(year, month + 1, 0).getDate();
 
-            // 前の月の空白
             for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
 
-            // 日付の描画
             for(let i=1; i<=lastDate; i++) {
                 const container = document.createElement('div');
                 container.className = 'day-container';
@@ -105,7 +112,6 @@
                     el.title = holidays[dateStr];
                 }
 
-                // 今日判定（年・月・日がすべて一致する場合のみ）
                 if(i === now.getDate() && month === now.getMonth() && year === now.getFullYear()) {
                     el.classList.add('today');
                 }
