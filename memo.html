@@ -13,23 +13,23 @@
             flex-direction: column; 
             align-items: center; 
             min-height: 100vh; 
-            /* Notionのデフォルトフォント設定を適用 */
-            font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji" !important;
+            /* Notion標準のフォントスタック */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol" !important;
             overflow: hidden; 
         }
 
         .title { 
-            color: #888; 
+            color: rgba(255, 255, 255, 0.4); 
             font-size: 14px; 
             font-weight: 600; 
-            letter-spacing: 0.15em; 
+            letter-spacing: 0.1em; 
             text-transform: uppercase; 
-            margin-top: 15px; 
+            margin-top: 20px; 
             margin-bottom: 12px; 
             padding-bottom: 6px; 
             width: 200px; 
             text-align: center; 
-            border-bottom: 1.5px solid #333; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
         }
 
         .tabs-wrapper { 
@@ -37,36 +37,34 @@
             align-items: center; 
             justify-content: center;
             gap: 6px; 
-            margin-bottom: 10px; 
+            margin-bottom: 12px; 
             width: 100%;
             flex-wrap: wrap; 
         }
 
         .tab { 
-            background: #333 !important; 
-            color: #aaa !important; 
-            border: 1px solid #444 !important; 
-            padding: 8px 12px !important; 
-            border-radius: 6px; 
+            background: #2a2a2a !important; 
+            color: rgba(255, 255, 255, 0.5) !important; 
+            border: 1px solid #333 !important; 
+            padding: 6px 12px !important; 
+            border-radius: 4px; 
             font-size: 14px !important; 
-            font-weight: 500; 
             cursor: pointer;
-            min-width: 38px;
         }
 
         .tab.active { 
-            background: #444 !important; 
-            color: #fff !important; 
-            border-color: #666 !important;
+            background: #373737 !important; 
+            color: #efefef !important; 
+            border-color: #444 !important;
         }
 
         .btn-page-ctrl { 
-            background: #2a2a2a !important; 
-            color: #888 !important; 
+            background: transparent !important; 
+            color: rgba(255, 255, 255, 0.3) !important; 
             border: 1px solid #333 !important; 
-            border-radius: 6px; 
-            width: 34px; 
-            height: 34px; 
+            border-radius: 4px; 
+            width: 32px; 
+            height: 32px; 
             cursor: pointer; 
             font-size: 18px !important;
             display: flex;
@@ -74,47 +72,43 @@
             justify-content: center;
         }
         
-        .btn-page-ctrl.confirm-delete { color: #eb5757 !important; border-color: #eb5757 !important; background: rgba(235, 87, 87, 0.1) !important; }
+        .btn-page-ctrl.confirm-delete { color: #eb5757 !important; border-color: #eb5757 !important; }
 
         .memo-container { 
-            width: 260px; 
-            height: 340px; 
-            background-color: #202020 !important; 
-            border-radius: 8px; /* Notionのブロックに近い角丸に */
-            padding: 16px; 
-            border: 1px solid #333; 
+            width: 90%;
+            max-width: 280px;
+            height: 350px; 
+            background-color: transparent !important; 
             display: flex; 
             flex-direction: column; 
         }
 
-        /* 💡 Notionのデフォルトテキストサイズとフォントを強制適用 */
+        /* 💡 Notionデフォルトの文字サイズと行間 */
         textarea { 
             width: 100%; 
             height: 100%; 
             background: transparent !important; 
             border: none !important; 
-            color: rgba(255, 255, 255, 0.9) !important; /* Notionの文字色に近似 */
-            font-size: 16px !important; /* Notionのデフォルトサイズ */
+            color: rgba(255, 255, 255, 0.9) !important; 
+            font-size: 16px !important; 
             line-height: 1.5 !important; 
             resize: none; 
             outline: none; 
             font-family: inherit !important; 
+            padding: 0 !important;
         }
 
-        textarea::placeholder { color: rgba(255, 255, 255, 0.2) !important; }
-
-        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
         .btn-time { 
-            background: #333; 
-            color: #888; 
-            border: 1px solid #444; 
-            padding: 6px 12px; 
-            border-radius: 5px; 
+            background: #2a2a2a; 
+            color: rgba(255, 255, 255, 0.5); 
+            border: 1px solid #333; 
+            padding: 4px 10px; 
+            border-radius: 4px; 
             font-size: 12px; 
             cursor: pointer;
-            font-weight: 500;
         }
-        .status { font-size: 11px; color: #555; font-family: inherit; }
+        .status { font-size: 11px; color: rgba(255, 255, 255, 0.2); }
     </style>
 </head>
 <body>
@@ -125,7 +119,7 @@
         <button id="deleteBtn" class="btn-page-ctrl">-</button>
     </div>
     <div class="memo-container">
-        <textarea id="memoInput" placeholder="メモを入力..."></textarea>
+        <textarea id="memoInput" placeholder="Type something..."></textarea>
         <div class="controls">
             <button id="timeBtn" class="btn-time">TIME</button>
             <div id="saveStatus" class="status">Saved</div>
@@ -140,7 +134,7 @@
     const timeBtn = document.getElementById('timeBtn');
     const saveStatus = document.getElementById('saveStatus');
     
-    const STORAGE_KEY = 'notion_memo_data_v4';
+    const STORAGE_KEY = 'notion_memo_final_standard';
     let pages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[""]');
     let currentIndex = 0;
     let deleteConfirmMode = false;
@@ -171,7 +165,7 @@
 
     addBtn.onclick = (e) => {
         e.preventDefault();
-        if (pages.length >= 15) return;
+        if (pages.length >= 20) return;
         saveData();
         pages.push("");
         currentIndex = pages.length - 1;
@@ -187,7 +181,7 @@
         if (!deleteConfirmMode) {
             deleteConfirmMode = true;
             deleteBtn.classList.add('confirm-delete');
-            saveStatus.textContent = '再度クリックで削除';
+            saveStatus.textContent = 'Click again to delete';
         } else {
             pages.splice(currentIndex, 1);
             currentIndex = Math.max(0, currentIndex - 1);
