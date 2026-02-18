@@ -13,23 +13,23 @@
             flex-direction: column; 
             align-items: center; 
             min-height: 100vh; 
-            /* Notion標準のフォントスタック */
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol" !important;
+            /* フォントをNotion標準に */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji" !important;
             overflow: hidden; 
         }
 
         .title { 
-            color: rgba(255, 255, 255, 0.4); 
+            color: #888; 
             font-size: 14px; 
             font-weight: 600; 
-            letter-spacing: 0.1em; 
+            letter-spacing: 0.15em; 
             text-transform: uppercase; 
-            margin-top: 20px; 
+            margin-top: 15px; 
             margin-bottom: 12px; 
             padding-bottom: 6px; 
             width: 200px; 
             text-align: center; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+            border-bottom: 1.5px solid #333; 
         }
 
         .tabs-wrapper { 
@@ -37,32 +37,32 @@
             align-items: center; 
             justify-content: center;
             gap: 6px; 
-            margin-bottom: 12px; 
+            margin-bottom: 10px; 
             width: 100%;
             flex-wrap: wrap; 
         }
 
         .tab { 
-            background: #2a2a2a !important; 
-            color: rgba(255, 255, 255, 0.5) !important; 
-            border: 1px solid #333 !important; 
+            background: #333 !important; 
+            color: #aaa !important; 
+            border: 1px solid #444 !important; 
             padding: 6px 12px !important; 
-            border-radius: 4px; 
+            border-radius: 6px; 
             font-size: 14px !important; 
+            font-weight: bold; 
             cursor: pointer;
         }
 
         .tab.active { 
-            background: #373737 !important; 
-            color: #efefef !important; 
-            border-color: #444 !important;
+            background: #555 !important; 
+            color: #fff !important; 
         }
 
         .btn-page-ctrl { 
-            background: transparent !important; 
-            color: rgba(255, 255, 255, 0.3) !important; 
+            background: #2a2a2a !important; 
+            color: #888 !important; 
             border: 1px solid #333 !important; 
-            border-radius: 4px; 
+            border-radius: 6px; 
             width: 32px; 
             height: 32px; 
             cursor: pointer; 
@@ -74,41 +74,35 @@
         
         .btn-page-ctrl.confirm-delete { color: #eb5757 !important; border-color: #eb5757 !important; }
 
+        /* 💡 枠と背景色（#202020）を維持 */
         .memo-container { 
-            width: 90%;
-            max-width: 280px;
-            height: 350px; 
-            background-color: transparent !important; 
+            width: 250px; 
+            height: 320px; 
+            background-color: #202020 !important; 
+            border-radius: 12px; 
+            padding: 15px; 
+            border: 1px solid #333; 
             display: flex; 
             flex-direction: column; 
         }
 
-        /* 💡 Notionデフォルトの文字サイズと行間 */
+        /* 💡 文字サイズ（16px）と行間（1.5）をNotion標準に */
         textarea { 
             width: 100%; 
             height: 100%; 
             background: transparent !important; 
             border: none !important; 
-            color: rgba(255, 255, 255, 0.9) !important; 
+            color: #efefef !important; 
             font-size: 16px !important; 
             line-height: 1.5 !important; 
             resize: none; 
             outline: none; 
             font-family: inherit !important; 
-            padding: 0 !important;
         }
 
-        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
-        .btn-time { 
-            background: #2a2a2a; 
-            color: rgba(255, 255, 255, 0.5); 
-            border: 1px solid #333; 
-            padding: 4px 10px; 
-            border-radius: 4px; 
-            font-size: 12px; 
-            cursor: pointer;
-        }
-        .status { font-size: 11px; color: rgba(255, 255, 255, 0.2); }
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .btn-time { background: #333; color: #ccc; border: 1px solid #444; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        .status { font-size: 10px; color: #555; }
     </style>
 </head>
 <body>
@@ -119,7 +113,7 @@
         <button id="deleteBtn" class="btn-page-ctrl">-</button>
     </div>
     <div class="memo-container">
-        <textarea id="memoInput" placeholder="Type something..."></textarea>
+        <textarea id="memoInput" placeholder="メモを入力..."></textarea>
         <div class="controls">
             <button id="timeBtn" class="btn-time">TIME</button>
             <div id="saveStatus" class="status">Saved</div>
@@ -134,7 +128,7 @@
     const timeBtn = document.getElementById('timeBtn');
     const saveStatus = document.getElementById('saveStatus');
     
-    const STORAGE_KEY = 'notion_memo_final_standard';
+    const STORAGE_KEY = 'notion_memo_data_v5';
     let pages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[""]');
     let currentIndex = 0;
     let deleteConfirmMode = false;
@@ -145,7 +139,7 @@
             const btn = document.createElement('button');
             btn.className = `tab ${idx === currentIndex ? 'active' : ''}`;
             btn.textContent = idx + 1;
-            btn.onclick = (e) => { e.preventDefault(); switchPage(idx); };
+            btn.onclick = () => switchPage(idx);
             tabContainer.appendChild(btn);
         });
     }
@@ -163,9 +157,8 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
     }
 
-    addBtn.onclick = (e) => {
-        e.preventDefault();
-        if (pages.length >= 20) return;
+    addBtn.onclick = () => {
+        if (pages.length >= 15) return;
         saveData();
         pages.push("");
         currentIndex = pages.length - 1;
@@ -175,13 +168,12 @@
         saveData();
     };
 
-    deleteBtn.onclick = (e) => {
-        e.preventDefault();
+    deleteBtn.onclick = () => {
         if (pages.length <= 1) return;
         if (!deleteConfirmMode) {
             deleteConfirmMode = true;
             deleteBtn.classList.add('confirm-delete');
-            saveStatus.textContent = 'Click again to delete';
+            saveStatus.textContent = 'Confirm Delete?';
         } else {
             pages.splice(currentIndex, 1);
             currentIndex = Math.max(0, currentIndex - 1);
@@ -198,8 +190,7 @@
         saveStatus.textContent = 'Saved';
     }
 
-    timeBtn.onclick = (e) => {
-        e.preventDefault();
+    timeBtn.onclick = () => {
         const now = new Date();
         const stamp = `[${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}] `;
         const start = memoInput.selectionStart;
