@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { 
             background-color: #191919; 
@@ -9,37 +10,46 @@
             padding: 15px 10px; 
             display: flex; 
             flex-direction: column; 
-            gap: 8px; 
+            gap: 10px; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
-        /* ボタン全体のデザイン設定 */
         .btn {
             display: flex;
             align-items: center;
-            width: 200px; /* ★右側スペースに合わせて幅を調整してください */
-            height: 34px;
-            background-color: #333333; /* ボタンのグレー背景 */
+            width: 220px; /* 横幅を均等に固定 */
+            height: 38px;
+            background-color: #333333;
             border-radius: 6px;
             text-decoration: none;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
             transition: background 0.2s;
+            border: 1px solid #444444; /* 境目をくっきりさせる */
         }
         .btn:hover {
-            background-color: #444444; /* マウスを乗せた時 */
+            background-color: #454545;
         }
-        /* バッジ画像（アイコンと文字）の設定 */
-        .btn img {
-            height: 20px; /* 文字を綺麗に見せるための高さ */
-            margin-left: 8px; /* 左側に少し余白 */
+        .btn i {
+            width: 35px;
+            text-align: center;
+            margin-left: 10px;
+            font-size: 16px;
+            color: #ffffff;
+        }
+        .btn span {
+            margin-left: 5px;
         }
     </style>
 </head>
 <body>
-    <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" class="btn"><img src="https://img.shields.io/badge/Pubmed-333333?style=flat&logo=pubmed&logoColor=white"></a>
-    <a href="https://www.medicalonline.jp/" target="_blank" class="btn"><img src="https://img.shields.io/badge/Medical_Online-333333?style=flat&logo=read-the-docs&logoColor=white"></a>
-    <a href="https://www.carenet.com/?keiro=com_logo" target="_blank" class="btn"><img src="https://img.shields.io/badge/Carenet-333333?style=flat&logo=health&logoColor=white"></a>
-    <a href="https://www.itmedia.co.jp/" target="_blank" class="btn"><img src="https://img.shields.io/badge/ITmedia-333333?style=flat&logo=target&logoColor=white"></a>
-    <a href="https://ict-enews.net/" target="_blank" class="btn"><img src="https://img.shields.io/badge/ICT_Edu-333333?style=flat&logo=elementary&logoColor=white"></a>
-    <a href="https://newspicks.com/" target="_blank" class="btn"><img src="https://img.shields.io/badge/NewsPicks-333333?style=flat&logo=rss&logoColor=white"></a>
-    <a href="https://github.com/" target="_blank" class="btn"><img src="https://img.shields.io/badge/GitHub-333333?style=flat&logo=github&logoColor=white"></a>
-    <a href="https://gemini.google.com/app?hl=ja" target="_blank" class="btn"><img src="https://img.shields.io/badge/Gemini-333333?style=flat&logo=google-gemini&logoColor=white"></a>
+    <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" class="btn"><i class="fa-solid fa-book-medical"></i><span>Pubmed</span></a>
+    <a href="https://www.medicalonline.jp/" target="_blank" class="btn"><i class="fa-solid fa-file-medical"></i><span>Medical Online</span></a>
+    <a href="https://www.carenet.com/" target="_blank" class="btn"><i class="fa-solid fa-hospital"></i><span>Carenet</span></a>
+    <a href="https://www.itmedia.co.jp/" target="_blank" class="btn"><i class="fa-solid fa-microchip"></i><span>ITmedia</span></a>
+    <a href="https://ict-enews.net/" target="_blank" class="btn"><i class="fa-solid fa-graduation-cap"></i><span>ICT教育ニュース</span></a>
+    <a href="https://newspicks.com/" target="_blank" class="btn"><i class="fa-solid fa-newspaper"></i><span>NewsPicks</span></a>
+    <a href="https://github.com/" target="_blank" class="btn"><i class="fa-brands fa-github"></i><span>GitHub</span></a>
+    <a href="https://gemini.google.com/app" target="_blank" class="btn"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Gemini</span></a>
 </body>
 </html>
