@@ -1,17 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
+    <meta charset="UTF-8">
     <style>
+        /* 背景色をNotionのダークモードに合わせ、縦一列に配置 */
         body { 
-            background-color: #191919; /* 背景を黒に */
+            background-color: #191919; 
             margin: 0; 
-            padding: 5px; 
+            padding: 10px 5px; 
             display: flex; 
-            flex-wrap: wrap; /* 幅が足りない時に自動で2行にする */
-            gap: 5px; 
-            justify-content: flex-start;
+            flex-direction: column; /* これで縦並びになります */
+            gap: 10px;               /* ボタン同士の上下の間隔 */
+            align-items: flex-start; /* 左寄せ */
         }
-        img { height: 25px; } /* ボタンを少し小さくして収まりやすくしました */
+        img { 
+            display: block;
+            height: 30px; /* 縦並びなので少し大きくしても綺麗です */
+        }
+        a { text-decoration: none; }
     </style>
 </head>
 <body>
