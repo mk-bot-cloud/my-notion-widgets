@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            /* Notionダークモードの背景色 */
             background-color: #191919; 
             margin: 0;
             display: flex;
@@ -18,7 +17,6 @@
         .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            /* 横幅を少し狭く制限 (最大260px) */
             max-width: 260px;
             gap: 15px;
             padding: 15px;
@@ -28,12 +26,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* 各アイコンの幅を少し縮小 */
             width: 70px;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .icon-box {
-            /* アイコンを少し小さく (65px -> 55px) */
             width: 55px;
             height: 55px;
             background: white;
@@ -52,26 +48,17 @@
             object-fit: cover;
         }
         .label {
-            /* 文字も少し小さく (11px -> 10px) */
             font-size: 10px;
             color: #9b9b9b;
             font-weight: 500;
             text-align: center;
             transition: color 0.3s ease;
-            /* 長い文字がはみ出さないように調整 */
             white-space: nowrap;
         }
 
-        /* ✨ 浮き上がる演出 */
-        .nav-item:hover {
-            transform: translateY(-6px);
-        }
-        .nav-item:hover .icon-box {
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        }
-        .nav-item:hover .label {
-            color: #ffffff;
-        }
+        .nav-item:hover { transform: translateY(-6px); }
+        .nav-item:hover .icon-box { box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .nav-item:hover .label { color: #ffffff; }
     </style>
 </head>
 <body>
@@ -83,12 +70,13 @@
     </a>
     <a href="https://www.medicalonline.jp/" class="nav-item" target="_blank">
         <div class="icon-box"><img src="メディカルオンライン.jpg"></div>
-        <span class="label">MedicalOnline</span>
+        <span class="label">MedOnline</span>
     </a>
     <a href="https://www.carenet.com/" class="nav-item" target="_blank">
         <div class="icon-box"><img src="carenet.png"></div>
         <span class="label">CareNet</span>
     </a>
+
     <a href="https://www.itmedia.co.jp/" class="nav-item" target="_blank">
         <div class="icon-box"><img src="ITmedia.jpg"></div>
         <span class="label">ITmedia</span>
@@ -101,6 +89,7 @@
         <div class="icon-box"><img src="ICT教育ニュース.png"></div>
         <span class="label">ICT教育</span>
     </a>
+
     <a href="https://www.youtube.com/" class="nav-item" target="_blank">
         <div class="icon-box"><img src="youtube.png"></div>
         <span class="label">YouTube</span>
@@ -112,6 +101,19 @@
     <a href="https://github.com/" class="nav-item" target="_blank">
         <div class="icon-box"><img src="Github.png"></div>
         <span class="label">GitHub</span>
+    </a>
+
+    <a href="https://www.yahoo.co.jp/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="Yahoo!.png"></div>
+        <span class="label">Yahoo!</span>
+    </a>
+    <a href="https://script.google.com/u/0/home/projects/1GPS_MHABaeux_NNVAHpz1Wb50Kfsh5lGJX_EX_zq7KCuqdSzL1jc0OoX/edit/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="GAS.png"></div>
+        <span class="label">GAS</span>
+    </a>
+    <a href="https://ledge.ai/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="Ledge.jpeg"></div>
+        <span class="label">Ledge.ai</span>
     </a>
 </div>
 
