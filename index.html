@@ -10,23 +10,29 @@
             padding: 15px 10px; 
             display: flex; 
             flex-direction: column; 
-            gap: 12px; 
+            gap: 10px; 
             align-items: flex-start;
         }
-        /* ボタン画像の設定（flatスタイル） */
+        /* リンクの幅を親要素に合わせる */
+        a { 
+            text-decoration: none; 
+            width: 180px; /* ★ここを調整すると全てのボタンの横幅が一気に変わります */
+        }
+        /* 画像の横幅を100%にして均等に揃える */
         img { 
             display: block;
+            width: 100%; 
             height: 32px; 
-            border-radius: 6px; /* 少し角を丸くするとグレーが映えます */
+            border-radius: 4px;
+            object-fit: fill; /* 横に引き伸ばして幅を強制的に揃えます */
         }
-        a { text-decoration: none; }
     </style>
 </head>
 <body>
     <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank"><img src="https://img.shields.io/badge/Pubmed-333333?style=flat&logo=pubmed&logoColor=white"></a>
     <a href="https://www.medicalonline.jp/" target="_blank"><img src="https://img.shields.io/badge/Medical_Online-333333?style=flat&logo=read-the-docs&logoColor=white"></a>
-    <a href="https://www.carenet.com/?keiro=com_logo" target="_blank"><img src="https://img.shields.io/badge/Carenet-333333?style=flat&logo=health&logoColor=white"></a>
-    <a href="https://newspicks.com/" target="_blank"><img src="https://img.shields.io/badge/NewsPicks-333333?style=flat&logo=newspicks&logoColor=white"></a>
+    <a href="https://www.carenet.com/?keiro=com_logo" target="_blank"><img src="https://img.shields.io/badge/Carenet-333333?style=flat&logo=google-cloud&logoColor=white"></a>
+    <a href="https://newspicks.com/" target="_blank"><img src="https://img.shields.io/badge/NewsPicks-333333?style=flat&logo=rss&logoColor=white"></a>
     <a href="https://github.com/" target="_blank"><img src="https://img.shields.io/badge/GitHub-333333?style=flat&logo=github&logoColor=white"></a>
     <a href="https://gemini.google.com/app?hl=ja" target="_blank"><img src="https://img.shields.io/badge/Gemini-333333?style=flat&logo=google-gemini&logoColor=white"></a>
 </body>
