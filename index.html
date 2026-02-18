@@ -3,100 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Style News Nav</title>
+    <title>GitHub Portal</title>
     <style>
-        /* GitHubのダークモード風デザイン */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            background-color: #0d1117; /* GitHubダーク背景 */
-            color: #c9d1d9;
-            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0d1117;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            margin: 0;
         }
-
         .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 20px;
-            width: 90%;
-            max-width: 600px;
-            padding: 20px;
+            display: flex;
+            gap: 15px;
+            padding: 25px;
             background: #161b22;
+            border-radius: 20px;
             border: 1px solid #30363d;
-            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-
         .nav-item {
             text-decoration: none;
-            color: #8b949e;
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 80px;
             transition: 0.2s;
         }
-
-        /* GitHubのプロフィールのアイコンのような丸角設定 */
         .icon-box {
             width: 60px;
             height: 60px;
-            border-radius: 12px;
-            background-color: #f0f2f5; /* 白背景でアイコンを際立たせる */
-            border: 1px solid #30363d;
-            overflow: hidden;
+            border-radius: 14px;
+            background: white;
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
             margin-bottom: 8px;
+            border: 2px solid transparent;
         }
-
+        .nav-item:hover .icon-box {
+            border-color: #58a6ff;
+            transform: translateY(-3px);
+        }
         .icon-box img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
-
-        .nav-item:hover {
-            transform: scale(1.1);
-            color: #58a6ff; /* GitHubブルー */
-        }
-
         .label {
+            color: #8b949e;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: bold;
+        }
+        .nav-item:hover .label {
+            color: #58a6ff;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <a href="https://pubmed.ncbi.nlm.nih.gov/" class="nav-item">
-        <div class="icon-box"><img src="image_78bb69.png" alt="PubMed"></div>
+    <a href="https://pubmed.ncbi.nlm.nih.gov/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="https://pubmed.ncbi.nlm.nih.gov/favicon.ico" alt="P"></div>
         <span class="label">PubMed</span>
     </a>
 
-    <a href="https://www.carenet.com/" class="nav-item">
-        <div class="icon-box"><img src="image_78bba7.png" alt="CareNet"></div>
+    <a href="https://www.carenet.com/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="https://www.carenet.com/favicon.ico" alt="C"></div>
         <span class="label">CareNet</span>
     </a>
 
-    <a href="https://newspicks.com/" class="nav-item">
-        <div class="icon-box"><img src="image_78bc26.png" alt="NewsPicks"></div>
+    <a href="https://newspicks.com/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="https://newspicks.com/favicon.ico" alt="N"></div>
         <span class="label">NewsPicks</span>
     </a>
 
-    <a href="https://ict-enews.net/" class="nav-item">
-        <div class="icon-box"><img src="image_790de6.png" alt="ICT教育"></div>
+    <a href="https://ict-enews.net/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="https://ict-enews.net/favicon.ico" alt="I"></div>
         <span class="label">ICT教育</span>
     </a>
 
-    <a href="https://www.itmedia.co.jp/" class="nav-item">
-        <div class="icon-box"><img src="image_790e44.png" alt="ITmedia"></div>
+    <a href="https://www.itmedia.co.jp/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="https://www.itmedia.co.jp/favicon.ico" alt="T"></div>
         <span class="label">ITmedia</span>
     </a>
-
 </div>
 
 </body>
