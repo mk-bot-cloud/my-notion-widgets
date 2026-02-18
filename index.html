@@ -29,7 +29,8 @@
             flex-direction: column;
             align-items: center;
             width: 75px;
-            transition: transform 0.1s;
+            /* 浮き上がるアニメーションの設定 */
+            transition: transform 0.3s ease, filter 0.3s ease;
         }
         .img-container {
             width: 65px;
@@ -42,6 +43,7 @@
             align-items: center;
             margin-bottom: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: box-shadow 0.3s ease;
         }
         .img-container img {
             width: 100%;
@@ -53,8 +55,24 @@
             font-size: 11px;
             font-weight: bold;
             text-align: center;
+            transition: color 0.3s ease;
         }
-        .app-icon:active { transform: scale(0.9); }
+
+        /* ✨ マウスを置いたとき（ホバー）の「浮き上がる」演出 */
+        .app-icon:hover {
+            transform: translateY(-8px); /* 上に8px移動 */
+        }
+        .app-icon:hover .img-container {
+            box-shadow: 0 12px 20px rgba(0,0,0,0.5); /* 影を強くして浮かせる */
+        }
+        .app-icon:hover .app-label {
+            color: #ffffff; /* 文字も少し明るく */
+        }
+
+        /* スマホでのタップ時の演出 */
+        .app-icon:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
@@ -65,9 +83,19 @@
         <span class="app-label">PubMed</span>
     </a>
 
+    <a href="https://www.medicalonline.jp/" class="app-icon" target="_blank">
+        <div class="img-container"><img src="メディカルオンライン.jpg"></div>
+        <span class="app-label">Medical Online</span>
+    </a>
+
     <a href="https://www.carenet.com/" class="app-icon" target="_blank">
         <div class="img-container"><img src="carenet.png"></div>
         <span class="app-label">CareNet</span>
+    </a>
+
+    <a href="https://www.itmedia.co.jp/" class="app-icon" target="_blank">
+        <div class="img-container"><img src="ITmedia.jpg"></div>
+        <span class="app-label">ITmedia</span>
     </a>
 
     <a href="https://newspicks.com/" class="app-icon" target="_blank">
@@ -78,11 +106,6 @@
     <a href="https://ict-enews.net/" class="app-icon" target="_blank">
         <div class="img-container"><img src="ICT教育ニュース.png"></div>
         <span class="app-label">ICT教育</span>
-    </a>
-
-    <a href="https://www.itmedia.co.jp/" class="app-icon" target="_blank">
-        <div class="img-container"><img src="ITmedia.jpg"></div>
-        <span class="app-label">ITmedia</span>
     </a>
 
     <a href="https://www.youtube.com/" class="app-icon" target="_blank">
