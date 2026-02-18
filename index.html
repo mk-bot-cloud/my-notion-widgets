@@ -1,16 +1,25 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
-    <meta charset="UTF-8">
     <style>
-        /* 背景を真っ黒にし、余白をゼロにする */
         body { 
-            background-color: #191919; /* Notionのダークモード背景色 */
+            background-color: #191919; /* 背景を黒に */
             margin: 0; 
-            padding: 10px; 
+            padding: 5px; 
             display: flex; 
-            flex-wrap: wrap; 
-            gap: 8px; 
-            overflow: hidden;
+            flex-wrap: wrap; /* 幅が足りない時に自動で2行にする */
+            gap: 5px; 
+            justify-content: flex-start;
         }
-        /* ボタンの見た目を微調整 */
+        img { height: 25px; } /* ボタンを少し小さくして収まりやすくしました */
+    </style>
+</head>
+<body>
+    <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank"><img src="https://img.shields.io/badge/Pubmed-000000?style=for-the-badge&logo=pubmed&logoColor=white"></a>
+    <a href="https://gemini.google.com/app?hl=ja" target="_blank"><img src="https://img.shields.io/badge/Gemini-000000?style=for-the-badge&logo=google-gemini&logoColor=white"></a>
+    <a href="https://www.carenet.com/?keiro=com_logo" target="_blank"><img src="https://img.shields.io/badge/Carenet-000000?style=for-the-badge&logo=health&logoColor=white"></a>
+    <a href="https://www.medicalonline.jp/" target="_blank"><img src="https://img.shields.io/badge/Medical_Online-000000?style=for-the-badge&logo=read-the-docs&logoColor=white"></a>
+    <a href="https://github.com/" target="_blank"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"></a>
+    <a href="https://newspicks.com/" target="_blank"><img src="https://img.shields.io/badge/NewsPicks-000000?style=for-the-badge&logo=newspicks&logoColor=white"></a>
+</body>
+</html>
