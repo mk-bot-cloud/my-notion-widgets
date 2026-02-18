@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: #191919;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 20px;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* QUICK LINKSと合わせた見出し */
+        .title {
+            color: #888888;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            width: 200px;
+            text-align: center;
+            border-bottom: 1.5px solid #333;
+        }
+
+        /* メモエリアのデザイン */
+        .memo-container {
+            width: 220px;
+            height: 250px; /* 右下のスペースに合わせて調整 */
+            background-color: #202020; /* 少しだけ背景より明るい色で浮き立たせる */
+            border-radius: 12px;
+            padding: 15px;
+            box-sizing: border-box;
+            border: 1px solid #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: #d3d3d3;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        /* スクロールバーのカスタマイズ（目立ちすぎないように） */
+        textarea::-webkit-scrollbar {
+            width: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
+
+        .footer {
+            margin-top: 8px;
+            font-size: 9px;
+            color: #555;
+            text-align: right;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="title">Scratch Pad</div>
+
+<div class="memo-container">
+    <textarea placeholder="Type your notes here..."></textarea>
+    <div class="footer">Temporary Memo</div>
+</div>
+
+</body>
+</html>
