@@ -4,25 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { background-color: #191919; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; font-family: sans-serif; overflow: hidden; }
-        .title { color: #888; font-size: 14px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 20px; margin-bottom: 12px; padding-bottom: 6px; width: 200px; text-align: center; border-bottom: 1.5px solid #333; }
-        .tabs-wrapper { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; max-width: 230px; }
-        .tab-container { display: flex; gap: 6px; }
-        .tab { background: #2a2a2a; color: #888; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }
-        .tab.active { background: #444; color: #fff; }
-        .btn-page-ctrl { background: transparent; color: #666; border: 1.5px solid #333; border-radius: 6px; width: 28px; height: 28px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-        .btn-page-ctrl.confirm-delete { color: #ff4d4d; border-color: #ff4d4d; background: rgba(255, 77, 77, 0.1); }
-        .memo-container { width: 230px; height: 300px; background-color: #202020; border-radius: 12px; padding: 15px; box-sizing: border-box; border: 1px solid #333; display: flex; flex-direction: column; }
-        textarea { width: 100%; height: 100%; background: transparent; border: none; color: #e0e0e0; font-size: 15px; line-height: 1.6; resize: none; outline: none; }
-        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
-        .btn-time { background: #333; color: #ccc; border: 1px solid #444; padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; }
+        /* Notionの自動調整をリセット */
+        * { box-sizing: border-box !important; }
+        
+        body { 
+            background-color: #191919 !important; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh; 
+            font-family: -apple-system, sans-serif; 
+            overflow: hidden; 
+        }
+
+        .title { 
+            color: #888; 
+            font-size: 14px; 
+            font-weight: 600; 
+            letter-spacing: 0.15em; 
+            text-transform: uppercase; 
+            margin-top: 15px; 
+            margin-bottom: 12px; 
+            padding-bottom: 6px; 
+            width: 200px; 
+            text-align: center; 
+            border-bottom: 1.5px solid #333; 
+        }
+
+        /* タブが横に溢れないように調整 */
+        .tabs-wrapper { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            gap: 4px; 
+            margin-bottom: 10px; 
+            width: 95%;
+            flex-wrap: wrap; /* ボタンが増えたら折り返すように変更 */
+        }
+
+        /* 💡 ボタンをNotion内でも大きく見えるよう強制指定 */
+        .tab { 
+            background: #333 !important; 
+            color: #aaa !important; 
+            border: 1px solid #444 !important; 
+            padding: 8px 12px !important; 
+            border-radius: 6px; 
+            font-size: 14px !important; 
+            font-weight: bold; 
+            cursor: pointer;
+            min-width: 35px;
+        }
+
+        .tab.active { 
+            background: #555 !important; 
+            color: #fff !important; 
+            border-color: #777 !important;
+        }
+
+        .btn-page-ctrl { 
+            background: #2a2a2a !important; 
+            color: #888 !important; 
+            border: 1px solid #333 !important; 
+            border-radius: 6px; 
+            width: 32px; 
+            height: 32px; 
+            cursor: pointer; 
+            font-size: 18px !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-page-ctrl.confirm-delete { color: #ff4d4d !important; border-color: #ff4d4d !important; }
+
+        .memo-container { 
+            width: 250px; /* 少し大きくしました */
+            height: 320px; 
+            background-color: #202020 !important; 
+            border-radius: 12px; 
+            padding: 15px; 
+            border: 1px solid #333; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        /* 💡 文字サイズを強制的に大きく */
+        textarea { 
+            width: 100%; 
+            height: 100%; 
+            background: transparent !important; 
+            border: none !important; 
+            color: #efefef !important; 
+            font-size: 16px !important; /* さらに大きく */
+            line-height: 1.6; 
+            resize: none; 
+            outline: none; 
+        }
+
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .btn-time { background: #333; color: #ccc; border: 1px solid #444; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
         .status { font-size: 10px; color: #555; }
     </style>
 </head>
 <body>
     <div class="title">Scratch Pad</div>
     <div class="tabs-wrapper">
-        <div id="tabContainer" class="tab-container"></div>
+        <div id="tabContainer" style="display:flex; gap:4px; flex-wrap:wrap; justify-content:center;"></div>
         <button id="addBtn" class="btn-page-ctrl">+</button>
         <button id="deleteBtn" class="btn-page-ctrl">-</button>
     </div>
@@ -42,8 +130,7 @@
     const timeBtn = document.getElementById('timeBtn');
     const saveStatus = document.getElementById('saveStatus');
     
-    // キー名を完全にユニークに
-    const STORAGE_KEY = 'notion_memo_data_final';
+    const STORAGE_KEY = 'notion_memo_data_v3';
     let pages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[""]');
     let currentIndex = 0;
     let deleteConfirmMode = false;
@@ -73,7 +160,7 @@
     }
 
     addBtn.onclick = () => {
-        if (pages.length >= 10) return;
+        if (pages.length >= 15) return;
         saveData();
         pages.push("");
         currentIndex = pages.length - 1;
@@ -88,7 +175,7 @@
         if (!deleteConfirmMode) {
             deleteConfirmMode = true;
             deleteBtn.classList.add('confirm-delete');
-            saveStatus.textContent = 'Confirm Delete?';
+            saveStatus.textContent = '再度押して削除';
         } else {
             pages.splice(currentIndex, 1);
             currentIndex = Math.max(0, currentIndex - 1);
@@ -121,7 +208,6 @@
         setTimeout(() => { if(!deleteConfirmMode) saveStatus.textContent = 'Saved'; }, 500);
     };
 
-    // 初期化
     memoInput.value = pages[currentIndex];
     renderTabs();
 </script>
