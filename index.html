@@ -3,91 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Portal</title>
+    <title>My Portal</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #0d1117;
+            background-color: #0d1117; /* 背景：GitHubダーク */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
         }
-        .container {
-            display: flex;
-            gap: 15px;
-            padding: 25px;
+        .home-screen {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3列に整列 */
+            gap: 20px;
+            padding: 30px;
             background: #161b22;
-            border-radius: 20px;
+            border-radius: 30px;
             border: 1px solid #30363d;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .nav-item {
+        .app-icon {
             text-decoration: none;
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 80px;
-            transition: 0.2s;
+            transition: transform 0.1s;
         }
-        .icon-box {
+        .img-container {
             width: 60px;
             height: 60px;
+            background-color: #fff;
             border-radius: 14px;
-            background: white;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
             margin-bottom: 8px;
-            border: 2px solid transparent;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .nav-item:hover .icon-box {
-            border-color: #58a6ff;
-            transform: translateY(-3px);
-        }
-        .icon-box img {
+        .img-container img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
         }
-        .label {
+        .app-label {
             color: #8b949e;
             font-size: 11px;
             font-weight: bold;
+            text-align: center;
+            white-space: nowrap;
         }
-        .nav-item:hover .label {
+        .app-icon:hover .app-label {
             color: #58a6ff;
+        }
+        .app-icon:active {
+            transform: scale(0.9);
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <a href="https://pubmed.ncbi.nlm.nih.gov/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABFUI7GAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwTEBAAAAwiD7p7bGDmAAAAAAAAAAAAAAAAAAAAAkB6SgAAEjS67zAAAAAElFTkSuQmCC" alt="PubMed"></div>
-        <span class="label">PubMed</span>
+<div class="home-screen">
+    <a href="https://pubmed.ncbi.nlm.nih.gov/" class="app-icon" target="_blank">
+        <div class="img-container"><img src="pubmed.jpg"></div>
+        <span class="app-label">PubMed</span>
     </a>
 
-    <a href="https://www.carenet.com/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABFUI7GAAAAA1BMVEX/mADGv86fAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwTEBAAAAwiD7p7bGDmAAAAAAAAAAAAAAAAAAAAAkB6SgAAEjS67zAAAAAElFTkSuQmCC" alt="CareNet"></div>
-        <span class="label">CareNet</span>
+    <a href="https://www.carenet.com/" class="app-icon" target="_blank">
+        <div class="img-container"><img src="carenet.png"></div>
+        <span class="app-label">CareNet</span>
     </a>
 
-    <a href="https://newspicks.com/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABFUI7GAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwTEBAAAAwiD7p7bGDmAAAAAAAAAAAAAAAAAAAAAkB6SgAAEjS67zAAAAAElFTkSuQmCC" alt="NewsPicks"></div>
-        <span class="label">NewsPicks</span>
+    <a href="https://newspicks.com/" class="app-icon" target="_blank">
+        <div class="img-container"><img src="Newspicks.png"></div>
+        <span class="app-label">NewsPicks</span>
     </a>
 
-    <a href="https://ict-enews.net/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABFUI7GAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwTEBAAAAwiD7p7bGDmAAAAAAAAAAAAAAAAAAAAAkB6SgAAEjS67zAAAAAElFTkSuQmCC" alt="ICT教育"></div>
-        <span class="label">ICT教育</span>
+    <a href="https://ict-enews.net/" class="app-icon" target="_blank">
+        <div class="img-container"><img src="ICT教育ニュース.png"></div>
+        <span class="app-label">ICT教育</span>
     </a>
 
-    <a href="https://www.itmedia.co.jp/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="data:image/jpeg;base64,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" alt="ITmedia"></div>
-        <span class="label">ITmedia</span>
+    <a href="https://www.itmedia.co.jp/" class="app-icon" target="_blank">
+        <div class="img-container"><img src="ITmedia.jpg"></div>
+        <span class="app-label">ITmedia</span>
+    </a>
+
+    <a href="https://www.medicalonline.jp/" class="app-icon" target="_blank">
+        <div class="img-container"><img src="メディカルオンライン.jpg"></div>
+        <span class="app-label">Medical Online</span>
+    </a>
+
+    <a href="https://www.youtube.com/" class="app-icon" target="_blank">
+        <div class="img-container"><img src="youtube.png"></div>
+        <span class="app-label">YouTube</span>
+    </a>
+
+    <a href="https://gemini.google.com/" class="app-icon" target="_blank">
+        <div class="img-container"><img src="Gemini.png"></div>
+        <span class="app-label">Gemini</span>
+    </a>
+
+    <a href="https://github.com/" class="app-icon" target="_blank">
+        <div class="img-container"><img src="Giuhub.png"></div>
+        <span class="app-label">GitHub</span>
     </a>
 </div>
 
