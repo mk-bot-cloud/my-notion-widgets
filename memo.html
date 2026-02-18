@@ -29,28 +29,55 @@
             border-bottom: 1.5px solid #333;
         }
 
-        /* ページ切り替えタブ */
-        .tabs {
+        /* ページ切り替えタブエリア */
+        .tabs-wrapper {
             display: flex;
+            align-items: center;
             gap: 5px;
             margin-bottom: 10px;
+            max-width: 220px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        .tabs-wrapper::-webkit-scrollbar { height: 3px; }
+        .tabs-wrapper::-webkit-scrollbar-thumb { background: #333; }
+
+        .tab-container {
+            display: flex;
+            gap: 5px;
         }
 
         .tab {
             background: #2a2a2a;
             color: #777;
             border: none;
-            padding: 4px 10px;
-            border-radius: 6px;
+            padding: 4px 8px;
+            border-radius: 4px;
             font-size: 10px;
             cursor: pointer;
-            transition: all 0.2s;
+            white-space: nowrap;
         }
 
         .tab.active {
             background: #444;
             color: #fff;
         }
+
+        /* 追加・削除ボタン */
+        .btn-page-ctrl {
+            background: transparent;
+            color: #555;
+            border: 1px solid #333;
+            border-radius: 4px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-page-ctrl:hover { color: #fff; border-color: #555; }
 
         .memo-container {
             width: 220px;
@@ -78,7 +105,6 @@
             font-family: inherit;
         }
 
-        /* 操作エリア */
         .controls {
             display: flex;
             justify-content: space-between;
@@ -96,96 +122,105 @@
             cursor: pointer;
             font-weight: bold;
         }
+        .btn-time:hover { background: #444; color: #fff; }
 
-        .btn-time:hover {
-            background: #444;
-            color: #fff;
-        }
-
-        .status {
-            font-size: 9px;
-            color: #555;
-            font-style: italic;
-        }
+        .status { font-size: 9px; color: #555; font-style: italic; }
     </style>
 </head>
 <body>
 
 <div class="title">Scratch Pad</div>
 
-<div class="tabs">
-    <button class="tab active" onclick="changePage(0)">P1</button>
-    <button class="tab" onclick="changePage(1)">P2</button>
-    <button class="tab" onclick="changePage(2)">P3</button>
-    <button class="tab" onclick="changePage(3)">P4</button>
-    <button class="tab" onclick="changePage(4)">P5</button>
+<div class="tabs-wrapper">
+    <div id="tabContainer" class="tab-container"></div>
+    <button class="btn-page-ctrl" onclick="addPage()">+</button>
+    <button class="btn-page-ctrl" onclick="deletePage()">-</button>
 </div>
 
 <div class="memo-container">
     <textarea id="memoInput" placeholder="Type your notes here..."></textarea>
-    
     <div class="controls">
-        <button class="btn-time" onclick="insertTime()">TIME</button>
+        <button class="btn-time" onclick="insertDateTime()">TIME</button>
         <div id="saveStatus" class="status">Saved</div>
     </div>
 </div>
 
 <script>
     const memoInput = document.getElementById('memoInput');
+    const tabContainer = document.getElementById('tabContainer');
     const saveStatus = document.getElementById('saveStatus');
-    let currentPage = 0;
+    
+    let pages = JSON.parse(localStorage.getItem('notion_multi_memo_v2') || '[""]');
+    let currentIndex = 0;
 
-    // データの読み込み
-    function loadData() {
-        const allData = JSON.parse(localStorage.getItem('notion_multi_memo') || '["","","","",""]');
-        memoInput.value = allData[currentPage];
+    function renderTabs() {
+        tabContainer.innerHTML = '';
+        pages.forEach((_, idx) => {
+            const btn = document.createElement('button');
+            btn.className = `tab ${idx === currentIndex ? 'active' : ''}`;
+            btn.textContent = idx + 1;
+            btn.onclick = () => switchPage(idx);
+            tabContainer.appendChild(btn);
+        });
     }
 
-    // データの保存
-    function saveData() {
-        const allData = JSON.parse(localStorage.getItem('notion_multi_memo') || '["","","","",""]');
-        allData[currentPage] = memoInput.value;
-        localStorage.setItem('notion_multi_memo', JSON.stringify(allData));
-        
+    function switchPage(idx) {
+        saveCurrentPage();
+        currentIndex = idx;
+        memoInput.value = pages[currentIndex];
+        renderTabs();
+    }
+
+    function addPage() {
+        if (pages.length >= 12) return; // 最大12ページ
+        saveCurrentPage();
+        pages.push("");
+        currentIndex = pages.length - 1;
+        memoInput.value = "";
+        renderTabs();
+        saveToLocalStorage();
+    }
+
+    function deletePage() {
+        if (pages.length <= 1) return;
+        if (!confirm('このページを削除しますか？')) return;
+        pages.splice(currentIndex, 1);
+        currentIndex = Math.max(0, currentIndex - 1);
+        memoInput.value = pages[currentIndex];
+        renderTabs();
+        saveToLocalStorage();
+    }
+
+    function saveCurrentPage() {
+        pages[currentIndex] = memoInput.value;
+        saveToLocalStorage();
+    }
+
+    function saveToLocalStorage() {
+        localStorage.setItem('notion_multi_memo_v2', JSON.stringify(pages));
         saveStatus.textContent = 'Saving...';
         setTimeout(() => { saveStatus.textContent = 'Saved'; }, 600);
     }
 
-    // ページ切り替え
-    function changePage(pageIndex) {
-        saveData(); // 現在のページを保存
-        currentPage = pageIndex;
-        
-        // タブの見た目更新
-        document.querySelectorAll('.tab').forEach((tab, idx) => {
-            tab.classList.toggle('active', idx === pageIndex);
-        });
-        
-        loadData();
-    }
-
-    // 時間の挿入
-    function insertTime() {
+    function insertDateTime() {
         const now = new Date();
-        const timeStr = `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}] `;
+        const dateStr = `${now.getMonth() + 1}/${now.getDate()}`;
+        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        const dateTime = `[${dateStr} ${timeStr}] `;
         
         const start = memoInput.selectionStart;
-        const end = memoInput.selectionEnd;
         const text = memoInput.value;
-        
-        memoInput.value = text.substring(0, start) + timeStr + text.substring(end);
-        
-        // カーソル位置を挿入した文字の後に移動
-        memoInput.selectionStart = memoInput.selectionEnd = start + timeStr.length;
+        memoInput.value = text.substring(0, start) + dateTime + text.substring(memoInput.selectionEnd);
+        memoInput.selectionStart = memoInput.selectionEnd = start + dateTime.length;
         memoInput.focus();
-        saveData();
+        saveCurrentPage();
     }
 
-    // 入力イベント
-    memoInput.addEventListener('input', saveData);
+    memoInput.addEventListener('input', saveCurrentPage);
 
-    // 初期化
-    loadData();
+    // 初期表示
+    renderTabs();
+    memoInput.value = pages[currentIndex];
 </script>
 
 </body>
