@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            /* Notionのダークモード背景色 */
             background-color: #191919; 
             margin: 0;
             display: flex;
@@ -13,19 +12,47 @@
             align-items: center;
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* 📱 スマホ本体の枠組み */
+        .phone-case {
+            width: 280px;
+            height: 520px;
+            background: #000; /* ベゼルの色 */
+            border-radius: 45px;
+            border: 8px solid #333; /* フレームの厚み */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 10px rgba(255,255,255,0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
         }
 
-        /* スマホの画面っぽい外枠（不要ならこのセクションを削除してもOK） */
-        .phone-screen {
+        /* 画面上部のスピーカー/ノッチ部分 */
+        .phone-case::before {
+            content: "";
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 5px;
+            background: #222;
+            border-radius: 10px;
+            z-index: 10;
+        }
+
+        /* 内部の液晶画面 */
+        .screen {
+            flex: 1;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); /* 壁紙風グラデーション */
+            margin: 5px;
+            border-radius: 35px;
+            padding: 40px 15px 20px;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            padding: 25px;
-            background: rgba(255, 255, 255, 0.03); /* ほんのり透ける背景 */
-            border-radius: 40px; /* 角を大きく丸めてスマホ風に */
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 280px;
+            grid-auto-rows: min-content;
+            gap: 15px;
         }
 
         .nav-item {
@@ -33,23 +60,16 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 75px;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.2s cubic-bezier(0.17, 0.67, 0.83, 0.67);
         }
 
         .icon-box {
-            width: 60px;
-            height: 60px;
+            width: 55px;
+            height: 55px;
             background: white;
-            /* iOS風の「超楕円」に近い角丸設定 */
-            border-radius: 14px; 
+            border-radius: 12px;
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            transition: box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         .icon-box img {
@@ -59,87 +79,90 @@
         }
 
         .label {
-            font-size: 10px;
-            color: #ffffff; /* スマホのホーム画面っぽく白文字に */
-            opacity: 0.8;
-            font-weight: 500;
+            font-size: 9px;
+            color: #fff;
+            margin-top: 5px;
             text-align: center;
-            white-space: nowrap;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
-        /* ✨ 浮き上がるアニメーション */
+        /* ホバー時の動き（少し浮き上がる） */
         .nav-item:hover {
-            transform: translateY(-8px) scale(1.05);
+            transform: scale(1.1);
         }
-        .nav-item:hover .icon-box {
-            box-shadow: 0 15px 30px rgba(0,0,0,0.6);
-        }
-        .nav-item:hover .label {
-            opacity: 1;
+        
+        .nav-item:active {
+            transform: scale(0.9);
         }
 
-        /* タップ時の感触 */
-        .nav-item:active {
-            transform: scale(0.92);
+        /* 画面下部のホームバー */
+        .home-bar {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
 
-<div class="phone-screen">
-    <a href="https://pubmed.ncbi.nlm.nih.gov/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="pubmed.jpg"></div>
-        <span class="label">PubMed</span>
-    </a>
-    <a href="https://www.medicalonline.jp/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="メディカルオンライン.jpg"></div>
-        <span class="label">Medical Online</span>
-    </a>
-    <a href="https://www.carenet.com/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="carenet.png"></div>
-        <span class="label">CareNet</span>
-    </a>
-
-    <a href="https://www.itmedia.co.jp/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="ITmedia.jpg"></div>
-        <span class="label">ITmedia</span>
-    </a>
-    <a href="https://newspicks.com/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="Newspicks.png"></div>
-        <span class="label">NewsPicks</span>
-    </a>
-    <a href="https://ict-enews.net/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="ICT教育ニュース.png"></div>
-        <span class="label">ICT教育</span>
-    </a>
-
-    <a href="https://www.youtube.com/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="youtube.png"></div>
-        <span class="label">YouTube</span>
-    </a>
-    <a href="https://gemini.google.com/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="Gemini.jpg"></div>
-        <span class="label">Gemini</span>
-    </a>
-    <a href="https://github.com/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="Github.png"></div>
-        <span class="label">GitHub</span>
-    </a>
-
-    <a href="https://www.yahoo.co.jp/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="Yahoo!.png"></div>
-        <span class="label">Yahoo!</span>
-    </a>
-
-    <a href="https://script.google.com/u/0/home/projects/1GPS_MHABaeux_NNVAHpz1Wb50Kfsh5lGJX_EX_zq7KCuqdSzL1jc0OoX/edit/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="GAS.png"></div>
-        <span class="label">GAS</span>
-    </a>
-
-    <a href="https://ledge.ai/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="Ledge.jpeg"></div>
-        <span class="label">Ledge.ai</span>
-    </a>
+<div class="phone-case">
+    <div class="screen">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/" class="nav-item" target="_blank">
+            <div class="icon-box"><img src="pubmed.jpg"></div>
+            <span class="label">PubMed</span>
+        </a>
+        <a href="https://www.medicalonline.jp/" class="nav-item" target="_blank">
+            <div class="icon-box"><img src="メディカルオンライン.jpg"></div>
+            <span class="label">MedOnline</span>
+        </a>
+        <a href="https://www.carenet.com/" class="nav-item" target="_blank">
+            <div class="icon-box"><img src="carenet.png"></div>
+            <span class="label">CareNet</span>
+        </a>
+        <a href="https://www.itmedia.co.jp/" class="nav-item" target="_blank">
+            <div class="icon-box"><img src="ITmedia.jpg"></div>
+            <span class="label">ITmedia</span>
+        </a>
+        <a href="https://newspicks.com/" class="nav-item" target="_blank">
+            <div class="icon-box"><img src="Newspicks.png"></div>
+            <span class="label">NewsPicks</span>
+        </a>
+        <a href="https://ict-enews.net/" class="nav-item" target="_blank">
+            <div class="icon-box"><img src="ICT教育ニュース.png"></div>
+            <span class="label">ICT教育</span>
+        </a>
+        <a href="https://www.youtube.com/" class="nav-item" target="_blank">
+            <div class="icon-box"><img src="youtube.png"></div>
+            <span class="label">YouTube</span>
+        </a>
+        <a href="https://gemini.google.com/" class="nav-item" target="_blank">
+            <div class="icon-box"><img src="Gemini.jpg"></div>
+            <span class="label">Gemini</span>
+        </a>
+        <a href="https://github.com/" class="nav-item" target="_blank">
+            <div class="icon-box"><img src="Github.png"></div>
+            <span class="label">GitHub</span>
+        </a>
+        <a href="https://www.yahoo.co.jp/" class="nav-item" target="_blank">
+            <div class="icon-box"><img src="Yahoo!.png"></div>
+            <span class="label">Yahoo!</span>
+        </a>
+        <a href="https://script.google.com/u/0/home/projects/1GPS_MHABaeux_NNVAHpz1Wb50Kfsh5lGJX_EX_zq7KCuqdSzL1jc0OoX/edit/" class="nav-item" target="_blank">
+            <div class="icon-box"><img src="GAS.png"></div>
+            <span class="label">GAS</span>
+        </a>
+        <a href="https://ledge.ai/" class="nav-item" target="_blank">
+            <div class="icon-box"><img src="Ledge.jpeg"></div>
+            <span class="label">Ledge.ai</span>
+        </a>
+    </div>
+    <div class="home-bar"></div>
 </div>
 
 </body>
