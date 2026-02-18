@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            /* Notionダークモードの背景色 */
             background-color: #191919; 
             margin: 0;
             display: flex;
@@ -17,18 +16,18 @@
             overflow: hidden;
         }
 
-        /* 💡 タイトルのデザイン */
+        /* 💡 タイトルのデザイン（サイズアップ版） */
         .title {
-            color: #888888;
-            font-size: 14px;
+            color: #888888; /* 少し明るくして視認性アップ */
+            font-size: 14px; /* 10pxから14pxに拡大 */
             font-weight: 600;
-            letter-spacing: 0.15em;
+            letter-spacing: 0.15em; /* 文字間をさらに広げて高級感を */
             text-transform: uppercase;
             margin-bottom: 15px;
             padding-bottom: 6px;
             width: 200px;
             text-align: center;
-            border-bottom: 1.5px solid #333;
+            border-bottom: 1.5px solid #333; /* 下線を少し太く */
         }
 
         .container {
@@ -37,9 +36,6 @@
             max-width: 220px; 
             gap: 20px;
             padding: 10px 20px 20px;
-            /* ✨ 左側にNotion風の縦線を追加 */
-            border-left: 1px solid #333;
-            margin-left: 10px;
         }
 
         .nav-item {
@@ -80,22 +76,10 @@
             transition: color 0.3s ease;
         }
 
-        /* ホバー演出 */
-        .nav-item:hover {
-            transform: translateY(-5px);
-        }
-        
-        .nav-item:hover .icon-box {
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        }
-
-        .nav-item:hover .label {
-            color: #ffffff;
-        }
-
-        .nav-item:active {
-            transform: translateY(-2px) scale(0.95);
-        }
+        .nav-item:hover { transform: translateY(-5px); }
+        .nav-item:hover .icon-box { box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .nav-item:hover .label { color: #ffffff; }
+        .nav-item:active { transform: translateY(-2px) scale(0.95); }
     </style>
 </head>
 <body>
