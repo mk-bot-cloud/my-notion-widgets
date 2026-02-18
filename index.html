@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Portal</title>
+    <title>My Mobile Portal</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -20,7 +20,7 @@
             gap: 20px;
             padding: 30px;
             background: #161b22;
-            border-radius: 30px;
+            border-radius: 40px;
             border: 1px solid #30363d;
         }
         .app-icon {
@@ -28,18 +28,20 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 80px;
+            width: 75px;
+            transition: transform 0.1s;
         }
         .img-container {
             width: 65px;
             height: 65px;
             background-color: #fff;
-            border-radius: 15px;
+            border-radius: 16px;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             margin-bottom: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .img-container img {
             width: 100%;
@@ -52,6 +54,7 @@
             font-weight: bold;
             text-align: center;
         }
+        .app-icon:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
@@ -82,23 +85,18 @@
         <span class="app-label">ITmedia</span>
     </a>
 
-    <a href="https://www.medicalonline.jp/" class="app-icon" target="_blank">
-        <div class="img-container"><img src="メディカルオンライン.jpg"></div>
-        <span class="app-label">Medical Online</span>
-    </a>
-
     <a href="https://www.youtube.com/" class="app-icon" target="_blank">
         <div class="img-container"><img src="youtube.png"></div>
         <span class="app-label">YouTube</span>
     </a>
 
     <a href="https://gemini.google.com/" class="app-icon" target="_blank">
-        <div class="img-container"><img src="Gemini.png"></div>
+        <div class="img-container"><img src="Gemini.jpg"></div>
         <span class="app-label">Gemini</span>
     </a>
 
     <a href="https://github.com/" class="app-icon" target="_blank">
-        <div class="img-container"><img src="Giuhub.png"></div>
+        <div class="img-container"><img src="Github.png"></div>
         <span class="app-label">GitHub</span>
     </a>
 </div>
