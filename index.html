@@ -3,134 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>情報・ニュース リンク集</title>
+    <title>Mobile Style Navigation</title>
     <style>
-        /* 全体のレイアウト設定 */
+        /* 背景をスマホのホーム画面風に */
         body {
-            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
-            background-color: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(180deg, #2c3e50 0%, #000000 100%);
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
+            color: white;
         }
 
-        /* アイコンを並べるコンテナ */
-        .nav-container {
+        /* アイコンを並べるグリッド */
+        .app-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr); /* 5列に分割 */
-            gap: 20px;
-            padding: 30px;
-            background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            grid-template-columns: repeat(3, 1fr); /* 3列（スマホ風） */
+            gap: 25px;
+            padding: 40px;
+            max-width: 400px;
         }
 
-        /* 個別のリンク設定 */
-        .nav-link {
+        /* 各アプリ（アイコン）のスタイル */
+        .app-item {
             text-decoration: none;
-            color: #444;
+            color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: all 0.3s ease;
-            width: 100px;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .app-item:active {
+            transform: scale(0.9); /* タップした時に少し沈む演出 */
         }
 
         /* アイコン画像の外枠 */
-        .icon-box {
+        .icon-wrapper {
             width: 70px;
             height: 70px;
-            border-radius: 16px;
+            border-radius: 18px; /* iOS風の角丸 */
+            background-color: white; /* 画像がない時の予備色 */
             overflow: hidden;
-            background-color: #fff;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border: 1px solid #eee;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-bottom: 8px;
         }
 
-        /* アイコン画像自体の設定 */
-        .icon-box img {
+        /* アイコン画像の設定 */
+        .icon-wrapper img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 枠いっぱいに表示 */
+            object-fit: cover; /* 隙間なく表示 */
         }
 
-        /* サイト名テキスト */
-        .site-name {
-            font-size: 11px;
-            font-weight: 600;
+        /* アプリ名 */
+        .app-label {
+            font-size: 12px;
             text-align: center;
-            word-break: break-all;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* ホバー（マウスを乗せた時）のアニメーション */
-        .nav-link:hover {
-            transform: translateY(-5px);
-        }
-        .nav-link:hover .icon-box {
-            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
-        }
-        .nav-link:hover .site-name {
-            color: #007AFF;
-        }
-
-        /* スマホ対応：画面が狭い時は2列または3列にする */
-        @media (max-width: 600px) {
-            .nav-container {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 15px;
-            }
-            .nav-link {
-                width: 80px;
-            }
-            .icon-box {
-                width: 60px;
-                height: 60px;
+        /* 5つ並べる時のレスポンシブ調整 */
+        @media (min-width: 450px) {
+            .app-grid {
+                grid-template-columns: repeat(5, 1fr); /* PCサイズなら1列に5つ */
+                max-width: 600px;
             }
         }
     </style>
 </head>
 <body>
 
-<div class="nav-container">
-    <a href="https://pubmed.ncbi.nlm.nih.gov/" class="nav-link" target="_blank">
-        <div class="icon-box">
+<div class="app-grid">
+    <a href="https://pubmed.ncbi.nlm.nih.gov/" class="app-item" target="_blank">
+        <div class="icon-wrapper">
             <img src="image_78bb69.png" alt="PubMed">
         </div>
-        <span class="site-name">PubMed</span>
+        <span class="app-label">PubMed</span>
     </a>
 
-    <a href="https://www.carenet.com/" class="nav-link" target="_blank">
-        <div class="icon-box">
+    <a href="https://www.carenet.com/" class="app-item" target="_blank">
+        <div class="icon-wrapper">
             <img src="image_78bba7.png" alt="CareNet">
         </div>
-        <span class="site-name">CareNet</span>
+        <span class="app-label">CareNet</span>
     </a>
 
-    <a href="https://newspicks.com/" class="nav-link" target="_blank">
-        <div class="icon-box">
+    <a href="https://newspicks.com/" class="app-item" target="_blank">
+        <div class="icon-wrapper">
             <img src="image_78bc26.png" alt="NewsPicks">
         </div>
-        <span class="site-name">NewsPicks</span>
+        <span class="app-label">NewsPicks</span>
     </a>
 
-    <a href="https://ict-enews.net/" class="nav-link" target="_blank">
-        <div class="icon-box">
+    <a href="https://ict-enews.net/" class="app-item" target="_blank">
+        <div class="icon-wrapper">
             <img src="image_790de6.png" alt="ICT教育ニュース">
         </div>
-        <span class="site-name">ICT教育</span>
+        <span class="app-label">ICT教育</span>
     </a>
 
-    <a href="https://www.itmedia.co.jp/" class="nav-link" target="_blank">
-        <div class="icon-box">
+    <a href="https://www.itmedia.co.jp/" class="app-item" target="_blank">
+        <div class="icon-wrapper">
             <img src="image_790e44.png" alt="ITmedia">
         </div>
-        <span class="site-name">ITmedia</span>
+        <span class="app-label">ITmedia</span>
     </a>
 </div>
 
