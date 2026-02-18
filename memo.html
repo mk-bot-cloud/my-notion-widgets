@@ -29,7 +29,6 @@
             border-bottom: 1.5px solid #333;
         }
 
-        /* ページ切り替えタブエリア */
         .tabs-wrapper {
             display: flex;
             align-items: center;
@@ -63,7 +62,6 @@
             color: #fff;
         }
 
-        /* 追加・削除ボタン */
         .btn-page-ctrl {
             background: transparent;
             color: #555;
@@ -150,6 +148,7 @@
     const tabContainer = document.getElementById('tabContainer');
     const saveStatus = document.getElementById('saveStatus');
     
+    // キー名をv2に更新して新しいデータ形式を使用
     let pages = JSON.parse(localStorage.getItem('notion_multi_memo_v2') || '[""]');
     let currentIndex = 0;
 
@@ -172,7 +171,7 @@
     }
 
     function addPage() {
-        if (pages.length >= 12) return; // 最大12ページ
+        if (pages.length >= 12) return;
         saveCurrentPage();
         pages.push("");
         currentIndex = pages.length - 1;
@@ -184,8 +183,14 @@
     function deletePage() {
         if (pages.length <= 1) return;
         if (!confirm('このページを削除しますか？')) return;
+        
         pages.splice(currentIndex, 1);
-        currentIndex = Math.max(0, currentIndex - 1);
+        // インデックスがはみ出さないように調整
+        if (currentIndex >= pages.length) {
+            currentIndex = pages.length - 1;
+        }
+        
+        // 修正：画面の値を更新
         memoInput.value = pages[currentIndex];
         renderTabs();
         saveToLocalStorage();
@@ -218,9 +223,9 @@
 
     memoInput.addEventListener('input', saveCurrentPage);
 
-    // 初期表示
-    renderTabs();
+    // 初期化
     memoInput.value = pages[currentIndex];
+    renderTabs();
 </script>
 
 </body>
