@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
+            /* Notionダークモードの正確な背景色 */
             background-color: #191919; 
             margin: 0;
             display: flex;
@@ -18,26 +19,26 @@
         .phone-case {
             width: 280px;
             height: 520px;
-            background: #000; /* ベゼルの色 */
+            background: #000; /* ベゼルの色は黒でOK */
             border-radius: 45px;
-            border: 8px solid #333; /* フレームの厚み */
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 10px rgba(255,255,255,0.1);
+            border: 8px solid #2a2a2a; /* フレームを少し明るくして立体感を */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             position: relative;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        /* 画面上部のスピーカー/ノッチ部分 */
+        /* 画面上部のスピーカー */
         .phone-case::before {
             content: "";
             position: absolute;
             top: 15px;
             left: 50%;
             transform: translateX(-50%);
-            width: 60px;
-            height: 5px;
-            background: #222;
+            width: 50px;
+            height: 4px;
+            background: #111;
             border-radius: 10px;
             z-index: 10;
         }
@@ -45,10 +46,11 @@
         /* 内部の液晶画面 */
         .screen {
             flex: 1;
-            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); /* 壁紙風グラデーション */
-            margin: 5px;
+            /* 画面内もNotionの色に近いダークトーンのグラデーションに */
+            background: linear-gradient(180deg, #1e1e26 0%, #111115 100%); 
+            margin: 4px;
             border-radius: 35px;
-            padding: 40px 15px 20px;
+            padding: 45px 15px 20px;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-auto-rows: min-content;
@@ -60,16 +62,16 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: transform 0.2s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            transition: transform 0.2s ease;
         }
 
         .icon-box {
             width: 55px;
             height: 55px;
             background: white;
-            border-radius: 12px;
+            border-radius: 13px; /* iOS風の少し強めの角丸 */
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
 
         .icon-box img {
@@ -80,14 +82,16 @@
 
         .label {
             font-size: 9px;
-            color: #fff;
-            margin-top: 5px;
+            color: #ffffff;
+            margin-top: 6px;
             text-align: center;
             font-weight: 500;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            /* 文字が見やすいように薄いシャドウ */
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            opacity: 0.9;
         }
 
-        /* ホバー時の動き（少し浮き上がる） */
+        /* ホバーで少し浮かせる */
         .nav-item:hover {
             transform: scale(1.1);
         }
@@ -99,12 +103,12 @@
         /* 画面下部のホームバー */
         .home-bar {
             position: absolute;
-            bottom: 10px;
+            bottom: 12px;
             left: 50%;
             transform: translateX(-50%);
-            width: 100px;
+            width: 80px;
             height: 4px;
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.2);
             border-radius: 10px;
         }
     </style>
@@ -125,6 +129,7 @@
             <div class="icon-box"><img src="carenet.png"></div>
             <span class="label">CareNet</span>
         </a>
+
         <a href="https://www.itmedia.co.jp/" class="nav-item" target="_blank">
             <div class="icon-box"><img src="ITmedia.jpg"></div>
             <span class="label">ITmedia</span>
@@ -137,6 +142,7 @@
             <div class="icon-box"><img src="ICT教育ニュース.png"></div>
             <span class="label">ICT教育</span>
         </a>
+
         <a href="https://www.youtube.com/" class="nav-item" target="_blank">
             <div class="icon-box"><img src="youtube.png"></div>
             <span class="label">YouTube</span>
@@ -149,6 +155,7 @@
             <div class="icon-box"><img src="Github.png"></div>
             <span class="label">GitHub</span>
         </a>
+
         <a href="https://www.yahoo.co.jp/" class="nav-item" target="_blank">
             <div class="icon-box"><img src="Yahoo!.png"></div>
             <span class="label">Yahoo!</span>
