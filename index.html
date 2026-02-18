@@ -3,117 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Style Navigation</title>
+    <title>GitHub Style News Nav</title>
     <style>
-        /* 背景をスマホのホーム画面風に */
+        /* GitHubのダークモード風デザイン */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(180deg, #2c3e50 0%, #000000 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #0d1117; /* GitHubダーク背景 */
+            color: #c9d1d9;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            color: white;
         }
 
-        /* アイコンを並べるグリッド */
-        .app-grid {
+        .container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3列（スマホ風） */
-            gap: 25px;
-            padding: 40px;
-            max-width: 400px;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 20px;
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
         }
 
-        /* 各アプリ（アイコン）のスタイル */
-        .app-item {
+        .nav-item {
             text-decoration: none;
-            color: white;
+            color: #8b949e;
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: 0.2s;
         }
 
-        .app-item:active {
-            transform: scale(0.9); /* タップした時に少し沈む演出 */
-        }
-
-        /* アイコン画像の外枠 */
-        .icon-wrapper {
-            width: 70px;
-            height: 70px;
-            border-radius: 18px; /* iOS風の角丸 */
-            background-color: white; /* 画像がない時の予備色 */
+        /* GitHubのプロフィールのアイコンのような丸角設定 */
+        .icon-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background-color: #f0f2f5; /* 白背景でアイコンを際立たせる */
+            border: 1px solid #30363d;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             margin-bottom: 8px;
         }
 
-        /* アイコン画像の設定 */
-        .icon-wrapper img {
+        .icon-box img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 隙間なく表示 */
+            object-fit: cover;
         }
 
-        /* アプリ名 */
-        .app-label {
-            font-size: 12px;
-            text-align: center;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        .nav-item:hover {
+            transform: scale(1.1);
+            color: #58a6ff; /* GitHubブルー */
         }
 
-        /* 5つ並べる時のレスポンシブ調整 */
-        @media (min-width: 450px) {
-            .app-grid {
-                grid-template-columns: repeat(5, 1fr); /* PCサイズなら1列に5つ */
-                max-width: 600px;
-            }
+        .label {
+            font-size: 11px;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
-<div class="app-grid">
-    <a href="https://pubmed.ncbi.nlm.nih.gov/" class="app-item" target="_blank">
-        <div class="icon-wrapper">
-            <img src="image_78bb69.png" alt="PubMed">
-        </div>
-        <span class="app-label">PubMed</span>
+<div class="container">
+    <a href="https://pubmed.ncbi.nlm.nih.gov/" class="nav-item">
+        <div class="icon-box"><img src="image_78bb69.png" alt="PubMed"></div>
+        <span class="label">PubMed</span>
     </a>
 
-    <a href="https://www.carenet.com/" class="app-item" target="_blank">
-        <div class="icon-wrapper">
-            <img src="image_78bba7.png" alt="CareNet">
-        </div>
-        <span class="app-label">CareNet</span>
+    <a href="https://www.carenet.com/" class="nav-item">
+        <div class="icon-box"><img src="image_78bba7.png" alt="CareNet"></div>
+        <span class="label">CareNet</span>
     </a>
 
-    <a href="https://newspicks.com/" class="app-item" target="_blank">
-        <div class="icon-wrapper">
-            <img src="image_78bc26.png" alt="NewsPicks">
-        </div>
-        <span class="app-label">NewsPicks</span>
+    <a href="https://newspicks.com/" class="nav-item">
+        <div class="icon-box"><img src="image_78bc26.png" alt="NewsPicks"></div>
+        <span class="label">NewsPicks</span>
     </a>
 
-    <a href="https://ict-enews.net/" class="app-item" target="_blank">
-        <div class="icon-wrapper">
-            <img src="image_790de6.png" alt="ICT教育ニュース">
-        </div>
-        <span class="app-label">ICT教育</span>
+    <a href="https://ict-enews.net/" class="nav-item">
+        <div class="icon-box"><img src="image_790de6.png" alt="ICT教育"></div>
+        <span class="label">ICT教育</span>
     </a>
 
-    <a href="https://www.itmedia.co.jp/" class="app-item" target="_blank">
-        <div class="icon-wrapper">
-            <img src="image_790e44.png" alt="ITmedia">
-        </div>
-        <span class="app-label">ITmedia</span>
+    <a href="https://www.itmedia.co.jp/" class="nav-item">
+        <div class="icon-box"><img src="image_790e44.png" alt="ITmedia"></div>
+        <span class="label">ITmedia</span>
     </a>
+
 </div>
 
 </body>
