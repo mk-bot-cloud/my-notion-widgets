@@ -3,90 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Portal</title>
+    <title>My Mobile Portal</title>
     <style>
+        /* 背景：スマホの壁紙風グラデーション */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #0d1117;
+            background: linear-gradient(135deg, #1e2a38 0%, #000000 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
-        .container {
-            display: flex;
-            gap: 15px;
-            padding: 25px;
-            background: #161b22;
-            border-radius: 20px;
-            border: 1px solid #30363d;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
+        /* アイコンを並べるグリッド（スマホの1画面分） */
+        .home-screen {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3列 */
+            gap: 25px;
+            padding: 30px;
+            max-width: 360px;
         }
-        .nav-item {
+
+        /* 各アプリアイコンのリンク */
+        .app-item {
             text-decoration: none;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 80px;
-            transition: 0.2s;
+            transition: transform 0.1s ease;
         }
+
+        .app-item:active {
+            transform: scale(0.9); /* タップした時に少し沈む効果 */
+        }
+
+        /* アイコンの四角い枠（iOS風角丸） */
         .icon-box {
-            width: 60px;
-            height: 60px;
-            border-radius: 14px;
-            background: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            background: #ffffff;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             margin-bottom: 8px;
-            border: 2px solid transparent;
         }
-        .nav-item:hover .icon-box {
-            border-color: #58a6ff;
-            transform: translateY(-3px);
-        }
+
         .icon-box img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
         }
+
+        /* アプリ名のラベル */
         .label {
-            color: #8b949e;
-            font-size: 11px;
-            font-weight: bold;
+            color: white;
+            font-size: 12px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            font-weight: 500;
         }
-        .nav-item:hover .label {
-            color: #58a6ff;
+
+        /* PCで見るときは5つ並べる */
+        @media (min-width: 500px) {
+            .home-screen {
+                grid-template-columns: repeat(5, 1fr);
+                max-width: 600px;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <a href="https://pubmed.ncbi.nlm.nih.gov/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="https://pubmed.ncbi.nlm.nih.gov/favicon.ico" alt="P"></div>
+<div class="home-screen">
+    <a href="https://pubmed.ncbi.nlm.nih.gov/" class="app-item" target="_blank">
+        <div class="icon-box"><img src="image_78bb69.png" alt="P"></div>
         <span class="label">PubMed</span>
     </a>
 
-    <a href="https://www.carenet.com/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="https://www.carenet.com/favicon.ico" alt="C"></div>
+    <a href="https://www.carenet.com/" class="app-item" target="_blank">
+        <div class="icon-box"><img src="image_78bba7.png" alt="C"></div>
         <span class="label">CareNet</span>
     </a>
 
-    <a href="https://newspicks.com/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="https://newspicks.com/favicon.ico" alt="N"></div>
+    <a href="https://newspicks.com/" class="app-item" target="_blank">
+        <div class="icon-box"><img src="image_78bc26.png" alt="N"></div>
         <span class="label">NewsPicks</span>
     </a>
 
-    <a href="https://ict-enews.net/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="https://ict-enews.net/favicon.ico" alt="I"></div>
+    <a href="https://ict-enews.net/" class="app-item" target="_blank">
+        <div class="icon-box"><img src="image_790de6.png" alt="I"></div>
         <span class="label">ICT教育</span>
     </a>
 
-    <a href="https://www.itmedia.co.jp/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="https://www.itmedia.co.jp/favicon.ico" alt="T"></div>
+    <a href="https://www.itmedia.co.jp/" class="app-item" target="_blank">
+        <div class="icon-box">
+            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgNBgkNDQ8RDQ0NFhEQEA8PCg8PDw0WFh0XFyARHxMYISghJCYpHBUVITEtJSkxNDouGB81ODMtOCgwLisBCgoKDQ0OGxANGzYmHyUzMDc3LzU3MysxKzctKzc3LS0vMSsxKy0vNzcvNy0rLS01NysrNy4tLTc3Ky0tLS0vN//AABEIAOEA4QMBEQACEQEDEQH/xAAcAAEBAQEAAwEBAAAAAAAAAAAABgcIAwQFAgH/xABHEAABAwEDBggLBgQGAwAAAAAAAQIDBAUGBxE2cnOUshIWFyFTVZPBMTQ3QVFSVGFxsdIUMjOBkdETIqGzIyQmkqLwCEKC/8QAGgEBAAMBAQEAAAAAAAAAAAAAAAQFBgMCAf/EADIRAQABAQMHCwUBAQAAAAAAAAABAgMEsQURMTM0cYEGFBYhMlJTYaHB4RITFVGRQbL/2gAMAwEAAhEDEQA/AMNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0G4uFFs2vAypkclFRu52yyMV0kyelkfNlT3qqJ6MoGo0GB9042f4rqqod51fUNYn5Ixqf1VQPb5Gbl9DNtsgDkZuX0M22yAORm5fQzbbIA5Gbl9DNtsgDkZuX0M22yAORm5fQ<...中略...>0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH/2Q==" alt="IT">
+        </div>
         <span class="label">ITmedia</span>
     </a>
 </div>
