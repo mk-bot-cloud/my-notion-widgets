@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            /* Notionダークモードの背景色 */
             background-color: #191919; 
             margin: 0;
             display: flex;
+            flex-direction: column; /* 縦に並べる */
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -16,12 +16,26 @@
             overflow: hidden;
         }
 
+        /* 💡 見出しのデザイン */
+        .title {
+            color: #5a5a5a; /* 目立ちすぎないダークグレー */
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase; /* 大文字に変換 */
+            margin-bottom: 10px;
+            border-bottom: 1px solid #333; /* 下線で区切り */
+            padding-bottom: 4px;
+            width: 180px; /* アイコンの幅に合わせる */
+            text-align: center;
+        }
+
         .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             max-width: 220px; 
             gap: 20px;
-            padding: 20px;
+            padding: 10px 20px 20px; /* 上の余白を少し調整 */
         }
 
         .nav-item {
@@ -62,25 +76,15 @@
             transition: color 0.3s ease;
         }
 
-        /* ホバー演出 */
-        .nav-item:hover {
-            transform: translateY(-5px);
-        }
-        
-        .nav-item:hover .icon-box {
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        }
-
-        .nav-item:hover .label {
-            color: #ffffff;
-        }
-
-        .nav-item:active {
-            transform: translateY(-2px) scale(0.95);
-        }
+        .nav-item:hover { transform: translateY(-5px); }
+        .nav-item:hover .icon-box { box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .nav-item:hover .label { color: #ffffff; }
+        .nav-item:active { transform: translateY(-2px) scale(0.95); }
     </style>
 </head>
 <body>
+
+<div class="title">Quick Links</div>
 
 <div class="container">
     <a href="https://pubmed.ncbi.nlm.nih.gov/" class="nav-item" target="_blank">
