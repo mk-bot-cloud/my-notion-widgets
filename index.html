@@ -3,40 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Perfect Portal</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            /* 👇 ここを好きな色に変えられます */
-            background-color: #0f172a; 
+            /* Notionダークモードの背景色に完全に一致させました */
+            background-color: #191919; 
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
-        .home-screen {
+        .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
-            padding: 30px;
-            /* ボックス自体を少し透明にして背景に馴染ませています */
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
         }
-        .app-icon {
+        .nav-item {
             text-decoration: none;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 75px;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* 弾むような動き */
+            width: 80px;
+            /* 浮き上がるアニメーション */
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .img-container {
+        .icon-box {
             width: 65px;
             height: 65px;
-            background-color: #fff;
+            background: white;
             border-radius: 16px;
             overflow: hidden;
             display: flex;
@@ -46,73 +42,69 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             transition: box-shadow 0.3s ease;
         }
-        .img-container img {
+        .icon-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .app-label {
-            color: rgba(255, 255, 255, 0.6);
+        .label {
             font-size: 11px;
-            font-weight: bold;
+            color: #9b9b9b; /* Notionのテキストに近い色 */
+            font-weight: 500;
             text-align: center;
             transition: color 0.3s ease;
         }
 
-        /* ✨ ホバー時の浮き上がり演出 */
-        .app-icon:hover {
-            transform: translateY(-10px); /* 少し多めに浮かせる */
+        /* ✨ 浮き上がる演出 */
+        .nav-item:hover {
+            transform: translateY(-8px);
         }
-        .app-icon:hover .img-container {
-            box-shadow: 0 15px 30px rgba(0,0,0,0.6); /* 影を広げて高く見せる */
+        .nav-item:hover .icon-box {
+            box-shadow: 0 12px 24px rgba(0,0,0,0.5);
         }
-        .app-icon:hover .app-label {
+        .nav-item:hover .label {
             color: #ffffff;
-        }
-
-        .app-icon:active {
-            transform: scale(0.92);
         }
     </style>
 </head>
 <body>
 
-<div class="home-screen">
-    <a href="https://pubmed.ncbi.nlm.nih.gov/" class="app-icon" target="_blank">
-        <div class="img-container"><img src="pubmed.jpg"></div>
-        <span class="app-label">PubMed</span>
+<div class="container">
+    <a href="https://pubmed.ncbi.nlm.nih.gov/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="pubmed.jpg"></div>
+        <span class="label">PubMed</span>
     </a>
-    <a href="https://www.medicalonline.jp/" class="app-icon" target="_blank">
-        <div class="img-container"><img src="メディカルオンライン.jpg"></div>
-        <span class="app-label">Medical Online</span>
+    <a href="https://www.medicalonline.jp/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="メディカルオンライン.jpg"></div>
+        <span class="label">Medical Online</span>
     </a>
-    <a href="https://www.carenet.com/" class="app-icon" target="_blank">
-        <div class="img-container"><img src="carenet.png"></div>
-        <span class="app-label">CareNet</span>
+    <a href="https://www.carenet.com/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="carenet.png"></div>
+        <span class="label">CareNet</span>
     </a>
-    <a href="https://www.itmedia.co.jp/" class="app-icon" target="_blank">
-        <div class="img-container"><img src="ITmedia.jpg"></div>
-        <span class="app-label">ITmedia</span>
+    <a href="https://www.itmedia.co.jp/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="ITmedia.jpg"></div>
+        <span class="label">ITmedia</span>
     </a>
-    <a href="https://newspicks.com/" class="app-icon" target="_blank">
-        <div class="img-container"><img src="Newspicks.png"></div>
-        <span class="app-label">NewsPicks</span>
+    <a href="https://newspicks.com/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="Newspicks.png"></div>
+        <span class="label">NewsPicks</span>
     </a>
-    <a href="https://ict-enews.net/" class="app-icon" target="_blank">
-        <div class="img-container"><img src="ICT教育ニュース.png"></div>
-        <span class="app-label">ICT教育</span>
+    <a href="https://ict-enews.net/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="ICT教育ニュース.png"></div>
+        <span class="label">ICT教育</span>
     </a>
-    <a href="https://www.youtube.com/" class="app-icon" target="_blank">
-        <div class="img-container"><img src="youtube.png"></div>
-        <span class="app-label">YouTube</span>
+    <a href="https://www.youtube.com/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="youtube.png"></div>
+        <span class="label">YouTube</span>
     </a>
-    <a href="https://gemini.google.com/" class="app-icon" target="_blank">
-        <div class="img-container"><img src="Gemini.jpg"></div>
-        <span class="app-label">Gemini</span>
+    <a href="https://gemini.google.com/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="Gemini.jpg"></div>
+        <span class="label">Gemini</span>
     </a>
-    <a href="https://github.com/" class="app-icon" target="_blank">
-        <div class="img-container"><img src="Github.png"></div>
-        <span class="app-label">GitHub</span>
+    <a href="https://github.com/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="Github.png"></div>
+        <span class="label">GitHub</span>
     </a>
 </div>
 
