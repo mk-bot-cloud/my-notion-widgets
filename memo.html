@@ -4,154 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body {
-            background-color: #191919;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            overflow: hidden;
-        }
-
-        .title {
-            color: #888888;
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            margin-top: 20px;
-            margin-bottom: 12px;
-            padding-bottom: 6px;
-            width: 200px;
-            text-align: center;
-            border-bottom: 1.5px solid #333;
-        }
-
-        .tabs-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 12px;
-            max-width: 230px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-        }
-
-        .tab-container {
-            display: flex;
-            gap: 6px;
-        }
-
-        .tab {
-            background: #2a2a2a;
-            color: #888;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .tab.active {
-            background: #444;
-            color: #fff;
-        }
-
-        .btn-page-ctrl {
-            background: transparent;
-            color: #666;
-            border: 1.5px solid #333;
-            border-radius: 6px;
-            width: 28px;
-            height: 28px;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* 💡 削除待機中の赤色スタイル */
-        .btn-page-ctrl.confirm-delete {
-            color: #ff4d4d;
-            border-color: #ff4d4d;
-            background: rgba(255, 77, 77, 0.1);
-        }
-
-        .memo-container {
-            width: 230px;
-            height: 300px;
-            background-color: #202020;
-            border-radius: 12px;
-            padding: 15px;
-            box-sizing: border-box;
-            border: 1px solid #333;
-            display: flex;
-            flex-direction: column;
-        }
-
-        textarea {
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            border: none;
-            color: #e0e0e0;
-            font-size: 15px;
-            line-height: 1.6;
-            resize: none;
-            outline: none;
-            font-family: inherit;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 12px;
-        }
-
-        .btn-time {
-            background: #333;
-            color: #ccc;
-            border: 1px solid #444;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            cursor: pointer;
-        }
-
-        .status { font-size: 10px; color: #555; font-style: italic; }
+        body { background-color: #191919; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; font-family: sans-serif; overflow: hidden; }
+        .title { color: #888; font-size: 14px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 20px; margin-bottom: 12px; padding-bottom: 6px; width: 200px; text-align: center; border-bottom: 1.5px solid #333; }
+        .tabs-wrapper { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; max-width: 230px; }
+        .tab-container { display: flex; gap: 6px; }
+        .tab { background: #2a2a2a; color: #888; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .tab.active { background: #444; color: #fff; }
+        .btn-page-ctrl { background: transparent; color: #666; border: 1.5px solid #333; border-radius: 6px; width: 28px; height: 28px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+        .btn-page-ctrl.confirm-delete { color: #ff4d4d; border-color: #ff4d4d; background: rgba(255, 77, 77, 0.1); }
+        .memo-container { width: 230px; height: 300px; background-color: #202020; border-radius: 12px; padding: 15px; box-sizing: border-box; border: 1px solid #333; display: flex; flex-direction: column; }
+        textarea { width: 100%; height: 100%; background: transparent; border: none; color: #e0e0e0; font-size: 15px; line-height: 1.6; resize: none; outline: none; }
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+        .btn-time { background: #333; color: #ccc; border: 1px solid #444; padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; }
+        .status { font-size: 10px; color: #555; }
     </style>
 </head>
 <body>
-
-<div class="title">Scratch Pad</div>
-
-<div class="tabs-wrapper">
-    <div id="tabContainer" class="tab-container"></div>
-    <button class="btn-page-ctrl" onclick="addPage()">+</button>
-    <button id="deleteBtn" class="btn-page-ctrl" onclick="handleDelete()">-</button>
-</div>
-
-<div class="memo-container">
-    <textarea id="memoInput" placeholder="メモを入力..."></textarea>
-    <div class="controls">
-        <button class="btn-time" onclick="insertDateTime()">TIME</button>
-        <div id="saveStatus" class="status">Saved</div>
+    <div class="title">Scratch Pad</div>
+    <div class="tabs-wrapper">
+        <div id="tabContainer" class="tab-container"></div>
+        <button id="addBtn" class="btn-page-ctrl">+</button>
+        <button id="deleteBtn" class="btn-page-ctrl">-</button>
     </div>
-</div>
+    <div class="memo-container">
+        <textarea id="memoInput" placeholder="メモを入力..."></textarea>
+        <div class="controls">
+            <button id="timeBtn" class="btn-time">TIME</button>
+            <div id="saveStatus" class="status">Saved</div>
+        </div>
+    </div>
 
 <script>
     const memoInput = document.getElementById('memoInput');
     const tabContainer = document.getElementById('tabContainer');
+    const addBtn = document.getElementById('addBtn');
     const deleteBtn = document.getElementById('deleteBtn');
+    const timeBtn = document.getElementById('timeBtn');
     const saveStatus = document.getElementById('saveStatus');
     
-    let pages = JSON.parse(localStorage.getItem('notion_multi_memo_v2') || '[""]');
+    // キー名を完全にユニークに
+    const STORAGE_KEY = 'notion_memo_data_final';
+    let pages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[""]');
     let currentIndex = 0;
     let deleteConfirmMode = false;
 
@@ -167,86 +60,70 @@
     }
 
     function switchPage(idx) {
-        saveCurrentPage();
+        saveData();
         currentIndex = idx;
         memoInput.value = pages[currentIndex];
-        resetDeleteBtn();
+        resetDelete();
         renderTabs();
     }
 
-    function addPage() {
-        if (pages.length >= 12) return;
-        saveCurrentPage();
+    function saveData() {
+        pages[currentIndex] = memoInput.value;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
+    }
+
+    addBtn.onclick = () => {
+        if (pages.length >= 10) return;
+        saveData();
         pages.push("");
         currentIndex = pages.length - 1;
         memoInput.value = "";
-        resetDeleteBtn();
+        resetDelete();
         renderTabs();
-        saveToLocalStorage();
-    }
+        saveData();
+    };
 
-    // 💡 2段階削除の処理
-    function handleDelete() {
+    deleteBtn.onclick = () => {
         if (pages.length <= 1) return;
-
         if (!deleteConfirmMode) {
-            // 1回目：削除モードへ
             deleteConfirmMode = true;
             deleteBtn.classList.add('confirm-delete');
-            saveStatus.textContent = 'Click again to delete';
+            saveStatus.textContent = 'Confirm Delete?';
         } else {
-            // 2回目：実際に削除
-            executeDelete();
+            pages.splice(currentIndex, 1);
+            currentIndex = Math.max(0, currentIndex - 1);
+            memoInput.value = pages[currentIndex];
+            resetDelete();
+            renderTabs();
+            saveData();
         }
-    }
+    };
 
-    function executeDelete() {
-        pages.splice(currentIndex, 1);
-        if (currentIndex >= pages.length) {
-            currentIndex = pages.length - 1;
-        }
-        memoInput.value = pages[currentIndex];
-        resetDeleteBtn();
-        renderTabs();
-        saveToLocalStorage();
-    }
-
-    function resetDeleteBtn() {
+    function resetDelete() {
         deleteConfirmMode = false;
         deleteBtn.classList.remove('confirm-delete');
         saveStatus.textContent = 'Saved';
     }
 
-    function saveCurrentPage() {
-        pages[currentIndex] = memoInput.value;
-        saveToLocalStorage();
-    }
-
-    function saveToLocalStorage() {
-        localStorage.setItem('notion_multi_memo_v2', JSON.stringify(pages));
-    }
-
-    function insertDateTime() {
+    timeBtn.onclick = () => {
         const now = new Date();
-        const dateStr = `${now.getMonth() + 1}/${now.getDate()}`;
-        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-        const dateTime = `[${dateStr} ${timeStr}] `;
+        const stamp = `[${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}] `;
         const start = memoInput.selectionStart;
-        memoInput.value = memoInput.value.substring(0, start) + dateTime + memoInput.value.substring(memoInput.selectionEnd);
-        memoInput.selectionStart = memoInput.selectionEnd = start + dateTime.length;
+        memoInput.value = memoInput.value.substring(0, start) + stamp + memoInput.value.substring(memoInput.selectionEnd);
+        memoInput.selectionStart = memoInput.selectionEnd = start + stamp.length;
         memoInput.focus();
-        saveCurrentPage();
-    }
+        saveData();
+    };
 
-    memoInput.addEventListener('input', () => {
-        saveCurrentPage();
+    memoInput.oninput = () => {
+        saveData();
         saveStatus.textContent = 'Saving...';
-        setTimeout(() => { if(!deleteConfirmMode) saveStatus.textContent = 'Saved'; }, 600);
-    });
+        setTimeout(() => { if(!deleteConfirmMode) saveStatus.textContent = 'Saved'; }, 500);
+    };
 
+    // 初期化
     memoInput.value = pages[currentIndex];
     renderTabs();
 </script>
-
 </body>
 </html>
