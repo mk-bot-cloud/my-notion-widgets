@@ -17,7 +17,6 @@
             overflow: hidden;
         }
 
-        /* QUICK LINKSと合わせた見出し */
         .title {
             color: #888888;
             font-size: 14px;
@@ -31,11 +30,10 @@
             border-bottom: 1.5px solid #333;
         }
 
-        /* メモエリアのデザイン */
         .memo-container {
             width: 220px;
-            height: 250px; /* 右下のスペースに合わせて調整 */
-            background-color: #202020; /* 少しだけ背景より明るい色で浮き立たせる */
+            height: 250px;
+            background-color: #202020;
             border-radius: 12px;
             padding: 15px;
             box-sizing: border-box;
@@ -58,16 +56,10 @@
             font-family: inherit;
         }
 
-        /* スクロールバーのカスタマイズ（目立ちすぎないように） */
-        textarea::-webkit-scrollbar {
-            width: 4px;
-        }
-        textarea::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 10px;
-        }
+        textarea::-webkit-scrollbar { width: 4px; }
+        textarea::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 
-        .footer {
+        .status {
             margin-top: 8px;
             font-size: 9px;
             color: #555;
@@ -81,9 +73,31 @@
 <div class="title">Scratch Pad</div>
 
 <div class="memo-container">
-    <textarea placeholder="Type your notes here..."></textarea>
-    <div class="footer">Temporary Memo</div>
+    <textarea id="memoInput" placeholder="Type your notes here..."></textarea>
+    <div id="saveStatus" class="status">Saved locally</div>
 </div>
+
+<script>
+    const memoInput = document.getElementById('memoInput');
+    const saveStatus = document.getElementById('saveStatus');
+
+    // 1. 保存されたデータを読み込む
+    const savedMemo = localStorage.getItem('notion_scratch_pad');
+    if (savedMemo) {
+        memoInput.value = savedMemo;
+    }
+
+    // 2. 入力されるたびに自動保存する
+    memoInput.addEventListener('input', () => {
+        localStorage.setItem('notion_scratch_pad', memoInput.value);
+        saveStatus.textContent = 'Saving...';
+        
+        // 少し時間が経ったら「Saved」に戻す演出
+        setTimeout(() => {
+            saveStatus.textContent = 'Saved locally';
+        }, 1000);
+    });
+</script>
 
 </body>
 </html>
