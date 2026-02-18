@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            /* Notionダークモードと一体化 */
+            /* Notionダークモードの背景色 */
             background-color: #191919; 
             margin: 0;
             display: flex;
@@ -19,7 +19,6 @@
         .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            /* 横幅を絞って密度を上げる */
             max-width: 220px; 
             gap: 20px;
             padding: 20px;
@@ -31,12 +30,10 @@
             flex-direction: column;
             align-items: center;
             width: 60px;
-            /* 動きをより滑らかに */
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         .icon-box {
-            /* アイコンは48pxのコンパクトサイズ */
             width: 48px;
             height: 48px;
             background: white;
@@ -57,7 +54,7 @@
 
         .label {
             font-size: 9px;
-            color: #9b9b9b; /* 普段は控えめなグレー */
+            color: #9b9b9b;
             margin-top: 8px;
             font-weight: 500;
             text-align: center;
@@ -65,7 +62,7 @@
             transition: color 0.3s ease;
         }
 
-        /* ✨ ホバー時：アイコンが浮き上がり、文字が白く光る */
+        /* ホバー演出 */
         .nav-item:hover {
             transform: translateY(-5px);
         }
@@ -78,7 +75,6 @@
             color: #ffffff;
         }
 
-        /* クリックした瞬間の沈み込み */
         .nav-item:active {
             transform: translateY(-2px) scale(0.95);
         }
@@ -99,6 +95,7 @@
         <div class="icon-box"><img src="carenet.png"></div>
         <span class="label">CareNet</span>
     </a>
+
     <a href="https://www.itmedia.co.jp/" class="nav-item" target="_blank">
         <div class="icon-box"><img src="ITmedia.jpg"></div>
         <span class="label">ITmedia</span>
@@ -106,6 +103,15 @@
     <a href="https://newspicks.com/" class="nav-item" target="_blank">
         <div class="icon-box"><img src="Newspicks.png"></div>
         <span class="label">NewsPicks</span>
+    </a>
+    <a href="https://ledge.ai/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="Ledge.jpeg"></div>
+        <span class="label">Ledge.ai</span>
+    </a>
+
+    <a href="https://www.yahoo.co.jp/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="Yahoo!.png"></div>
+        <span class="label">Yahoo!</span>
     </a>
     <a href="https://ict-enews.net/" class="nav-item" target="_blank">
         <div class="icon-box"><img src="ICT教育ニュース.png"></div>
@@ -115,25 +121,18 @@
         <div class="icon-box"><img src="youtube.png"></div>
         <span class="label">YouTube</span>
     </a>
+
     <a href="https://gemini.google.com/" class="nav-item" target="_blank">
         <div class="icon-box"><img src="Gemini.jpg"></div>
         <span class="label">Gemini</span>
-    </a>
-    <a href="https://github.com/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="Github.png"></div>
-        <span class="label">GitHub</span>
-    </a>
-    <a href="https://www.yahoo.co.jp/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="Yahoo!.png"></div>
-        <span class="label">Yahoo!</span>
     </a>
     <a href="https://script.google.com/u/0/home/projects/1GPS_MHABaeux_NNVAHpz1Wb50Kfsh5lGJX_EX_zq7KCuqdSzL1jc0OoX/edit/" class="nav-item" target="_blank">
         <div class="icon-box"><img src="GAS.png"></div>
         <span class="label">GAS</span>
     </a>
-    <a href="https://ledge.ai/" class="nav-item" target="_blank">
-        <div class="icon-box"><img src="Ledge.jpeg"></div>
-        <span class="label">Ledge.ai</span>
+    <a href="https://github.com/" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="Github.png"></div>
+        <span class="label">GitHub</span>
     </a>
 </div>
 
