@@ -10,8 +10,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding-top: 20px;
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             overflow: hidden;
@@ -23,6 +21,7 @@
             font-weight: 600;
             letter-spacing: 0.15em;
             text-transform: uppercase;
+            margin-top: 20px;
             margin-bottom: 12px;
             padding-bottom: 6px;
             width: 200px;
@@ -30,9 +29,32 @@
             border-bottom: 1.5px solid #333;
         }
 
+        /* ページ切り替えタブ */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .tab {
+            background: #2a2a2a;
+            color: #777;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: #444;
+            color: #fff;
+        }
+
         .memo-container {
             width: 220px;
-            height: 250px;
+            height: 280px;
             background-color: #202020;
             border-radius: 12px;
             padding: 15px;
@@ -56,14 +78,33 @@
             font-family: inherit;
         }
 
-        textarea::-webkit-scrollbar { width: 4px; }
-        textarea::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        /* 操作エリア */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .btn-time {
+            background: #333;
+            color: #aaa;
+            border: 1px solid #444;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-time:hover {
+            background: #444;
+            color: #fff;
+        }
 
         .status {
-            margin-top: 8px;
             font-size: 9px;
             color: #555;
-            text-align: right;
             font-style: italic;
         }
     </style>
@@ -72,31 +113,79 @@
 
 <div class="title">Scratch Pad</div>
 
+<div class="tabs">
+    <button class="tab active" onclick="changePage(0)">P1</button>
+    <button class="tab" onclick="changePage(1)">P2</button>
+    <button class="tab" onclick="changePage(2)">P3</button>
+    <button class="tab" onclick="changePage(3)">P4</button>
+    <button class="tab" onclick="changePage(4)">P5</button>
+</div>
+
 <div class="memo-container">
     <textarea id="memoInput" placeholder="Type your notes here..."></textarea>
-    <div id="saveStatus" class="status">Saved locally</div>
+    
+    <div class="controls">
+        <button class="btn-time" onclick="insertTime()">TIME</button>
+        <div id="saveStatus" class="status">Saved</div>
+    </div>
 </div>
 
 <script>
     const memoInput = document.getElementById('memoInput');
     const saveStatus = document.getElementById('saveStatus');
+    let currentPage = 0;
 
-    // 1. 保存されたデータを読み込む
-    const savedMemo = localStorage.getItem('notion_scratch_pad');
-    if (savedMemo) {
-        memoInput.value = savedMemo;
+    // データの読み込み
+    function loadData() {
+        const allData = JSON.parse(localStorage.getItem('notion_multi_memo') || '["","","","",""]');
+        memoInput.value = allData[currentPage];
     }
 
-    // 2. 入力されるたびに自動保存する
-    memoInput.addEventListener('input', () => {
-        localStorage.setItem('notion_scratch_pad', memoInput.value);
-        saveStatus.textContent = 'Saving...';
+    // データの保存
+    function saveData() {
+        const allData = JSON.parse(localStorage.getItem('notion_multi_memo') || '["","","","",""]');
+        allData[currentPage] = memoInput.value;
+        localStorage.setItem('notion_multi_memo', JSON.stringify(allData));
         
-        // 少し時間が経ったら「Saved」に戻す演出
-        setTimeout(() => {
-            saveStatus.textContent = 'Saved locally';
-        }, 1000);
-    });
+        saveStatus.textContent = 'Saving...';
+        setTimeout(() => { saveStatus.textContent = 'Saved'; }, 600);
+    }
+
+    // ページ切り替え
+    function changePage(pageIndex) {
+        saveData(); // 現在のページを保存
+        currentPage = pageIndex;
+        
+        // タブの見た目更新
+        document.querySelectorAll('.tab').forEach((tab, idx) => {
+            tab.classList.toggle('active', idx === pageIndex);
+        });
+        
+        loadData();
+    }
+
+    // 時間の挿入
+    function insertTime() {
+        const now = new Date();
+        const timeStr = `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}] `;
+        
+        const start = memoInput.selectionStart;
+        const end = memoInput.selectionEnd;
+        const text = memoInput.value;
+        
+        memoInput.value = text.substring(0, start) + timeStr + text.substring(end);
+        
+        // カーソル位置を挿入した文字の後に移動
+        memoInput.selectionStart = memoInput.selectionEnd = start + timeStr.length;
+        memoInput.focus();
+        saveData();
+    }
+
+    // 入力イベント
+    memoInput.addEventListener('input', saveData);
+
+    // 初期化
+    loadData();
 </script>
 
 </body>
