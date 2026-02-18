@@ -4,42 +4,45 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* Notionのダークモード背景色に完全一致させる */
         body { 
-            background-color: #0d1117; /* GitHubのダークモード背景色 */
+            background-color: #191919; 
             margin: 0; 
-            padding: 15px 10px; 
+            padding: 10px; 
             display: flex; 
             flex-direction: column; 
             gap: 8px; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
         .btn {
             display: flex;
             align-items: center;
-            width: 210px; 
-            height: 32px;
+            width: 220px; 
+            height: 34px;
             padding: 0 12px;
-            background-color: #21262d; /* GitHubセカンダリボタンの色 */
-            border: 1px solid rgba(240,246,252,0.1); /* 微細な枠線 */
+            /* 背景を少しだけ明るいグレーにして浮き上がらせる */
+            background-color: #252525; 
+            /* GitHub風の細い枠線 */
+            border: 1px solid #333333; 
             border-radius: 6px;
             text-decoration: none;
-            color: #c9d1d9; /* GitHubの標準テキスト色 */
+            color: #d1d1d1;
             font-size: 13px;
             font-weight: 500;
-            transition: .2s cubic-bezier(0.3, 0, 0.5, 1);
-            transition-property: background-color, border-color;
+            transition: 0.2s cubic-bezier(0.3, 0, 0.5, 1);
         }
-        /* ホバー時の挙動をGitHubに準拠 */
+        /* ホバー時はGitHubのように明るく */
         .btn:hover {
-            background-color: #30363d;
-            border-color: #8b949e;
+            background-color: #303030;
+            border-color: #555555;
             color: #ffffff;
         }
         .btn i {
-            width: 20px;
+            width: 24px;
             font-size: 14px;
             margin-right: 8px;
-            color: #8b949e; /* アイコンは少し控えめな色に */
+            color: #888888;
+            text-align: center;
         }
         .btn:hover i {
             color: #ffffff;
@@ -50,9 +53,9 @@
     </style>
 </head>
 <body>
-    <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" class="btn"><i class="fa-solid fa-book-medical"></i><span>Pubmed</span></a>
+    <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" class="btn"><i class="fa-solid fa-square-plus"></i><span>Pubmed</span></a>
     <a href="https://www.medicalonline.jp/" target="_blank" class="btn"><i class="fa-solid fa-file-medical"></i><span>Medical Online</span></a>
-    <a href="https://www.carenet.com/" target="_blank" class="btn"><i class="fa-solid fa-hospital"></i><span>Carenet</span></a>
+    <a href="https://www.carenet.com/" target="_blank" class="btn"><i class="fa-solid fa-notes-medical"></i><span>Carenet</span></a>
     <a href="https://www.itmedia.co.jp/" target="_blank" class="btn"><i class="fa-solid fa-microchip"></i><span>ITmedia</span></a>
     <a href="https://ict-enews.net/" target="_blank" class="btn"><i class="fa-solid fa-graduation-cap"></i><span>ICT教育ニュース</span></a>
     <a href="https://newspicks.com/" target="_blank" class="btn"><i class="fa-solid fa-newspaper"></i><span>NewsPicks</span></a>
