@@ -8,7 +8,7 @@
             background-color: #191919; 
             margin: 0;
             display: flex;
-            flex-direction: column; /* 縦に並べる */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -16,18 +16,18 @@
             overflow: hidden;
         }
 
-        /* 💡 見出しのデザイン */
+        /* 💡 タイトルのデザイン（サイズアップ版） */
         .title {
-            color: #5a5a5a; /* 目立ちすぎないダークグレー */
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase; /* 大文字に変換 */
-            margin-bottom: 10px;
-            border-bottom: 1px solid #333; /* 下線で区切り */
-            padding-bottom: 4px;
-            width: 180px; /* アイコンの幅に合わせる */
+            color: #888888; /* 少し明るくして視認性アップ */
+            font-size: 14px; /* 10pxから14pxに拡大 */
+            font-weight: 600;
+            letter-spacing: 0.15em; /* 文字間をさらに広げて高級感を */
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            padding-bottom: 6px;
+            width: 200px;
             text-align: center;
+            border-bottom: 1.5px solid #333; /* 下線を少し太く */
         }
 
         .container {
@@ -35,7 +35,7 @@
             grid-template-columns: repeat(3, 1fr);
             max-width: 220px; 
             gap: 20px;
-            padding: 10px 20px 20px; /* 上の余白を少し調整 */
+            padding: 10px 20px 20px;
         }
 
         .nav-item {
