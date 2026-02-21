@@ -8,8 +8,8 @@
       --bg-color: #191919; 
       --text-color: #FFFFFF;
       --sub-text: #737373;
-      --accent-color: #eb5757; 
-      --break-color: #2eaadc;  
+      --focus-color: #eb5757; /* 集中：赤 */
+      --break-color: #2eaadc; /* 休憩：青 */
       --button-bg: #252525;
     }
     body {
@@ -27,18 +27,18 @@
       text-align: center;
       background: var(--bg-color);
       padding: 10px;
-      width: 200px; /* 160pxから200pxへ拡大 */
+      width: 190px;
     }
     #status {
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       font-weight: 700;
       margin-bottom: 2px;
-      color: var(--accent-color);
+      color: var(--sub-text);
       text-transform: uppercase;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.1em;
     }
     #time {
-      font-size: 3.5rem; /* 読みやすい大きさに戻しました */
+      font-size: 3.5rem;
       font-weight: 700;
       margin-bottom: 15px;
       font-variant-numeric: tabular-nums;
@@ -48,21 +48,18 @@
     .settings {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 18px;
-      font-size: 0.65rem;
-      color: var(--sub-text);
+      margin-bottom: 15px;
     }
     .setting-group {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
       width: 48%;
-    }
-    .setting-group label {
-      font-weight: 600;
+      font-size: 0.6rem;
+      color: var(--sub-text);
     }
     .setting-group input {
-      width: 30px;
+      width: 35px;
       border: none;
       border-bottom: 1px solid #333;
       padding: 2px;
@@ -71,72 +68,73 @@
       color: var(--text-color);
       background: transparent;
       outline: none;
-      margin-left: 5px;
+      margin-top: 2px;
     }
 
     .controls {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       gap: 8px;
     }
-    .controls button {
+    button {
       cursor: pointer;
       border: none;
-      padding: 8px 0;
+      padding: 10px 0;
       border-radius: 6px;
-      background: var(--button-bg);
-      color: var(--text-color);
-      font-weight: 600;
-      font-size: 0.75rem;
+      font-weight: 700;
+      font-size: 0.8rem;
       transition: all 0.2s;
-      flex: 1;
+      width: 100%;
     }
-    .controls button:hover {
-      filter: brightness(1.3);
+    button:hover { filter: brightness(1.2); }
+    button:active { transform: scale(0.98); }
+
+    /* 集中開始ボタン */
+    #focusBtn { background: var(--focus-color); color: white; }
+    /* 休憩開始ボタン */
+    #breakBtn { background: var(--break-color); color: white; }
+    /* 停止・リセットボタン */
+    #stopBtn { 
+      background: var(--button-bg); 
+      color: var(--sub-text); 
+      font-size: 0.7rem;
+      padding: 6px 0;
     }
-    .controls button#startBtn {
-      background: var(--accent-color);
-      color: white;
-    }
+
+    /* 実行中のアニメーション（任意） */
+    .running { box-shadow: 0 0 10px rgba(255,255,255,0.1); }
   </style>
 </head>
 <body>
   <div class="timer-container">
-    <div id="status">Focus</div>
+    <div id="status">Ready</div>
     <div id="time">25:00</div>
     
     <div class="settings">
       <div class="setting-group">
-        <label>FOCUS</label>
+        <label>集中(分)</label>
         <input type="number" id="focusInput" value="25" min="1" max="99">
       </div>
       <div class="setting-group">
-        <label>BREAK</label>
+        <label>休憩(分)</label>
         <input type="number" id="breakInput" value="5" min="1" max="99">
       </div>
     </div>
 
     <div class="controls">
-      <button id="startBtn">START</button>
-      <button id="resetBtn">RESET</button>
+      <button id="focusBtn">集中スタート</button>
+      <button id="breakBtn">休憩スタート</button>
+      <button id="stopBtn">RESET / STOP</button>
     </div>
   </div>
 
   <script>
     let timeLeft;
     let timerId = null;
-    let isFocus = true;
-
     const timeDisplay = document.getElementById('time');
-    const startBtn = document.getElementById('startBtn');
     const statusText = document.getElementById('status');
     const focusInput = document.getElementById('focusInput');
     const breakInput = document.getElementById('breakInput');
-
-    function initTimer() {
-      timeLeft = parseInt(focusInput.value) * 60;
-      updateDisplay();
-    }
 
     function updateDisplay() {
       const mins = Math.floor(timeLeft / 60);
@@ -144,57 +142,45 @@
       timeDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
     }
 
-    function handleInputChange() {
-      if (!timerId) initTimer();
-    }
-
-    focusInput.addEventListener('input', handleInputChange);
-    breakInput.addEventListener('input', handleInputChange);
-
-    function switchMode() {
-      isFocus = !isFocus;
-      const nextTime = isFocus ? focusInput.value : breakInput.value;
-      timeLeft = parseInt(nextTime) * 60;
-      
-      statusText.textContent = isFocus ? "Focus" : "Break";
-      statusText.style.color = isFocus ? "var(--accent-color)" : "var(--break-color)";
-      startBtn.style.backgroundColor = isFocus ? "var(--accent-color)" : "var(--break-color)";
-      
+    function startTimer(minutes, modeName, color) {
+      clearInterval(timerId);
+      timeLeft = minutes * 60;
+      statusText.textContent = modeName;
+      statusText.style.color = color;
       updateDisplay();
+
+      timerId = setInterval(() => {
+        timeLeft--;
+        updateDisplay();
+        if (timeLeft <= 0) {
+          clearInterval(timerId);
+          timerId = null;
+          statusText.textContent = "Finished!";
+          new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play();
+        }
+      }, 1000);
     }
 
-    startBtn.addEventListener('click', () => {
-      if (timerId) {
-        clearInterval(timerId);
-        timerId = null;
-        startBtn.textContent = 'START';
-      } else {
-        startBtn.textContent = 'PAUSE';
-        timerId = setInterval(() => {
-          timeLeft--;
-          updateDisplay();
-          if (timeLeft <= 0) {
-            clearInterval(timerId);
-            timerId = null;
-            startBtn.textContent = 'START';
-            switchMode();
-          }
-        }, 1000);
-      }
+    document.getElementById('focusBtn').addEventListener('click', () => {
+      startTimer(parseInt(focusInput.value), "Focus Now", "var(--focus-color)");
     });
 
-    document.getElementById('resetBtn').addEventListener('click', () => {
+    document.getElementById('breakBtn').addEventListener('click', () => {
+      startTimer(parseInt(breakInput.value), "Break Now", "var(--break-color)");
+    });
+
+    document.getElementById('stopBtn').addEventListener('click', () => {
       clearInterval(timerId);
       timerId = null;
-      isFocus = true;
-      initTimer();
-      statusText.textContent = "Focus";
-      statusText.style.color = "var(--accent-color)";
-      startBtn.textContent = 'START';
-      startBtn.style.backgroundColor = "var(--accent-color)";
+      statusText.textContent = "Ready";
+      statusText.style.color = "var(--sub-text)";
+      timeLeft = parseInt(focusInput.value) * 60;
+      updateDisplay();
     });
 
-    initTimer();
+    // 初期化
+    timeLeft = parseInt(focusInput.value) * 60;
+    updateDisplay();
   </script>
 </body>
 </html>
