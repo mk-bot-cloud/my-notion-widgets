@@ -10,7 +10,6 @@
       --sub-text: #737373;
       --accent-color: #eb5757; 
       --break-color: #2eaadc;  
-      --input-bg: #252525;
       --button-bg: #252525;
     }
     body {
@@ -22,26 +21,26 @@
       height: 100vh;
       margin: 0;
       color: var(--text-color);
-      overflow: hidden; /* スクロールバー防止 */
+      overflow: hidden;
     }
     .timer-container {
       text-align: center;
       background: var(--bg-color);
-      padding: 10px;
-      width: 260px;
+      padding: 5px;
+      width: 160px; /* 横幅を大幅に削減 */
     }
     #status {
-      font-size: 0.7rem;
+      font-size: 0.6rem;
       font-weight: 700;
-      margin-bottom: 4px;
+      margin-bottom: -5px;
       color: var(--accent-color);
       text-transform: uppercase;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.1em;
     }
     #time {
-      font-size: 4.5rem; /* 少し大きくして存在感をアップ */
+      font-size: 2.8rem; /* サイズを凝縮 */
       font-weight: 700;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       font-variant-numeric: tabular-nums;
       letter-spacing: -0.05em;
     }
@@ -49,43 +48,46 @@
     .settings {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 25px;
-      font-size: 0.65rem;
+      margin-bottom: 15px;
+      font-size: 0.55rem;
       color: var(--sub-text);
     }
     .setting-group {
       display: flex;
-      flex-direction: column;
+      flex-direction: row; /* 横並びにして高さを抑える */
       align-items: center;
-      width: 42%;
+      justify-content: center;
+      width: 48%;
     }
     .setting-group input {
-      width: 100%;
+      width: 25px;
       border: none;
-      border-bottom: 1px solid #333; /* 下線のみでミニマルに */
-      padding: 4px;
+      border-bottom: 1px solid #333;
+      padding: 0 2px;
       text-align: center;
       font-weight: 600;
       color: var(--text-color);
-      margin-top: 4px;
       background: transparent;
       outline: none;
-    }
-    .setting-group input:focus {
-      border-color: var(--sub-text);
+      margin-left: 3px;
     }
 
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+    }
     .controls button {
       cursor: pointer;
       border: none;
-      padding: 10px 16px;
-      border-radius: 5px;
+      padding: 6px 0;
+      border-radius: 4px;
       background: var(--button-bg);
       color: var(--text-color);
       font-weight: 600;
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       transition: opacity 0.2s;
-      margin: 0 4px;
+      flex: 1; /* ボタンを均等配置 */
     }
     .controls button:hover {
       opacity: 0.8;
@@ -93,7 +95,6 @@
     .controls button#startBtn {
       background: var(--accent-color);
       color: white;
-      min-width: 90px;
     }
   </style>
 </head>
@@ -104,11 +105,11 @@
     
     <div class="settings">
       <div class="setting-group">
-        <label>FOCUS</label>
+        <label>F</label>
         <input type="number" id="focusInput" value="25" min="1" max="99">
       </div>
       <div class="setting-group">
-        <label>BREAK</label>
+        <label>B</label>
         <input type="number" id="breakInput" value="5" min="1" max="99">
       </div>
     </div>
