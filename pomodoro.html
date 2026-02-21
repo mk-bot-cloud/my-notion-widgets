@@ -5,15 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
-      /* Notionダークモードの正確な配色 */
       --bg-color: #191919; 
-      --card-bg: #191919;
       --text-color: #FFFFFF;
-      --sub-text: #9B9B9B;
-      --accent-color: #eb5757; /* Focus（赤） */
-      --break-color: #2eaadc;  /* Break（青） */
+      --sub-text: #737373;
+      --accent-color: #eb5757; 
+      --break-color: #2eaadc;  
       --input-bg: #252525;
-      --border-color: #2f2f2f;
+      --button-bg: #252525;
     }
     body {
       background: var(--bg-color);
@@ -24,55 +22,53 @@
       height: 100vh;
       margin: 0;
       color: var(--text-color);
+      overflow: hidden; /* スクロールバー防止 */
     }
-    .timer-card {
+    .timer-container {
       text-align: center;
-      background: var(--card-bg);
-      padding: 24px;
-      border-radius: 10px;
+      background: var(--bg-color);
+      padding: 10px;
       width: 260px;
-      /* 背景色と同じにすることで境界を消すか、微かな線にする */
-      border: 1px solid var(--border-color);
     }
     #status {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       color: var(--accent-color);
       text-transform: uppercase;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.2em;
     }
     #time {
-      font-size: 4rem;
+      font-size: 4.5rem; /* 少し大きくして存在感をアップ */
       font-weight: 700;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       font-variant-numeric: tabular-nums;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.05em;
     }
     
     .settings {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 24px;
-      font-size: 0.7rem;
+      margin-bottom: 25px;
+      font-size: 0.65rem;
       color: var(--sub-text);
     }
     .setting-group {
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 45%;
+      width: 42%;
     }
     .setting-group input {
       width: 100%;
-      border: 1px solid var(--border-color);
-      border-radius: 5px;
-      padding: 6px;
+      border: none;
+      border-bottom: 1px solid #333; /* 下線のみでミニマルに */
+      padding: 4px;
       text-align: center;
       font-weight: 600;
       color: var(--text-color);
-      margin-top: 6px;
-      background: var(--input-bg);
+      margin-top: 4px;
+      background: transparent;
       outline: none;
     }
     .setting-group input:focus {
@@ -82,17 +78,17 @@
     .controls button {
       cursor: pointer;
       border: none;
-      padding: 12px 20px;
-      border-radius: 6px;
-      background: var(--input-bg);
+      padding: 10px 16px;
+      border-radius: 5px;
+      background: var(--button-bg);
       color: var(--text-color);
       font-weight: 600;
       font-size: 0.8rem;
-      transition: all 0.2s;
+      transition: opacity 0.2s;
       margin: 0 4px;
     }
     .controls button:hover {
-      filter: brightness(1.2);
+      opacity: 0.8;
     }
     .controls button#startBtn {
       background: var(--accent-color);
@@ -102,7 +98,7 @@
   </style>
 </head>
 <body>
-  <div class="timer-card">
+  <div class="timer-container">
     <div id="status">Focus</div>
     <div id="time">25:00</div>
     
@@ -149,8 +145,8 @@
       if (!timerId) initTimer();
     }
 
-    focusInput.addEventListener('change', handleInputChange);
-    breakInput.addEventListener('change', handleInputChange);
+    focusInput.addEventListener('input', handleInputChange);
+    breakInput.addEventListener('input', handleInputChange);
 
     function switchMode() {
       isFocus = !isFocus;
