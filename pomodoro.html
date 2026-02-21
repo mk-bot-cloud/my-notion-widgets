@@ -7,8 +7,10 @@
     :root {
       --bg-color: #ffffff;
       --text-color: #37352F;
-      --accent-color: #eb5757; /* Notionの赤色に近い色 */
+      --accent-color: #eb5757;
+      --break-color: #2eaadc;
       --secondary-bg: #f1f1ef;
+      --border-color: rgba(15, 15, 15, 0.1);
     }
     body {
       background: transparent;
@@ -23,47 +25,73 @@
     .timer-card {
       text-align: center;
       background: var(--bg-color);
-      padding: 24px;
+      padding: 20px;
       border-radius: 15px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      width: 240px;
-      border: 1px solid rgba(15, 15, 15, 0.1);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      width: 260px;
+      border: 1px solid var(--border-color);
     }
     #status {
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 5px;
       color: var(--accent-color);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.1em;
     }
     #time {
       font-size: 3.5rem;
       font-weight: 700;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       font-variant-numeric: tabular-nums;
     }
+    
+    /* 設定エリアのスタイル */
+    .settings {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      font-size: 0.75rem;
+      color: #666;
+    }
+    .setting-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 45%;
+    }
+    .setting-group input {
+      width: 100%;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 4px;
+      text-align: center;
+      font-weight: bold;
+      color: var(--text-color);
+      margin-top: 4px;
+      background: var(--secondary-bg);
+    }
+
     .controls button {
       cursor: pointer;
       border: none;
-      padding: 10px 20px;
+      padding: 10px 18px;
       border-radius: 8px;
       background: var(--secondary-bg);
       color: var(--text-color);
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       transition: all 0.2s;
       margin: 0 4px;
-    }
-    .controls button:hover {
-      background: #e2e2e2;
     }
     .controls button#startBtn {
       background: var(--accent-color);
       color: white;
+      min-width: 80px;
     }
-    .controls button#startBtn:hover {
-      opacity: 0.9;
+    .controls button#startBtn.running {
+      background: #dfdfdf;
+      color: var(--text-color);
     }
   </style>
 </head>
@@ -71,6 +99,18 @@
   <div class="timer-card">
     <div id="status">Focus</div>
     <div id="time">25:00</div>
+    
+    <div class="settings">
+      <div class="setting-group">
+        <label>Focus (min)</label>
+        <input type="number" id="focusInput" value="25" min="1" max="60">
+      </div>
+      <div class="setting-group">
+        <label>Break (min)</label>
+        <input type="number" id="breakInput" value="5" min="1" max="60">
+      </div>
+    </div>
+
     <div class="controls">
       <button id="startBtn">START</button>
       <button id="resetBtn">RESET</button>
@@ -78,13 +118,21 @@
   </div>
 
   <script>
-    let timeLeft = 25 * 60;
+    let timeLeft;
     let timerId = null;
     let isFocus = true;
 
     const timeDisplay = document.getElementById('time');
     const startBtn = document.getElementById('startBtn');
     const statusText = document.getElementById('status');
+    const focusInput = document.getElementById('focusInput');
+    const breakInput = document.getElementById('breakInput');
+
+    // 初期表示の設定
+    function initTimer() {
+      timeLeft = parseInt(focusInput.value) * 60;
+      updateDisplay();
+    }
 
     function updateDisplay() {
       const mins = Math.floor(timeLeft / 60);
@@ -92,21 +140,39 @@
       timeDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
     }
 
+    // 入力値が変わったら即座に反映（停止中のみ）
+    function handleInputChange() {
+      if (!timerId) {
+        initTimer();
+      }
+    }
+
+    focusInput.addEventListener('change', handleInputChange);
+    breakInput.addEventListener('change', handleInputChange);
+
     function switchMode() {
       isFocus = !isFocus;
-      timeLeft = (isFocus ? 25 : 5) * 60;
+      const nextTime = isFocus ? focusInput.value : breakInput.value;
+      timeLeft = parseInt(nextTime) * 60;
+      
       statusText.textContent = isFocus ? "Focus" : "Break";
-      statusText.style.color = isFocus ? "#eb5757" : "#2eaadc";
+      statusText.style.color = isFocus ? "var(--accent-color)" : "var(--break-color)";
+      startBtn.style.backgroundColor = isFocus ? "var(--accent-color)" : "var(--break-color)";
+      
       updateDisplay();
     }
 
     startBtn.addEventListener('click', () => {
       if (timerId) {
+        // 一時停止
         clearInterval(timerId);
         timerId = null;
         startBtn.textContent = 'START';
+        startBtn.classList.remove('running');
       } else {
+        // スタート
         startBtn.textContent = 'PAUSE';
+        startBtn.classList.add('running');
         timerId = setInterval(() => {
           timeLeft--;
           updateDisplay();
@@ -114,6 +180,7 @@
             clearInterval(timerId);
             timerId = null;
             startBtn.textContent = 'START';
+            startBtn.classList.remove('running');
             new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play();
             switchMode();
           }
@@ -125,12 +192,16 @@
       clearInterval(timerId);
       timerId = null;
       isFocus = true;
-      timeLeft = 25 * 60;
+      initTimer();
       statusText.textContent = "Focus";
-      statusText.style.color = "#eb5757";
-      updateDisplay();
+      statusText.style.color = "var(--accent-color)";
       startBtn.textContent = 'START';
+      startBtn.style.backgroundColor = "var(--accent-color)";
+      startBtn.classList.remove('running');
     });
+
+    // 起動時にセット
+    initTimer();
   </script>
 </body>
 </html>
