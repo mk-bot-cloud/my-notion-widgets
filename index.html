@@ -16,26 +16,27 @@
             overflow: hidden;
         }
 
-        /* 💡 タイトルのデザイン（サイズアップ版） */
+        /* タイトル：幅を狭めてフォントサイズを微調整 */
         .title {
-            color: #888888; /* 少し明るくして視認性アップ */
-            font-size: 14px; /* 10pxから14pxに拡大 */
+            color: #888888;
+            font-size: 12px; /* 14pxから微調整 */
             font-weight: 600;
-            letter-spacing: 0.15em; /* 文字間をさらに広げて高級感を */
+            letter-spacing: 0.12em;
             text-transform: uppercase;
-            margin-bottom: 15px;
-            padding-bottom: 6px;
-            width: 200px;
+            margin-bottom: 12px;
+            padding-bottom: 5px;
+            width: 170px; /* 200pxから縮小 */
             text-align: center;
-            border-bottom: 1.5px solid #333; /* 下線を少し太く */
+            border-bottom: 1px solid #333;
         }
 
+        /* グリッドコンテナ：最大幅を220pxから190pxへ */
         .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            max-width: 220px; 
-            gap: 20px;
-            padding: 10px 20px 20px;
+            max-width: 190px; 
+            gap: 12px; /* 20pxから12pxへ詰める */
+            padding: 5px 10px 15px;
         }
 
         .nav-item {
@@ -43,20 +44,21 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 60px;
+            width: 52px; /* 60pxから縮小 */
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
+        /* アイコンサイズ：48pxから42pxへ */
         .icon-box {
-            width: 48px;
-            height: 48px;
+            width: 42px;
+            height: 42px;
             background: white;
-            border-radius: 12px;
+            border-radius: 10px; /* 少し角丸を小さく */
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 5px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
         }
 
@@ -67,19 +69,22 @@
         }
 
         .label {
-            font-size: 9px;
-            color: #9b9b9b;
-            margin-top: 8px;
+            font-size: 8px; /* 9pxから縮小 */
+            color: #888;
+            margin-top: 6px;
             font-weight: 500;
             text-align: center;
             white-space: nowrap;
             transition: color 0.3s ease;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .nav-item:hover { transform: translateY(-5px); }
-        .nav-item:hover .icon-box { box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .nav-item:hover { transform: translateY(-3px); }
+        .nav-item:hover .icon-box { box-shadow: 0 8px 15px rgba(0,0,0,0.5); }
         .nav-item:hover .label { color: #ffffff; }
-        .nav-item:active { transform: translateY(-2px) scale(0.95); }
+        .nav-item:active { transform: translateY(-1px) scale(0.95); }
     </style>
 </head>
 <body>
