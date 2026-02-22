@@ -6,64 +6,63 @@
     <style>
         :root { --bg: #ffffff; --text: #191919; --accent: #2383e2; --sat: #2383e2; --sun-hol: #eb5757; --btn-bg: #f5f5f5; }
         @media (prefers-color-scheme: dark) { :root { --bg: #191919; --text: #efefef; --btn-bg: #2a2a2a; } }
-        body { background: var(--bg); color: var(--text); font-family: "Inter", "Hiragino Kaku Gothic ProN", sans-serif; margin: 0; padding: 20px; text-align: center; overflow: hidden; }
+        body { background: var(--bg); color: var(--text); font-family: "Inter", "Hiragino Kaku Gothic ProN", sans-serif; margin: 0; padding: 15px; text-align: center; overflow: hidden; }
         
         /* ヘッダー周り */
-        .header { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; position: relative; }
+        .header { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px; position: relative; }
         
         .month { 
-            font-size: 16px; 
+            font-size: 15px; 
             text-transform: capitalize; 
-            letter-spacing: 0.05em; 
+            letter-spacing: 0.02em; 
             color: var(--text); 
             font-weight: 700; 
-            min-width: 140px; 
+            min-width: 120px; 
         }
 
         /* ナビゲーションボタン */
-        .nav-btn { background: none; border: none; color: #888; cursor: pointer; padding: 5px 8px; font-size: 18px; transition: 0.2s; line-height: 1; border-radius: 4px; }
+        .nav-btn { background: none; border: none; color: #888; cursor: pointer; padding: 4px 6px; font-size: 16px; transition: 0.2s; line-height: 1; border-radius: 4px; }
         .nav-btn:hover { color: var(--text); background: var(--btn-bg); }
 
-        /* 今日ボタン（Notion風） */
+        /* 今日ボタン */
         .today-btn {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
-            padding: 4px 8px;
+            padding: 3px 7px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background: var(--bg);
             color: var(--text);
             cursor: pointer;
             transition: 0.2s;
-            margin-left: 5px;
         }
         .today-btn:hover { background: var(--btn-bg); }
 
-        /* カレンダーグリッド */
-        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; max-width: 320px; margin: 0 auto; }
-        .weekday { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 5px; }
+        /* カレンダーグリッド：横幅を260pxに縮小 */
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; max-width: 260px; margin: 0 auto; }
+        .weekday { font-size: 9px; color: #888; font-weight: bold; margin-bottom: 5px; }
         
-        /* 各日付のスタイル */
-        .day-container { height: 32px; display: flex; align-items: center; justify-content: center; position: relative; }
-        .day { font-size: 13px; cursor: default; transition: background 0.2s; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        /* 各日付のスタイル：高さをコンパクトに */
+        .day-container { height: 28px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .day { font-size: 12px; cursor: default; transition: background 0.2s; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         
         /* 今日の正円デザイン */
         .day.today { 
             background: var(--text); 
             color: var(--bg); 
             font-weight: bold; 
-            width: 28px; 
-            height: 28px; 
+            width: 24px; 
+            height: 24px; 
             border-radius: 50%; 
         }
 
         .day.sat { color: var(--sat); }
         .day.sun, .day.holiday { color: var(--sun-hol); }
         
-        /* 祝日名のツールチップ */
+        /* ツールチップ */
         .day[title]:hover::before {
-            content: attr(title); position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.8); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 10px; white-space: nowrap; z-index: 10; font-weight: normal;
+            content: attr(title); position: absolute; top: -28px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 9px; white-space: nowrap; z-index: 10;
         }
     </style>
 </head>
@@ -143,13 +142,26 @@
             renderCalendar();
         }
 
-        // 今日へ移動する関数
         function goToday() {
             currentViewDate = new Date();
             renderCalendar();
         }
 
+        // 0時になったら自動更新するタイマー
+        function scheduleMidnightUpdate() {
+            const now = new Date();
+            const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+            const msUntilMidnight = midnight.getTime() - now.getTime();
+            
+            setTimeout(() => {
+                currentViewDate = new Date(); 
+                renderCalendar();
+                scheduleMidnightUpdate(); 
+            }, msUntilMidnight);
+        }
+
         renderCalendar();
+        scheduleMidnightUpdate();
     </script>
 </body>
 </html>
