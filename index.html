@@ -16,26 +16,24 @@
             overflow: hidden;
         }
 
-        /* タイトル：幅を狭めてフォントサイズを微調整 */
         .title {
             color: #888888;
-            font-size: 12px; /* 14pxから微調整 */
+            font-size: 12px;
             font-weight: 600;
             letter-spacing: 0.12em;
             text-transform: uppercase;
             margin-bottom: 12px;
             padding-bottom: 5px;
-            width: 170px; /* 200pxから縮小 */
+            width: 170px;
             text-align: center;
             border-bottom: 1px solid #333;
         }
 
-        /* グリッドコンテナ：最大幅を220pxから190pxへ */
         .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             max-width: 190px; 
-            gap: 12px; /* 20pxから12pxへ詰める */
+            gap: 12px;
             padding: 5px 10px 15px;
         }
 
@@ -44,16 +42,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 52px; /* 60pxから縮小 */
+            width: 52px;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        /* アイコンサイズ：48pxから42pxへ */
         .icon-box {
             width: 42px;
             height: 42px;
             background: white;
-            border-radius: 10px; /* 少し角丸を小さく */
+            border-radius: 10px;
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -69,7 +66,7 @@
         }
 
         .label {
-            font-size: 8px; /* 9pxから縮小 */
+            font-size: 8px;
             color: #888;
             margin-top: 6px;
             font-weight: 500;
@@ -142,6 +139,11 @@
     <a href="https://github.com/" class="nav-item" target="_blank">
         <div class="icon-box"><img src="Github.png"></div>
         <span class="label">GitHub</span>
+    </a>
+
+    <a href="https://www.make.com/en/login" class="nav-item" target="_blank">
+        <div class="icon-box"><img src="make.png"></div>
+        <span class="label">Make</span>
     </a>
 </div>
 
