@@ -38,11 +38,11 @@
         }
         .today-btn:hover { background: var(--btn-bg); }
 
-        /* カレンダーグリッド：横幅を260pxに縮小 */
+        /* カレンダーグリッド */
         .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; max-width: 260px; margin: 0 auto; }
         .weekday { font-size: 9px; color: #888; font-weight: bold; margin-bottom: 5px; }
         
-        /* 各日付のスタイル：高さをコンパクトに */
+        /* 各日付のスタイル */
         .day-container { height: 28px; display: flex; align-items: center; justify-content: center; position: relative; }
         .day { font-size: 12px; cursor: default; transition: background 0.2s; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         
@@ -76,6 +76,7 @@
     <div class="grid" id="calendar-grid"></div>
 
     <script>
+        // 2026年の祝日リスト（現在の年次設定に合わせて維持）
         const holidays = {
             "2026-01-01": "元日", "2026-01-12": "成人の日", "2026-02-11": "建国記念の日",
             "2026-02-23": "天皇誕生日", "2026-03-20": "春分の日", "2026-04-29": "昭和の日",
@@ -147,7 +148,6 @@
             renderCalendar();
         }
 
-        // 0時になったら自動更新するタイマー
         function scheduleMidnightUpdate() {
             const now = new Date();
             const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
