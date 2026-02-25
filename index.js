@@ -14,59 +14,36 @@ async function main() {
   try {
     console.log("=== 1. ニュース収集 ===");
     await fetchNewsDaily();
-
     console.log("\n=== 2. 自動お掃除 ===");
     await autoCleanupTrash();
-
-    console.log("\n=== 3. 学術大会情報（ページ内の全テーブルをスキャン） ===");
-    if (DB_ACADEMIC_ID) {
-      // 404を避けるため、確実に存在するトップページのみを指定
-      await fetchAllConferences("https://www.jspt.or.jp/conference/");
-    }
-
+    console.log("\n=== 3. 学術大会情報（会場・備考を正しく取得） ===");
+    if (DB_ACADEMIC_ID) await fetchAllConferences();
     console.log("\n=== 4. PubMed要約 ===");
     await fillPubmedDataWithAI();
-
     console.log("\n✨ すべての処理が正常に完了しました");
   } catch (e) { console.error("メイン実行エラー:", e.message); }
 }
 
-async function fetchAllConferences(targetUrl) {
+async function fetchAllConferences() {
   try {
-    const res = await axios.get(targetUrl, { 
-      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" }
-    });
+    const res = await axios.get("https://www.jspt.or.jp/conference/", { headers: { "User-Agent": "Mozilla/5.0" } });
     const $ = cheerio.load(res.data);
+    const rows = $('table tbody tr').get();
     
-    // ページ内のすべての「table」タグをループ
-    // これにより、今年度の表だけでなく、その下にある「2024年度下半期」などの表も対象になります
-    const tables = $('table').get();
-    console.log(`分析中: ${tables.length}個のテーブルが見つかりました...`);
+    for (const row of rows) {
+      const cells = $(row).find('td');
+      // 5列以上あることを確認（主催, 名称, 日付, 会場, 備考）
+      if (cells.length >= 5) {
+        const conferenceCell = $(cells[1]);
+        const conferenceName = conferenceCell.text().trim();
+        const link = conferenceCell.find('a').attr('href');
 
-    for (const table of tables) {
-      const rows = $(table).find('tr').get(); // tbodyがない場合も考慮してtrを取得
-      
-      for (const row of rows) {
-        const cells = $(row).find('td');
-        
-        // 5列以上ある行（データ行）を特定
-        if (cells.length >= 5) {
-          const conferenceCell = $(cells[1]);
-          const conferenceName = conferenceCell.text().trim();
-          let link = conferenceCell.find('a').attr('href');
+        // 各列からテキストを抽出
+        const dateText = $(cells[2]).text().trim();    // 3列目：開催年月日
+        const venueText = $(cells[3]).text().trim();   // 4列目：会場
+        const remarksText = $(cells[4]).text().trim(); // 5列目：備考
 
-          // 名称がない、またはリンクがない行は飛ばす
-          if (!conferenceName || !link) continue;
-
-          // 相対パスを絶対パスに補完
-          if (!link.startsWith('http')) {
-            link = new URL(link, "https://www.jspt.or.jp/conference/").href;
-          }
-
-          const dateText = $(cells[2]).text().trim();
-          const venueText = $(cells[3]).text().trim();
-          const remarksText = $(cells[4]).text().trim();
-
+        if (link && link.startsWith('http')) {
           // 重複チェック
           const exists = await notion.databases.query({ 
             database_id: DB_ACADEMIC_ID, 
@@ -84,17 +61,15 @@ async function fetchAllConferences(targetUrl) {
                 '備考': { rich_text: [{ text: { content: remarksText } }] }
               }
             });
-            console.log(`✅ 登録完了: ${conferenceName}`);
+            console.log(`✅ 大会登録: ${conferenceName} / 会場: ${venueText}`);
           }
         }
       }
     }
-  } catch (e) { 
-    console.error(`学術大会エラー (${targetUrl}):`, e.message); 
-  }
+  } catch (e) { console.error("学術大会エラー:", e.message); }
 }
 
-// --- ニュース収集・お掃除・PubMed要約（省略せずに維持） ---
+// --- 以下、 PubMed要約・ニュース収集・お掃除（安定稼働版） ---
 async function fillPubmedDataWithAI() {
   const res = await notion.databases.query({
     database_id: DB_INPUT_ID,
@@ -125,7 +100,6 @@ async function fillPubmedDataWithAI() {
           "要約": { rich_text: [{ text: { content: aiData.summary || "" } }] }
         }
       });
-      console.log(`✅ PubMed要約: ${aiData.translatedTitle}`);
     } catch (e) { console.error(`❌ PubMedエラー: ${e.message}`); }
   }
 }
