@@ -12,24 +12,65 @@ const parser = new Parser();
 
 async function main() {
   try {
-    console.log("=== 1. ニュース収集（Ledge削除・ICT改善版） ===");
+    console.log("=== 1. ニュース収集 ===");
     await fetchNewsDaily();
-    console.log("\n=== 2. 自動お掃除（チェック有＋7日経過分） ===");
+    console.log("\n=== 2. 自動お掃除 ===");
     await autoCleanupTrash();
-    console.log("\n=== 3. 学術大会情報（重複回避） ===");
+    console.log("\n=== 3. 学術大会情報（大会名称のみ抽出） ===");
     if (DB_ACADEMIC_ID) await fetchAllConferences();
-    console.log("\n=== 4. PubMed要約（である調・200字指定） ===");
+    console.log("\n=== 4. PubMed要約（である調） ===");
     await fillPubmedDataWithAI();
-    console.log("\n✨ すべての処理が完了しました");
+    console.log("\n✨ 処理がすべて完了しました");
   } catch (e) { console.error("メイン実行エラー:", e.message); }
 }
 
+// --- 学術大会情報の修正版：大会名称だけを取得 ---
+async function fetchAllConferences() {
+  try {
+    const res = await axios.get("https://www.jspt.or.jp/conference/", { headers: { "User-Agent": "Mozilla/5.0" } });
+    const $ = cheerio.load(res.data);
+    
+    // テーブルの各行をループ（最初のtdは主催学会名なので無視し、2番目のtdから大会名を取る）
+    const rows = $('table tbody tr').get();
+    
+    for (const row of rows) {
+      const cells = $(row).find('td');
+      if (cells.length >= 2) {
+        const conferenceCell = $(cells[1]); // 2番目の列（大会名称）
+        const conferenceName = conferenceCell.text().trim();
+        const link = conferenceCell.find('a').attr('href');
+
+        if (link && link.startsWith('http')) {
+          // 重複チェック（URLで判定）
+          const exists = await notion.databases.query({ 
+            database_id: DB_ACADEMIC_ID, 
+            filter: { property: "URL", url: { equals: link } } 
+          });
+
+          if (exists.results.length === 0) {
+            await notion.pages.create({
+              parent: { database_id: DB_ACADEMIC_ID },
+              properties: {
+                // 一番左の「Aa 大会名称」（タイトルプロパティ）に名前を入れる
+                '大会名称': { title: [{ text: { content: conferenceName } }] },
+                'URL': { url: link }
+                // 「開催年月日」はWebサイト側の形式が複雑なため、今回は手動入力用に空けておきます
+              }
+            });
+            console.log(`✅ 大会登録: ${conferenceName}`);
+          }
+        }
+      }
+    }
+  } catch (e) { console.error("学術大会エラー:", e.message); }
+}
+
+// --- ニュース収集・お掃除・PubMed要約（これまでの完成版を維持） ---
 async function fillPubmedDataWithAI() {
   const res = await notion.databases.query({
     database_id: DB_INPUT_ID,
     filter: { and: [{ property: "URL", url: { contains: "pubmed.ncbi.nlm.nih.gov" } }, { property: "タイトル和訳", rich_text: { is_empty: true } }] }
   });
-  
   for (const page of res.results) {
     const url = page.properties.URL.url;
     try {
@@ -38,29 +79,16 @@ async function fillPubmedDataWithAI() {
       const title = $('h1.heading-title').text().trim() || "タイトル不明";
       const abstract = $('.abstract-content').text().trim().substring(0, 1500) || "Abstractなし";
       const journal = $('.journal-actions-trigger').first().text().trim() || "不明";
-
-      console.log(`Groq解析中... ${title.substring(0, 20)}`);
       await new Promise(r => setTimeout(r, 20000));
-
-      const prompt = `あなたは医学論文の専門家です。以下の抄録を読み、指定形式のJSONで返答せよ。
-1. translatedTitle: 日本語タイトル
-2. journal: ジャーナル名
-3. summary: 以下の制約を厳守。
-   - 語尾は「である」「だ」「～を認めた」等の「である・だ調」とする（「ですます」禁止）。
-   - 文字数は180字〜200字程度。背景、方法、結果、結論をバランスよく含めること。
-
-Title: ${title}\nJournal: ${journal}\nAbstract: ${abstract}`;
-
+      const prompt = `あなたは医学論文の専門家です。以下の抄録を読み、指定形式のJSONで返答せよ。1. translatedTitle: 日本語タイトル, 2. journal: ジャーナル名, 3. summary: 語尾は「である・だ調」で180〜200字程度。背景・方法・結果・結論を含めること。\n\nTitle: ${title}\nJournal: ${journal}\nAbstract: ${abstract}`;
       const aiRes = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
         model: "llama-3.1-8b-instant",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.1,
         response_format: { type: "json_object" }
       }, { headers: { "Authorization": `Bearer ${GROQ_KEY.trim()}`, "Content-Type": "application/json" } });
-
       const aiData = JSON.parse(aiRes.data.choices[0].message.content);
       const limitSummary = aiData.summary && aiData.summary.length > 200 ? aiData.summary.substring(0, 198) : aiData.summary;
-
       await notion.pages.update({
         page_id: page.id,
         properties: {
@@ -69,7 +97,7 @@ Title: ${title}\nJournal: ${journal}\nAbstract: ${abstract}`;
           "要約": { rich_text: [{ text: { content: limitSummary || "" } }] }
         }
       });
-      console.log("✅ 要約完了");
+      console.log(`✅ PubMed更新: ${aiData.translatedTitle}`);
     } catch (e) { console.error(`❌ PubMedエラー: ${e.message}`); }
   }
 }
@@ -80,19 +108,18 @@ async function fetchNewsDaily() {
     { name: "ITmedia AI+", url: "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml" },
     { name: "テクノエッジ", url: "https://www.techno-edge.net/rss20/index.rdf" }
   ];
-  const keywords = ["AI", "Notion", "Gemini", "効率化", "自動化", "IT", "ChatGPT", "生成AI", "教育", "DX", "理学療法"];
-
+  const keywords = ["AI", "Notion", "Gemini", "効率化", "自動化", "IT", "ChatGPT", "生成AI", "理学療法"];
   for (const source of sources) {
     try {
       const feed = await parser.parseURL(source.url);
-      for (const item of feed.items.slice(0, 8)) {
+      for (const item of feed.items.slice(0, 5)) {
         const title = item.title.replace(/[\[【].*?[\]】]/g, '').trim();
         if (keywords.some(kw => title.toUpperCase().includes(kw.toUpperCase()))) {
           const exists = await notion.databases.query({ database_id: DB_INPUT_ID, filter: { property: "名前", title: { equals: title } } });
           if (exists.results.length === 0) {
             const imageUrl = await getImageUrl(item);
             await createNotionPage(title, item.link, imageUrl, source.name);
-            console.log(`✅ ${source.name} 保存: ${title}`);
+            console.log(`✅ ニュース保存: ${title}`);
           }
         }
       }
@@ -126,36 +153,10 @@ async function autoCleanupTrash() {
   try {
     const res = await notion.databases.query({
       database_id: DB_INPUT_ID,
-      filter: { and: [
-        { property: '削除チェック', checkbox: { equals: true } }, 
-        { property: '作成日時', date: { on_or_before: thresholdDate.toISOString() } }
-      ] }
+      filter: { and: [{ property: '削除チェック', checkbox: { equals: true } }, { property: '作成日時', date: { on_or_before: thresholdDate.toISOString() } }] }
     });
-    for (const page of res.results) { 
-        await notion.pages.update({ page_id: page.id, archived: true }); 
-        console.log(`🗑️ アーカイブ完了: ${page.id}`);
-    }
+    for (const page of res.results) { await notion.pages.update({ page_id: page.id, archived: true }); }
   } catch (e) { console.error("お掃除エラー:", e.message); }
-}
-
-async function fetchAllConferences() {
-  try {
-    const res = await axios.get("https://www.jspt.or.jp/conference/", { headers: { "User-Agent": "Mozilla/5.0" } });
-    const $ = cheerio.load(res.data);
-    $('table tbody tr').each(async (i, el) => {
-      const cells = $(el).find('td');
-      if (cells.length >= 4) {
-        const title = $(cells[1]).text().trim();
-        const link = $(cells[1]).find('a').attr('href');
-        if (link && link.startsWith('http')) {
-          const exists = await notion.databases.query({ database_id: DB_ACADEMIC_ID, filter: { property: "URL", url: { equals: link } } });
-          if (exists.results.length === 0) {
-            await notion.pages.create({ parent: { database_id: DB_ACADEMIC_ID }, properties: { '主催学会名': { title: [{ text: { content: $(cells[0]).text().trim() } }] }, '大会名称': { rich_text: [{ text: { content: title } }] }, 'URL': { url: link } } });
-          }
-        }
-      }
-    });
-  } catch (e) { console.error("学術大会エラー:", e.message); }
 }
 
 main();
