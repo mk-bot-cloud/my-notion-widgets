@@ -40,14 +40,14 @@ async function fillPubmedDataWithAI() {
       const journal = $('.journal-actions-trigger').first().text().trim() || "不明";
 
       console.log(`Groq解析中... ${title.substring(0, 20)}`);
-      await new Promise(r => setTimeout(r, 20000));
+      await new Promise(r => setTimeout(r, 30000));
 
       const prompt = `あなたは医学論文の専門家です。以下の抄録を読み、指定形式のJSONで返答せよ。
 1. translatedTitle: 日本語タイトル
 2. journal: ジャーナル名
 3. summary: 以下の制約を厳守。
    - 語尾は「である」「だ」「～を認めた」等の「である・だ調」とする（「ですます」禁止）。
-   - 文字数は180字〜200字程度。背景、方法、結果、結論をバランスよく含めること。
+   - 文字数は200字程度。背景、方法、結果、結論をバランスよく含めること。
 
 Title: ${title}\nJournal: ${journal}\nAbstract: ${abstract}`;
 
