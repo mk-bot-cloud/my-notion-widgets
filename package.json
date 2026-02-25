@@ -1,0 +1,10 @@
+{
+  "name": "notion-pt-automation",
+  "version": "1.0.0",
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "rss-parser": "^3.13.0"
+  }
+}
