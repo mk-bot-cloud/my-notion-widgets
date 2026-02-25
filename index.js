@@ -16,32 +16,35 @@ async function main() {
     await fetchNewsDaily();
     console.log("\n=== 2. 自動お掃除 ===");
     await autoCleanupTrash();
-    console.log("\n=== 3. 学術大会情報（大会名称のみ抽出） ===");
+    console.log("\n=== 3. 学術大会情報（開催年月日取得を追加） ===");
     if (DB_ACADEMIC_ID) await fetchAllConferences();
-    console.log("\n=== 4. PubMed要約（である調） ===");
+    console.log("\n=== 4. PubMed要約 ===");
     await fillPubmedDataWithAI();
     console.log("\n✨ 処理がすべて完了しました");
   } catch (e) { console.error("メイン実行エラー:", e.message); }
 }
 
-// --- 学術大会情報の修正版：大会名称だけを取得 ---
+// --- 学術大会情報の修正版：大会名称と開催年月日を取得 ---
 async function fetchAllConferences() {
   try {
     const res = await axios.get("https://www.jspt.or.jp/conference/", { headers: { "User-Agent": "Mozilla/5.0" } });
     const $ = cheerio.load(res.data);
     
-    // テーブルの各行をループ（最初のtdは主催学会名なので無視し、2番目のtdから大会名を取る）
     const rows = $('table tbody tr').get();
     
     for (const row of rows) {
       const cells = $(row).find('td');
-      if (cells.length >= 2) {
-        const conferenceCell = $(cells[1]); // 2番目の列（大会名称）
+      if (cells.length >= 3) {
+        // 2番目の列：大会名称
+        const conferenceCell = $(cells[1]);
         const conferenceName = conferenceCell.text().trim();
         const link = conferenceCell.find('a').attr('href');
 
+        // 3番目の列：開催年月日
+        const dateText = $(cells[2]).text().trim();
+
         if (link && link.startsWith('http')) {
-          // 重複チェック（URLで判定）
+          // 重複チェック
           const exists = await notion.databases.query({ 
             database_id: DB_ACADEMIC_ID, 
             filter: { property: "URL", url: { equals: link } } 
@@ -51,13 +54,13 @@ async function fetchAllConferences() {
             await notion.pages.create({
               parent: { database_id: DB_ACADEMIC_ID },
               properties: {
-                // 一番左の「Aa 大会名称」（タイトルプロパティ）に名前を入れる
                 '大会名称': { title: [{ text: { content: conferenceName } }] },
-                'URL': { url: link }
-                // 「開催年月日」はWebサイト側の形式が複雑なため、今回は手動入力用に空けておきます
+                'URL': { url: link },
+                // 「開催年月日」プロパティ（テキストまたはリッチテキスト想定）に日付を入れる
+                '開催年月日': { rich_text: [{ text: { content: dateText } }] }
               }
             });
-            console.log(`✅ 大会登録: ${conferenceName}`);
+            console.log(`✅ 大会登録: ${conferenceName} (${dateText})`);
           }
         }
       }
@@ -65,7 +68,7 @@ async function fetchAllConferences() {
   } catch (e) { console.error("学術大会エラー:", e.message); }
 }
 
-// --- ニュース収集・お掃除・PubMed要約（これまでの完成版を維持） ---
+// --- 以下、ニュース収集・お掃除・PubMed要約（これまでの完成版を維持） ---
 async function fillPubmedDataWithAI() {
   const res = await notion.databases.query({
     database_id: DB_INPUT_ID,
@@ -80,7 +83,7 @@ async function fillPubmedDataWithAI() {
       const abstract = $('.abstract-content').text().trim().substring(0, 1500) || "Abstractなし";
       const journal = $('.journal-actions-trigger').first().text().trim() || "不明";
       await new Promise(r => setTimeout(r, 20000));
-      const prompt = `あなたは医学論文の専門家です。以下の抄録を読み、指定形式のJSONで返答せよ。1. translatedTitle: 日本語タイトル, 2. journal: ジャーナル名, 3. summary: 語尾は「である・だ調」で180〜200字程度。背景・方法・結果・結論を含めること。\n\nTitle: ${title}\nJournal: ${journal}\nAbstract: ${abstract}`;
+      const prompt = `あなたは医学論文の専門家です。以下の抄録を読み、指定形式のJSONで返答せよ。1. translatedTitle: 日本語タイトル, 2. journal: ジャーナル名, 3. summary: 語尾は「である・だ調」で180〜200字程度。\n\nTitle: ${title}\nJournal: ${journal}\nAbstract: ${abstract}`;
       const aiRes = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
         model: "llama-3.1-8b-instant",
         messages: [{ role: "user", content: prompt }],
@@ -97,7 +100,6 @@ async function fillPubmedDataWithAI() {
           "要約": { rich_text: [{ text: { content: limitSummary || "" } }] }
         }
       });
-      console.log(`✅ PubMed更新: ${aiData.translatedTitle}`);
     } catch (e) { console.error(`❌ PubMedエラー: ${e.message}`); }
   }
 }
@@ -119,7 +121,6 @@ async function fetchNewsDaily() {
           if (exists.results.length === 0) {
             const imageUrl = await getImageUrl(item);
             await createNotionPage(title, item.link, imageUrl, source.name);
-            console.log(`✅ ニュース保存: ${title}`);
           }
         }
       }
