@@ -12,11 +12,11 @@ const parser = new Parser();
 
 async function main() {
   try {
-    console.log("=== 1. ニュース収集（RSSリンク微修正） ===");
+    console.log("=== 1. ニュース収集（Ledge削除・ICT改善版） ===");
     await fetchNewsDaily();
-    console.log("\n=== 2. 自動お掃除（削除チェック+7日経過分） ===");
+    console.log("\n=== 2. 自動お掃除（チェック有＋7日経過分） ===");
     await autoCleanupTrash();
-    console.log("\n=== 3. 学術大会情報（重複回避付） ===");
+    console.log("\n=== 3. 学術大会情報（重複回避） ===");
     if (DB_ACADEMIC_ID) await fetchAllConferences();
     console.log("\n=== 4. PubMed要約（である調・200字指定） ===");
     await fillPubmedDataWithAI();
@@ -40,14 +40,14 @@ async function fillPubmedDataWithAI() {
       const journal = $('.journal-actions-trigger').first().text().trim() || "不明";
 
       console.log(`Groq解析中... ${title.substring(0, 20)}`);
-      await new Promise(r => setTimeout(r, 30000));
+      await new Promise(r => setTimeout(r, 20000));
 
       const prompt = `あなたは医学論文の専門家です。以下の抄録を読み、指定形式のJSONで返答せよ。
 1. translatedTitle: 日本語タイトル
 2. journal: ジャーナル名
 3. summary: 以下の制約を厳守。
    - 語尾は「である」「だ」「～を認めた」等の「である・だ調」とする（「ですます」禁止）。
-   - 文字数は200字程度。背景、方法、結果、結論をバランスよく含めること。
+   - 文字数は180字〜200字程度。背景、方法、結果、結論をバランスよく含めること。
 
 Title: ${title}\nJournal: ${journal}\nAbstract: ${abstract}`;
 
@@ -76,12 +76,11 @@ Title: ${title}\nJournal: ${journal}\nAbstract: ${abstract}`;
 
 async function fetchNewsDaily() {
   const sources = [
-    { name: "Ledge.ai", url: "https://ledge.ai/feed" }, // 末尾スラッシュ削除で試行
     { name: "ICT教育ニュース", url: "https://ict-enews.net/feed/" },
     { name: "ITmedia AI+", url: "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml" },
     { name: "テクノエッジ", url: "https://www.techno-edge.net/rss20/index.rdf" }
   ];
-  const keywords = ["AI", "Notion", "Gemini", "効率化", "自動化", "IT", "ChatGPT", "生成AI", "教育", "DX"];
+  const keywords = ["AI", "Notion", "Gemini", "効率化", "自動化", "IT", "ChatGPT", "生成AI", "教育", "DX", "理学療法"];
 
   for (const source of sources) {
     try {
@@ -127,7 +126,10 @@ async function autoCleanupTrash() {
   try {
     const res = await notion.databases.query({
       database_id: DB_INPUT_ID,
-      filter: { and: [{ property: '削除チェック', checkbox: { equals: true } }, { property: '作成日時', date: { on_or_before: thresholdDate.toISOString() } }] }
+      filter: { and: [
+        { property: '削除チェック', checkbox: { equals: true } }, 
+        { property: '作成日時', date: { on_or_before: thresholdDate.toISOString() } }
+      ] }
     });
     for (const page of res.results) { 
         await notion.pages.update({ page_id: page.id, archived: true }); 
