@@ -16,7 +16,7 @@ async function main() {
     await fetchNewsDaily();
     console.log("\n=== 2. 自動お掃除 ===");
     await autoCleanupTrash();
-    console.log("\n=== 3. 学術大会情報（開催年月日取得を追加） ===");
+    console.log("\n=== 3. 学術大会情報（会場・備考を追加） ===");
     if (DB_ACADEMIC_ID) await fetchAllConferences();
     console.log("\n=== 4. PubMed要約 ===");
     await fillPubmedDataWithAI();
@@ -24,27 +24,26 @@ async function main() {
   } catch (e) { console.error("メイン実行エラー:", e.message); }
 }
 
-// --- 学術大会情報の修正版：大会名称と開催年月日を取得 ---
 async function fetchAllConferences() {
   try {
     const res = await axios.get("https://www.jspt.or.jp/conference/", { headers: { "User-Agent": "Mozilla/5.0" } });
     const $ = cheerio.load(res.data);
-    
     const rows = $('table tbody tr').get();
     
     for (const row of rows) {
       const cells = $(row).find('td');
-      if (cells.length >= 3) {
+      if (cells.length >= 5) {
         // 2番目の列：大会名称
         const conferenceCell = $(cells[1]);
         const conferenceName = conferenceCell.text().trim();
         const link = conferenceCell.find('a').attr('href');
 
-        // 3番目の列：開催年月日
-        const dateText = $(cells[2]).text().trim();
+        // 各列から情報を抽出
+        const dateText = $(cells[2]).text().trim();    // 3列目：開催年月日
+        const venueText = $(cells[3]).text().trim();   // 4列目：会場
+        const remarksText = $(cells[4]).text().trim(); // 5列目：備考
 
         if (link && link.startsWith('http')) {
-          // 重複チェック
           const exists = await notion.databases.query({ 
             database_id: DB_ACADEMIC_ID, 
             filter: { property: "URL", url: { equals: link } } 
@@ -56,11 +55,12 @@ async function fetchAllConferences() {
               properties: {
                 '大会名称': { title: [{ text: { content: conferenceName } }] },
                 'URL': { url: link },
-                // 「開催年月日」プロパティ（テキストまたはリッチテキスト想定）に日付を入れる
-                '開催年月日': { rich_text: [{ text: { content: dateText } }] }
+                '開催年月日': { rich_text: [{ text: { content: dateText } }] },
+                '会場': { rich_text: [{ text: { content: venueText } }] },
+                '備考': { rich_text: [{ text: { content: remarksText } }] }
               }
             });
-            console.log(`✅ 大会登録: ${conferenceName} (${dateText})`);
+            console.log(`✅ 大会登録: ${conferenceName}`);
           }
         }
       }
@@ -68,7 +68,7 @@ async function fetchAllConferences() {
   } catch (e) { console.error("学術大会エラー:", e.message); }
 }
 
-// --- 以下、ニュース収集・お掃除・PubMed要約（これまでの完成版を維持） ---
+// --- 以下、既存のニュース収集・お掃除・PubMed要約 ---
 async function fillPubmedDataWithAI() {
   const res = await notion.databases.query({
     database_id: DB_INPUT_ID,
@@ -83,7 +83,7 @@ async function fillPubmedDataWithAI() {
       const abstract = $('.abstract-content').text().trim().substring(0, 1500) || "Abstractなし";
       const journal = $('.journal-actions-trigger').first().text().trim() || "不明";
       await new Promise(r => setTimeout(r, 20000));
-      const prompt = `あなたは医学論文の専門家です。以下の抄録を読み、指定形式のJSONで返答せよ。1. translatedTitle: 日本語タイトル, 2. journal: ジャーナル名, 3. summary: 語尾は「である・だ調」で180〜200字程度。\n\nTitle: ${title}\nJournal: ${journal}\nAbstract: ${abstract}`;
+      const prompt = `あなたは医学論文の専門家です。以下の抄録を読み、指定形式のJSONで返答せよ。1. translatedTitle: 日本語タイトル, 2. journal: ジャーナル名, 3. summary: 語尾は「である・だ調」で180〜200字程度。背景・方法・結果・結論を含めること。\n\nTitle: ${title}\nJournal: ${journal}\nAbstract: ${abstract}`;
       const aiRes = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
         model: "llama-3.1-8b-instant",
         messages: [{ role: "user", content: prompt }],
