@@ -16,11 +16,11 @@ async function main() {
     await fetchNewsDaily();
     console.log("\n=== 2. 自動お掃除 ===");
     await autoCleanupTrash();
-    console.log("\n=== 3. 学術大会情報（会場・備考を追加） ===");
+    console.log("\n=== 3. 学術大会情報（会場・備考を正しく取得） ===");
     if (DB_ACADEMIC_ID) await fetchAllConferences();
     console.log("\n=== 4. PubMed要約 ===");
     await fillPubmedDataWithAI();
-    console.log("\n✨ 処理がすべて完了しました");
+    console.log("\n✨ すべての処理が正常に完了しました");
   } catch (e) { console.error("メイン実行エラー:", e.message); }
 }
 
@@ -32,18 +32,19 @@ async function fetchAllConferences() {
     
     for (const row of rows) {
       const cells = $(row).find('td');
+      // 5列以上あることを確認（主催, 名称, 日付, 会場, 備考）
       if (cells.length >= 5) {
-        // 2番目の列：大会名称
         const conferenceCell = $(cells[1]);
         const conferenceName = conferenceCell.text().trim();
         const link = conferenceCell.find('a').attr('href');
 
-        // 各列から情報を抽出
+        // 各列からテキストを抽出
         const dateText = $(cells[2]).text().trim();    // 3列目：開催年月日
         const venueText = $(cells[3]).text().trim();   // 4列目：会場
         const remarksText = $(cells[4]).text().trim(); // 5列目：備考
 
         if (link && link.startsWith('http')) {
+          // 重複チェック
           const exists = await notion.databases.query({ 
             database_id: DB_ACADEMIC_ID, 
             filter: { property: "URL", url: { equals: link } } 
@@ -60,7 +61,7 @@ async function fetchAllConferences() {
                 '備考': { rich_text: [{ text: { content: remarksText } }] }
               }
             });
-            console.log(`✅ 大会登録: ${conferenceName}`);
+            console.log(`✅ 大会登録: ${conferenceName} / 会場: ${venueText}`);
           }
         }
       }
@@ -68,7 +69,7 @@ async function fetchAllConferences() {
   } catch (e) { console.error("学術大会エラー:", e.message); }
 }
 
-// --- 以下、既存のニュース収集・お掃除・PubMed要約 ---
+// --- 以下、 PubMed要約・ニュース収集・お掃除（安定稼働版） ---
 async function fillPubmedDataWithAI() {
   const res = await notion.databases.query({
     database_id: DB_INPUT_ID,
@@ -83,7 +84,7 @@ async function fillPubmedDataWithAI() {
       const abstract = $('.abstract-content').text().trim().substring(0, 1500) || "Abstractなし";
       const journal = $('.journal-actions-trigger').first().text().trim() || "不明";
       await new Promise(r => setTimeout(r, 20000));
-      const prompt = `あなたは医学論文の専門家です。以下の抄録を読み、指定形式のJSONで返答せよ。1. translatedTitle: 日本語タイトル, 2. journal: ジャーナル名, 3. summary: 語尾は「である・だ調」で180〜200字程度。背景・方法・結果・結論を含めること。\n\nTitle: ${title}\nJournal: ${journal}\nAbstract: ${abstract}`;
+      const prompt = `あなたは医学論文の専門家です。抄録を読み、JSONで返せ。1. translatedTitle, 2. journal, 3. summary: である調で180〜200字。\n\nTitle: ${title}\nAbstract: ${abstract}`;
       const aiRes = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
         model: "llama-3.1-8b-instant",
         messages: [{ role: "user", content: prompt }],
@@ -91,13 +92,12 @@ async function fillPubmedDataWithAI() {
         response_format: { type: "json_object" }
       }, { headers: { "Authorization": `Bearer ${GROQ_KEY.trim()}`, "Content-Type": "application/json" } });
       const aiData = JSON.parse(aiRes.data.choices[0].message.content);
-      const limitSummary = aiData.summary && aiData.summary.length > 200 ? aiData.summary.substring(0, 198) : aiData.summary;
       await notion.pages.update({
         page_id: page.id,
         properties: {
           "タイトル和訳": { rich_text: [{ text: { content: aiData.translatedTitle || "" } }] },
           "ジャーナル名": { rich_text: [{ text: { content: aiData.journal || journal } }] },
-          "要約": { rich_text: [{ text: { content: limitSummary || "" } }] }
+          "要約": { rich_text: [{ text: { content: aiData.summary || "" } }] }
         }
       });
     } catch (e) { console.error(`❌ PubMedエラー: ${e.message}`); }
