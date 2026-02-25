@@ -1,4 +1,4 @@
-name: Notion News Bot
+name: Notion Full Bot
 on:
   schedule:
     - cron: '0 23 * * *'
