@@ -18,18 +18,10 @@ async function main() {
     console.log("\n=== 2. 自動お掃除 ===");
     await autoCleanupTrash();
 
-    console.log("\n=== 3. 学術大会情報（今年度 ＆ 2024年度アーカイブ） ===");
+    console.log("\n=== 3. 学術大会情報（ページ内の全テーブルをスキャン） ===");
     if (DB_ACADEMIC_ID) {
-      // ページ内に「2024年度 下半期」が含まれる可能性のある全てのURLを走査
-      const targetUrls = [
-        "https://www.jspt.or.jp/conference/",              // 今年度分
-        "https://www.jspt.or.jp/conference/archive.html"    // 昨年度分（2024年度など）
-      ];
-
-      for (const url of targetUrls) {
-        console.log(`>> 取得中: ${url}`);
-        await fetchAllConferences(url);
-      }
+      // 404を避けるため、確実に存在するトップページのみを指定
+      await fetchAllConferences("https://www.jspt.or.jp/conference/");
     }
 
     console.log("\n=== 4. PubMed要約 ===");
@@ -42,30 +34,31 @@ async function main() {
 async function fetchAllConferences(targetUrl) {
   try {
     const res = await axios.get(targetUrl, { 
-      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" },
-      timeout: 10000 
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" }
     });
     const $ = cheerio.load(res.data);
     
-    // ページ内のすべてのテーブルを取得（上半期・下半期で分かれている場合があるため）
+    // ページ内のすべての「table」タグをループ
+    // これにより、今年度の表だけでなく、その下にある「2024年度下半期」などの表も対象になります
     const tables = $('table').get();
-    
+    console.log(`分析中: ${tables.length}個のテーブルが見つかりました...`);
+
     for (const table of tables) {
-      const rows = $(table).find('tbody tr').get();
+      const rows = $(table).find('tr').get(); // tbodyがない場合も考慮してtrを取得
       
       for (const row of rows) {
         const cells = $(row).find('td');
         
-        // 5列以上（主催, 名称, 日付, 会場, 備考）あるか確認
+        // 5列以上ある行（データ行）を特定
         if (cells.length >= 5) {
           const conferenceCell = $(cells[1]);
           const conferenceName = conferenceCell.text().trim();
           let link = conferenceCell.find('a').attr('href');
 
-          // 名称が空、またはリンクがない行はスキップ
+          // 名称がない、またはリンクがない行は飛ばす
           if (!conferenceName || !link) continue;
 
-          // 相対パス（../conference/detail...）を絶対パスに変換
+          // 相対パスを絶対パスに補完
           if (!link.startsWith('http')) {
             link = new URL(link, "https://www.jspt.or.jp/conference/").href;
           }
@@ -74,7 +67,7 @@ async function fetchAllConferences(targetUrl) {
           const venueText = $(cells[3]).text().trim();
           const remarksText = $(cells[4]).text().trim();
 
-          // 重複チェック（URLで判定）
+          // 重複チェック
           const exists = await notion.databases.query({ 
             database_id: DB_ACADEMIC_ID, 
             filter: { property: "URL", url: { equals: link } } 
@@ -91,7 +84,7 @@ async function fetchAllConferences(targetUrl) {
                 '備考': { rich_text: [{ text: { content: remarksText } }] }
               }
             });
-            console.log(`✅ 大会登録: ${conferenceName} (${dateText})`);
+            console.log(`✅ 登録完了: ${conferenceName}`);
           }
         }
       }
@@ -101,8 +94,7 @@ async function fetchAllConferences(targetUrl) {
   }
 }
 
-// --- 以下、PubMed・ニュース・お掃除 ---
-
+// --- ニュース収集・お掃除・PubMed要約（省略せずに維持） ---
 async function fillPubmedDataWithAI() {
   const res = await notion.databases.query({
     database_id: DB_INPUT_ID,
@@ -116,9 +108,7 @@ async function fillPubmedDataWithAI() {
       const title = $('h1.heading-title').text().trim() || "タイトル不明";
       const abstract = $('.abstract-content').text().trim().substring(0, 1500) || "Abstractなし";
       const journal = $('.journal-actions-trigger').first().text().trim() || "不明";
-      
-      await new Promise(r => setTimeout(r, 20000)); // Rate limit回避
-
+      await new Promise(r => setTimeout(r, 20000));
       const prompt = `あなたは医学論文の専門家です。抄録を読み、JSONで返せ。1. translatedTitle, 2. journal, 3. summary: である調で180〜200字。\n\nTitle: ${title}\nAbstract: ${abstract}`;
       const aiRes = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
         model: "llama-3.1-8b-instant",
@@ -126,7 +116,6 @@ async function fillPubmedDataWithAI() {
         temperature: 0.1,
         response_format: { type: "json_object" }
       }, { headers: { "Authorization": `Bearer ${GROQ_KEY.trim()}`, "Content-Type": "application/json" } });
-      
       const aiData = JSON.parse(aiRes.data.choices[0].message.content);
       await notion.pages.update({
         page_id: page.id,
@@ -136,7 +125,7 @@ async function fillPubmedDataWithAI() {
           "要約": { rich_text: [{ text: { content: aiData.summary || "" } }] }
         }
       });
-      console.log(`✅ PubMed要約完了: ${aiData.translatedTitle}`);
+      console.log(`✅ PubMed要約: ${aiData.translatedTitle}`);
     } catch (e) { console.error(`❌ PubMedエラー: ${e.message}`); }
   }
 }
