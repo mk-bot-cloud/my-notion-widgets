@@ -25,7 +25,7 @@ async function main() {
     console.log("\n=== 4. PubMed要約 ===");
     await fillPubmedDataWithAI();
 
-    console.log("\n=== 5. 専門領域に基づいた『問い』を生成 ===");
+    console.log("\n=== 5. 専門領域・教育的視点に基づいた『問い』を生成 ===");
     if (DB_ACTION_ID) {
       await generateQuestionsFromSummaries();
     } else {
@@ -38,7 +38,6 @@ async function main() {
 
 async function generateQuestionsFromSummaries() {
   try {
-    // 直近15件のPubMedデータを取得
     const res = await notion.databases.query({
       database_id: DB_INPUT_ID,
       filter: { property: "URL", url: { contains: "pubmed.ncbi.nlm.nih.gov" } },
@@ -52,7 +51,7 @@ async function generateQuestionsFromSummaries() {
     });
 
     if (validPages.length === 0) {
-      console.log("分析対象（要約済み論文）が見つかりませんでした。");
+      console.log("分析対象が見つかりませんでした。");
       return;
     }
 
@@ -62,16 +61,20 @@ async function generateQuestionsFromSummaries() {
       return `【${title}】: ${summary}`;
     }).join("\n\n");
 
-    // 先生の専門領域と教育的視点を反映したプロンプト
-    const prompt = `あなたはリハビリテーション領域の高度な専門知識を持つ研究者であり、理学療法士養成校の教員です。
-以下の【論文抄録群】を読み、私の専門領域（脳卒中、痛み、物理療法/Electrophysical Agents、訪問リハ、ウィメンズヘルス）の視点と、学生教育に活かせる視点を組み合わせて、次に解決すべき「質の高い問い」を日本語で3つ提案してください。
+    // 先生の意図を反映した改良プロンプト
+    const prompt = `あなたは高度な専門性を持つリハビリテーション研究者であり、理学療法士養成校の教員です。
+以下の【論文抄録群】を読み、私の専門領域と教育的視点を融合させた「探究すべき問い」を日本語で3つ提案してください。
 
-【評価のポイント】
-1. 臨床的な疑問（EBP）だけでなく、生理学的メカニズムや物理療法の介入妥当性（Biophysical Agentsとしての側面）を含めること。
-2. 養成校の学生が卒業研究や臨床実習で考えるきっかけになるような、教育的示唆を含む問いにすること。
-3. 単なる事実確認ではなく、「～は～にどう影響するか？」「～のメカニズムは何か？」といった探究的な形式にすること。
+【専門領域の視点】
+脳卒中、痛み、物理療法、訪問リハビリテーション、ウィメンズヘルス（女性の健康問題）の各観点から、臨床や地域生活における課題を見出してください。特定の領域に偏らず、抄録の内容に応じて柔軟に視点を選択してください。
 
-JSON形式で出力してください: { "actions": [ { "q": "問いの内容" } ] }
+【教育的視点】
+大学・養成校教員として、講義での学生への問いかけ、基礎理論の再検討、あるいは臨床の複雑さを伝えるための視点など、教育全般に資する深みのある問いを考えてください。
+
+【形式】
+- 単なる事実確認ではなく、「～のメカニズムは何か？」「～がリハビリテーション戦略に与える影響は？」「学生にどう考えさせるべきか？」といった形式。
+- 出力は必ず以下のJSON形式にしてください。
+{ "actions": [ { "q": "問いの内容" } ] }
 
 【論文抄録群】
 ${materials}`;
@@ -95,15 +98,15 @@ ${materials}`;
           parent: { database_id: DB_ACTION_ID },
           properties: { '問い': { title: [{ text: { content: item.q } }] } }
         });
-        console.log(`✅ 問いを投稿しました: ${item.q}`);
+        console.log(`✅ 投稿成功: ${item.q}`);
       } else {
-        console.log(`⏩ スキップ（重複）: ${item.q}`);
+        console.log(`⏩ 重複スキップ: ${item.q}`);
       }
     }
   } catch (e) { console.error("問い生成エラー:", e.message); }
 }
 
-// --- 既存機能 ---
+// --- 以下、既存の安定稼働コード ---
 
 async function fetchAllConferences() {
   try {
