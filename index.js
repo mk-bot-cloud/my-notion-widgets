@@ -15,21 +15,18 @@ async function main() {
   try {
     console.log("=== 1. ニュース収集 ===");
     await fetchNewsDaily();
-    
     console.log("\n=== 2. 自動お掃除 ===");
     await autoCleanupTrash();
-    
     console.log("\n=== 3. 学術大会情報 ===");
     if (DB_ACADEMIC_ID) await fetchAllConferences();
-    
     console.log("\n=== 4. PubMed要約 ===");
     await fillPubmedDataWithAI();
 
-    console.log("\n=== 5. 専門領域・教育的視点に基づいた『問い』を生成 ===");
+    console.log("\n=== 5. 専門的な『問い』を生成 ===");
     if (DB_ACTION_ID) {
       await generateQuestionsFromSummaries();
     } else {
-      console.log("⚠️ DB_ACTION_IDが環境変数に設定されていないためスキップします。");
+      console.log("⚠️ DB_ACTION_IDが設定されていません。");
     }
 
     console.log("\n✨ すべての処理が正常に完了しました");
@@ -50,10 +47,7 @@ async function generateQuestionsFromSummaries() {
       return summary.length > 10; 
     });
 
-    if (validPages.length === 0) {
-      console.log("分析対象が見つかりませんでした。");
-      return;
-    }
+    if (validPages.length === 0) return;
 
     const materials = validPages.map(page => {
       const title = page.properties['タイトル和訳']?.rich_text[0]?.plain_text || "無題";
@@ -61,20 +55,18 @@ async function generateQuestionsFromSummaries() {
       return `【${title}】: ${summary}`;
     }).join("\n\n");
 
-    // 先生の意図を反映した改良プロンプト
-    const prompt = `あなたは高度な専門性を持つリハビリテーション研究者であり、理学療法士養成校の教員です。
-以下の【論文抄録群】を読み、私の専門領域と教育的視点を融合させた「探究すべき問い」を日本語で3つ提案してください。
+    // プロンプトの改良：「〜の視点」という冗長な表現を禁止
+    const prompt = `あなたはリハビリテーション専門職（脳卒中、痛み、物理療法、訪問リハ、ウィメンズヘルス）の高度な知見を持つ大学教員です。
+以下の【論文抄録群】を読み、臨床の発展や学生教育に資する「本質的な問い」を3つ提案してください。
 
-【専門領域の視点】
-脳卒中、痛み、物理療法、訪問リハビリテーション、ウィメンズヘルス（女性の健康問題）の各観点から、臨床や地域生活における課題を見出してください。特定の領域に偏らず、抄録の内容に応じて柔軟に視点を選択してください。
+【制約事項】
+・「〜の視点から見た」や「〜の観点では」といった前置きは一切不要です。
+・問いそのものを、端的かつ鋭い一文で表現してください。
+・脳卒中の再建、痛みの神経生理、物理療法の生体作用、地域生活での自立、女性特有の健康課題など、私の専門領域に根ざした内容にしてください。
+・学生が「なぜそうなるのか？」と論理的に考えざるを得ないような、学問的な深みを持たせてください。
 
-【教育的視点】
-大学・養成校教員として、講義での学生への問いかけ、基礎理論の再検討、あるいは臨床の複雑さを伝えるための視点など、教育全般に資する深みのある問いを考えてください。
-
-【形式】
-- 単なる事実確認ではなく、「～のメカニズムは何か？」「～がリハビリテーション戦略に与える影響は？」「学生にどう考えさせるべきか？」といった形式。
-- 出力は必ず以下のJSON形式にしてください。
-{ "actions": [ { "q": "問いの内容" } ] }
+【出力形式】
+JSON形式: { "actions": [ { "q": "（問いの文章のみ）" } ] }
 
 【論文抄録群】
 ${materials}`;
@@ -98,15 +90,13 @@ ${materials}`;
           parent: { database_id: DB_ACTION_ID },
           properties: { '問い': { title: [{ text: { content: item.q } }] } }
         });
-        console.log(`✅ 投稿成功: ${item.q}`);
-      } else {
-        console.log(`⏩ 重複スキップ: ${item.q}`);
+        console.log(`✅ 問いを登録: ${item.q}`);
       }
     }
   } catch (e) { console.error("問い生成エラー:", e.message); }
 }
 
-// --- 以下、既存の安定稼働コード ---
+// --- 以下、既存の安定版コード（変更なし） ---
 
 async function fetchAllConferences() {
   try {
