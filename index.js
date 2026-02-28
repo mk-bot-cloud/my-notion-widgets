@@ -3,12 +3,11 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const Parser = require('rss-parser');
 
-// 1. 各種設定（GitHub Secretsから読み込み）
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const DB_INPUT_ID = process.env.DB_INPUT_ID;
 const GROQ_KEY = process.env.GROQ_API_KEY; 
 const DB_ACADEMIC_ID = process.env.DB_ACADEMIC_CONFERENCE_ID; 
-const DB_ACTION_ID = process.env.DB_Action_ID; 
+const DB_ACTION_ID = process.env.DB_ACTION_ID; // ★Secretの名前と一致
 
 const parser = new Parser();
 
@@ -16,54 +15,57 @@ async function main() {
   try {
     console.log("=== 1. ニュース収集 ===");
     await fetchNewsDaily();
-    
     console.log("\n=== 2. 自動お掃除 ===");
     await autoCleanupTrash();
-    
     console.log("\n=== 3. 学術大会情報 ===");
     if (DB_ACADEMIC_ID) await fetchAllConferences();
-    
     console.log("\n=== 4. PubMed要約 ===");
     await fillPubmedDataWithAI();
 
     console.log("\n=== 5. 蓄積された要約から『問い』を生成 ===");
-    if (DB_ACTION_ID) await generateQuestionsFromSummaries();
+    if (DB_ACTION_ID) {
+      await generateQuestionsFromSummaries();
+    } else {
+      console.log("⚠️ DB_ACTION_IDが設定されていません");
+    }
 
     console.log("\n✨ すべての処理が正常に完了しました");
   } catch (e) { console.error("メイン実行エラー:", e.message); }
 }
 
-// ==========================================
-// ★ 新機能：DB_Actionに「問い」だけを書き込む
-// ==========================================
 async function generateQuestionsFromSummaries() {
   try {
-    // 1. DB_Inputから、要約が揃っているPubMed論文を直近10件取得
+    // 1. DB_InputからPubMed論文を取得（フィルターを「URLにpubmedを含む」だけに一旦緩和）
     const res = await notion.databases.query({
       database_id: DB_INPUT_ID,
       filter: {
-        and: [
-          { property: "URL", url: { contains: "pubmed.ncbi.nlm.nih.gov" } },
-          { property: "要約", rich_text: { is_not_empty: true } }
-        ]
+        property: "URL", 
+        url: { contains: "pubmed.ncbi.nlm.nih.gov" }
       },
       sorts: [{ property: "作成日時", direction: "descending" }],
       page_size: 10
     });
 
-    if (res.results.length === 0) {
-      console.log("分析対象の要約済み論文が見つかりませんでした。");
+    // 「要約」が実際に入っているものだけを抽出（念のためプログラム側でチェック）
+    const validPages = res.results.filter(page => {
+      const summaryText = page.properties['要約']?.rich_text[0]?.plain_text || "";
+      return summaryText.length > 10; // 10文字以上を対象
+    });
+
+    if (validPages.length === 0) {
+      console.log("対象となる要約済み論文が0件だったため、問いの生成を終了します。");
       return;
     }
 
-    const materials = res.results.map(page => {
+    console.log(`分析開始: ${validPages.length} 件の論文を元にします。`);
+
+    const materials = validPages.map(page => {
       const title = page.properties['タイトル和訳']?.rich_text[0]?.plain_text || "無題";
       const summary = page.properties['要約']?.rich_text[0]?.plain_text || "";
       return `【${title}】: ${summary}`;
     }).join("\n\n");
 
-    // 2. Groqに「問い」を考えさせる
-    const prompt = `あなたは理学療法の専門家かつ研究者です。以下の複数の論文要旨を読み、それらを組み合わせて「次に解決すべき医学的な問い（リサーチクエスチョン）」を日本語で3つ提案してください。
+    const prompt = `理学療法研究者として、以下の論文群から次に解決すべき「問い」を日本語で3つ提案してください。
     出力は必ず以下のJSON形式にしてください。
     { "actions": [ { "q": "問いの内容" } ] }
     
@@ -78,7 +80,6 @@ async function generateQuestionsFromSummaries() {
 
     const aiData = JSON.parse(aiRes.data.choices[0].message.content);
 
-    // 3. DB_Action（問いDB）に「問い」タイトルだけを書き込む
     for (const item of aiData.actions) {
       // 重複チェック
       const exists = await notion.databases.query({
@@ -101,9 +102,7 @@ async function generateQuestionsFromSummaries() {
   } catch (e) { console.error("問い生成エラー:", e.message); }
 }
 
-// ==========================================
-// 既存の機能（変更なし）
-// ==========================================
+// --- 既存の関数群 ---
 async function fetchAllConferences() {
   try {
     const res = await axios.get("https://www.jspt.or.jp/conference/", { headers: { "User-Agent": "Mozilla/5.0" } });
@@ -152,7 +151,7 @@ async function fillPubmedDataWithAI() {
       const abstract = $('.abstract-content').text().trim().substring(0, 1500) || "Abstractなし";
       const journal = $('.journal-actions-trigger').first().text().trim() || "不明";
       await new Promise(r => setTimeout(r, 20000));
-      const prompt = `あなたは医学論文の専門家です。抄録を読み、JSONで返せ。1. translatedTitle, 2. journal, 3. summary: である調で180〜200字。\n\nTitle: ${title}\nAbstract: ${abstract}`;
+      const prompt = `抄録を読み、JSONで返せ。1. translatedTitle, 2. journal, 3. summary: である調で200字。\n\nTitle: ${title}\nAbstract: ${abstract}`;
       const aiRes = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
         model: "llama-3.1-8b-instant",
         messages: [{ role: "user", content: prompt }],
