@@ -7,7 +7,7 @@ const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const DB_INPUT_ID = process.env.DB_INPUT_ID;
 const GROQ_KEY = process.env.GROQ_API_KEY; 
 const DB_ACADEMIC_ID = process.env.DB_ACADEMIC_CONFERENCE_ID; 
-const DB_ACTION_ID = process.env.DB_ACTION_ID; // 追加
+const DB_ACTION_ID = process.env.DB_ACTION_ID; 
 
 const parser = new Parser();
 
@@ -19,14 +19,13 @@ async function main() {
     console.log("\n=== 2. 自動お掃除 ===");
     await autoCleanupTrash();
     
-    console.log("\n=== 3. 学術大会情報（会場・備考を正しく取得） ===");
+    console.log("\n=== 3. 学術大会情報 ===");
     if (DB_ACADEMIC_ID) await fetchAllConferences();
     
     console.log("\n=== 4. PubMed要約 ===");
     await fillPubmedDataWithAI();
 
-    // ★ここから「問い」の追加機能
-    console.log("\n=== 5. 蓄積された要約から『問い』を生成 ===");
+    console.log("\n=== 5. 専門領域に基づいた『問い』を生成 ===");
     if (DB_ACTION_ID) {
       await generateQuestionsFromSummaries();
     } else {
@@ -37,9 +36,9 @@ async function main() {
   } catch (e) { console.error("メイン実行エラー:", e.message); }
 }
 
-// ★新しく追加：問いを生成して書き込む関数
 async function generateQuestionsFromSummaries() {
   try {
+    // 直近15件のPubMedデータを取得
     const res = await notion.databases.query({
       database_id: DB_INPUT_ID,
       filter: { property: "URL", url: { contains: "pubmed.ncbi.nlm.nih.gov" } },
@@ -63,7 +62,19 @@ async function generateQuestionsFromSummaries() {
       return `【${title}】: ${summary}`;
     }).join("\n\n");
 
-    const prompt = `あなたは理学療法研究者です。以下の論文群から次に解決すべき医学的な「問い」を日本語で3つ出してください。JSON形式: { "actions": [ { "q": "問いの内容" } ] } \n\n${materials}`;
+    // 先生の専門領域と教育的視点を反映したプロンプト
+    const prompt = `あなたはリハビリテーション領域の高度な専門知識を持つ研究者であり、理学療法士養成校の教員です。
+以下の【論文抄録群】を読み、私の専門領域（脳卒中、痛み、物理療法/Electrophysical Agents、訪問リハ、ウィメンズヘルス）の視点と、学生教育に活かせる視点を組み合わせて、次に解決すべき「質の高い問い」を日本語で3つ提案してください。
+
+【評価のポイント】
+1. 臨床的な疑問（EBP）だけでなく、生理学的メカニズムや物理療法の介入妥当性（Biophysical Agentsとしての側面）を含めること。
+2. 養成校の学生が卒業研究や臨床実習で考えるきっかけになるような、教育的示唆を含む問いにすること。
+3. 単なる事実確認ではなく、「～は～にどう影響するか？」「～のメカニズムは何か？」といった探究的な形式にすること。
+
+JSON形式で出力してください: { "actions": [ { "q": "問いの内容" } ] }
+
+【論文抄録群】
+${materials}`;
 
     const aiRes = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
       model: "llama-3.1-8b-instant",
@@ -92,7 +103,7 @@ async function generateQuestionsFromSummaries() {
   } catch (e) { console.error("問い生成エラー:", e.message); }
 }
 
-// --- 以下、元々うまくいっていたコードをそのまま維持 ---
+// --- 既存機能 ---
 
 async function fetchAllConferences() {
   try {
@@ -109,10 +120,7 @@ async function fetchAllConferences() {
         const venueText = $(cells[3]).text().trim();
         const remarksText = $(cells[4]).text().trim();
         if (link && link.startsWith('http')) {
-          const exists = await notion.databases.query({ 
-            database_id: DB_ACADEMIC_ID, 
-            filter: { property: "URL", url: { equals: link } } 
-          });
+          const exists = await notion.databases.query({ database_id: DB_ACADEMIC_ID, filter: { property: "URL", url: { equals: link } } });
           if (exists.results.length === 0) {
             await notion.pages.create({
               parent: { database_id: DB_ACADEMIC_ID },
@@ -124,7 +132,6 @@ async function fetchAllConferences() {
                 '備考': { rich_text: [{ text: { content: remarksText } }] }
               }
             });
-            console.log(`✅ 大会登録: ${conferenceName} / 会場: ${venueText}`);
           }
         }
       }
