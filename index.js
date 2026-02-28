@@ -3,12 +3,11 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const Parser = require('rss-parser');
 
-// 環境変数の読み込み
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const DB_INPUT_ID = process.env.DB_INPUT_ID;
 const GROQ_KEY = process.env.GROQ_API_KEY; 
 const DB_ACADEMIC_ID = process.env.DB_ACADEMIC_CONFERENCE_ID; 
-const DB_ACTION_ID = process.env.DB_ACTION_ID; 
+const DB_ACTION_ID = process.env.DB_ACTION_ID; // 追加
 
 const parser = new Parser();
 
@@ -16,27 +15,31 @@ async function main() {
   try {
     console.log("=== 1. ニュース収集 ===");
     await fetchNewsDaily();
+    
     console.log("\n=== 2. 自動お掃除 ===");
     await autoCleanupTrash();
-    console.log("\n=== 3. 学術大会情報 ===");
+    
+    console.log("\n=== 3. 学術大会情報（会場・備考を正しく取得） ===");
     if (DB_ACADEMIC_ID) await fetchAllConferences();
+    
     console.log("\n=== 4. PubMed要約 ===");
     await fillPubmedDataWithAI();
 
+    // ★ここから「問い」の追加機能
     console.log("\n=== 5. 蓄積された要約から『問い』を生成 ===");
     if (DB_ACTION_ID) {
       await generateQuestionsFromSummaries();
     } else {
-      console.log("⚠️ DB_ACTION_IDが設定されていません。YAMLファイルを確認してください。");
+      console.log("⚠️ DB_ACTION_IDが環境変数に設定されていないためスキップします。");
     }
 
     console.log("\n✨ すべての処理が正常に完了しました");
   } catch (e) { console.error("メイン実行エラー:", e.message); }
 }
 
+// ★新しく追加：問いを生成して書き込む関数
 async function generateQuestionsFromSummaries() {
   try {
-    // 1. 直近のPubMed論文（URLにpubmedが含まれるもの）を取得
     const res = await notion.databases.query({
       database_id: DB_INPUT_ID,
       filter: { property: "URL", url: { contains: "pubmed.ncbi.nlm.nih.gov" } },
@@ -44,10 +47,9 @@ async function generateQuestionsFromSummaries() {
       page_size: 15
     });
 
-    // 「要約」列にデータがあるものだけ抽出
     const validPages = res.results.filter(page => {
       const summary = page.properties['要約']?.rich_text[0]?.plain_text || "";
-      return summary.length > 5; 
+      return summary.length > 10; 
     });
 
     if (validPages.length === 0) {
@@ -55,15 +57,13 @@ async function generateQuestionsFromSummaries() {
       return;
     }
 
-    console.log(`分析開始: ${validPages.length} 件を元にします。`);
-
     const materials = validPages.map(page => {
       const title = page.properties['タイトル和訳']?.rich_text[0]?.plain_text || "無題";
       const summary = page.properties['要約']?.rich_text[0]?.plain_text || "";
       return `【${title}】: ${summary}`;
     }).join("\n\n");
 
-    const prompt = `理学療法研究者として、以下の論文群から次に解決すべき「問い」を日本語で3つ提案してください。形式はJSON: { "actions": [ { "q": "問いの内容" } ] } \n\n${materials}`;
+    const prompt = `あなたは理学療法研究者です。以下の論文群から次に解決すべき医学的な「問い」を日本語で3つ出してください。JSON形式: { "actions": [ { "q": "問いの内容" } ] } \n\n${materials}`;
 
     const aiRes = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
       model: "llama-3.1-8b-instant",
@@ -73,9 +73,7 @@ async function generateQuestionsFromSummaries() {
 
     const aiData = JSON.parse(aiRes.data.choices[0].message.content);
 
-    // 2. DB_Actionに書き込み
     for (const item of aiData.actions) {
-      // 重複チェック
       const exists = await notion.databases.query({
         database_id: DB_ACTION_ID,
         filter: { property: "問い", title: { equals: item.q } }
@@ -86,15 +84,16 @@ async function generateQuestionsFromSummaries() {
           parent: { database_id: DB_ACTION_ID },
           properties: { '問い': { title: [{ text: { content: item.q } }] } }
         });
-        console.log(`✅ 生成成功: ${item.q}`);
+        console.log(`✅ 問いを投稿しました: ${item.q}`);
       } else {
-        console.log(`⏩ スキップ: ${item.q}`);
+        console.log(`⏩ スキップ（重複）: ${item.q}`);
       }
     }
   } catch (e) { console.error("問い生成エラー:", e.message); }
 }
 
-// --- 以下、既存の安定機能 ---
+// --- 以下、元々うまくいっていたコードをそのまま維持 ---
+
 async function fetchAllConferences() {
   try {
     const res = await axios.get("https://www.jspt.or.jp/conference/", { headers: { "User-Agent": "Mozilla/5.0" } });
@@ -103,21 +102,29 @@ async function fetchAllConferences() {
     for (const row of rows) {
       const cells = $(row).find('td');
       if (cells.length >= 5) {
-        const confName = $(cells[1]).text().trim();
-        const link = $(cells[1]).find('a').attr('href');
+        const conferenceCell = $(cells[1]);
+        const conferenceName = conferenceCell.text().trim();
+        const link = conferenceCell.find('a').attr('href');
+        const dateText = $(cells[2]).text().trim();
+        const venueText = $(cells[3]).text().trim();
+        const remarksText = $(cells[4]).text().trim();
         if (link && link.startsWith('http')) {
-          const exists = await notion.databases.query({ database_id: DB_ACADEMIC_ID, filter: { property: "URL", url: { equals: link } } });
+          const exists = await notion.databases.query({ 
+            database_id: DB_ACADEMIC_ID, 
+            filter: { property: "URL", url: { equals: link } } 
+          });
           if (exists.results.length === 0) {
             await notion.pages.create({
               parent: { database_id: DB_ACADEMIC_ID },
               properties: {
-                '大会名称': { title: [{ text: { content: confName } }] },
+                '大会名称': { title: [{ text: { content: conferenceName } }] },
                 'URL': { url: link },
-                '開催年月日': { rich_text: [{ text: { content: $(cells[2]).text().trim() } }] },
-                '会場': { rich_text: [{ text: { content: $(cells[3]).text().trim() } }] },
-                '備考': { rich_text: [{ text: { content: $(cells[4]).text().trim() } }] }
+                '開催年月日': { rich_text: [{ text: { content: dateText } }] },
+                '会場': { rich_text: [{ text: { content: venueText } }] },
+                '備考': { rich_text: [{ text: { content: remarksText } }] }
               }
             });
+            console.log(`✅ 大会登録: ${conferenceName} / 会場: ${venueText}`);
           }
         }
       }
@@ -137,11 +144,13 @@ async function fillPubmedDataWithAI() {
       const $ = cheerio.load(response.data);
       const title = $('h1.heading-title').text().trim() || "タイトル不明";
       const abstract = $('.abstract-content').text().trim().substring(0, 1500) || "Abstractなし";
+      const journal = $('.journal-actions-trigger').first().text().trim() || "不明";
       await new Promise(r => setTimeout(r, 20000));
-      const prompt = `抄録を読み、JSONで返せ。1. translatedTitle, 2. journal, 3. summary。\n\nTitle: ${title}\nAbstract: ${abstract}`;
+      const prompt = `あなたは医学論文の専門家です。抄録を読み、JSONで返せ。1. translatedTitle, 2. journal, 3. summary: である調で180〜200字。\n\nTitle: ${title}\nAbstract: ${abstract}`;
       const aiRes = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
         model: "llama-3.1-8b-instant",
         messages: [{ role: "user", content: prompt }],
+        temperature: 0.1,
         response_format: { type: "json_object" }
       }, { headers: { "Authorization": `Bearer ${GROQ_KEY.trim()}`, "Content-Type": "application/json" } });
       const aiData = JSON.parse(aiRes.data.choices[0].message.content);
@@ -149,7 +158,7 @@ async function fillPubmedDataWithAI() {
         page_id: page.id,
         properties: {
           "タイトル和訳": { rich_text: [{ text: { content: aiData.translatedTitle || "" } }] },
-          "ジャーナル名": { rich_text: [{ text: { content: aiData.journal || "" } }] },
+          "ジャーナル名": { rich_text: [{ text: { content: aiData.journal || journal } }] },
           "要約": { rich_text: [{ text: { content: aiData.summary || "" } }] }
         }
       });
@@ -163,12 +172,12 @@ async function fetchNewsDaily() {
     { name: "ITmedia AI+", url: "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml" },
     { name: "テクノエッジ", url: "https://www.techno-edge.net/rss20/index.rdf" }
   ];
-  const keywords = ["AI", "Notion", "Gemini", "効率化", "理学療法"];
+  const keywords = ["AI", "Notion", "Gemini", "効率化", "自動化", "IT", "ChatGPT", "生成AI", "理学療法"];
   for (const source of sources) {
     try {
       const feed = await parser.parseURL(source.url);
       for (const item of feed.items.slice(0, 5)) {
-        const title = item.title.trim();
+        const title = item.title.replace(/[\[【].*?[\]】]/g, '').trim();
         if (keywords.some(kw => title.toUpperCase().includes(kw.toUpperCase()))) {
           const exists = await notion.databases.query({ database_id: DB_INPUT_ID, filter: { property: "名前", title: { equals: title } } });
           if (exists.results.length === 0) {
