@@ -3,11 +3,12 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const Parser = require('rss-parser');
 
+// 環境変数の読み込み
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const DB_INPUT_ID = process.env.DB_INPUT_ID;
 const GROQ_KEY = process.env.GROQ_API_KEY; 
 const DB_ACADEMIC_ID = process.env.DB_ACADEMIC_CONFERENCE_ID; 
-const DB_ACTION_ID = process.env.DB_ACTION_ID; // GitHub Actionsから受け取る
+const DB_ACTION_ID = process.env.DB_ACTION_ID; 
 
 const parser = new Parser();
 
@@ -35,7 +36,7 @@ async function main() {
 
 async function generateQuestionsFromSummaries() {
   try {
-    // 1. DB_Inputから、直近のPubMed論文を取得
+    // 1. 直近のPubMed論文（URLにpubmedが含まれるもの）を取得
     const res = await notion.databases.query({
       database_id: DB_INPUT_ID,
       filter: { property: "URL", url: { contains: "pubmed.ncbi.nlm.nih.gov" } },
@@ -43,7 +44,7 @@ async function generateQuestionsFromSummaries() {
       page_size: 15
     });
 
-    // 「要約」列に文字が入っているものだけを抽出
+    // 「要約」列にデータがあるものだけ抽出
     const validPages = res.results.filter(page => {
       const summary = page.properties['要約']?.rich_text[0]?.plain_text || "";
       return summary.length > 5; 
@@ -54,7 +55,7 @@ async function generateQuestionsFromSummaries() {
       return;
     }
 
-    console.log(`分析開始: ${validPages.length} 件の論文を元にします。`);
+    console.log(`分析開始: ${validPages.length} 件を元にします。`);
 
     const materials = validPages.map(page => {
       const title = page.properties['タイトル和訳']?.rich_text[0]?.plain_text || "無題";
@@ -62,11 +63,7 @@ async function generateQuestionsFromSummaries() {
       return `【${title}】: ${summary}`;
     }).join("\n\n");
 
-    const prompt = `理学療法研究者として、以下の論文群から次に解決すべき「問い」を日本語で3つ提案してください。
-    出力形式(JSON): { "actions": [ { "q": "問いの内容" } ] }
-    
-    論文リスト:
-    ${materials}`;
+    const prompt = `理学療法研究者として、以下の論文群から次に解決すべき「問い」を日本語で3つ提案してください。形式はJSON: { "actions": [ { "q": "問いの内容" } ] } \n\n${materials}`;
 
     const aiRes = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
       model: "llama-3.1-8b-instant",
@@ -76,9 +73,9 @@ async function generateQuestionsFromSummaries() {
 
     const aiData = JSON.parse(aiRes.data.choices[0].message.content);
 
-    // 2. DB_Actionに「問い」だけを書き込む
+    // 2. DB_Actionに書き込み
     for (const item of aiData.actions) {
-      // 重複チェック（同じ問いがあればスキップ）
+      // 重複チェック
       const exists = await notion.databases.query({
         database_id: DB_ACTION_ID,
         filter: { property: "問い", title: { equals: item.q } }
@@ -87,19 +84,17 @@ async function generateQuestionsFromSummaries() {
       if (exists.results.length === 0) {
         await notion.pages.create({
           parent: { database_id: DB_ACTION_ID },
-          properties: {
-            '問い': { title: [{ text: { content: item.q } }] }
-          }
+          properties: { '問い': { title: [{ text: { content: item.q } }] } }
         });
-        console.log(`✅ 投稿完了: ${item.q}`);
+        console.log(`✅ 生成成功: ${item.q}`);
       } else {
-        console.log(`⏩ 重複スキップ: ${item.q}`);
+        console.log(`⏩ スキップ: ${item.q}`);
       }
     }
   } catch (e) { console.error("問い生成エラー:", e.message); }
 }
 
-// --- 以下、既存の機能 ---
+// --- 以下、既存の安定機能 ---
 async function fetchAllConferences() {
   try {
     const res = await axios.get("https://www.jspt.or.jp/conference/", { headers: { "User-Agent": "Mozilla/5.0" } });
@@ -108,16 +103,15 @@ async function fetchAllConferences() {
     for (const row of rows) {
       const cells = $(row).find('td');
       if (cells.length >= 5) {
-        const conferenceCell = $(cells[1]);
-        const conferenceName = conferenceCell.text().trim();
-        const link = conferenceCell.find('a').attr('href');
+        const confName = $(cells[1]).text().trim();
+        const link = $(cells[1]).find('a').attr('href');
         if (link && link.startsWith('http')) {
           const exists = await notion.databases.query({ database_id: DB_ACADEMIC_ID, filter: { property: "URL", url: { equals: link } } });
           if (exists.results.length === 0) {
             await notion.pages.create({
               parent: { database_id: DB_ACADEMIC_ID },
               properties: {
-                '大会名称': { title: [{ text: { content: conferenceName } }] },
+                '大会名称': { title: [{ text: { content: confName } }] },
                 'URL': { url: link },
                 '開催年月日': { rich_text: [{ text: { content: $(cells[2]).text().trim() } }] },
                 '会場': { rich_text: [{ text: { content: $(cells[3]).text().trim() } }] },
