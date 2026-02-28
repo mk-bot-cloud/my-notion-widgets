@@ -3,11 +3,12 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const Parser = require('rss-parser');
 
+// 1. 各種設定（GitHub Secretsから読み込み）
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const DB_INPUT_ID = process.env.DB_INPUT_ID;
 const GROQ_KEY = process.env.GROQ_API_KEY; 
 const DB_ACADEMIC_ID = process.env.DB_ACADEMIC_CONFERENCE_ID; 
-const DB_ACTION_ID = process.env.DB_Action_ID; // ★ Secretsから取得
+const DB_ACTION_ID = process.env.DB_Action_ID; 
 
 const parser = new Parser();
 
@@ -15,28 +16,29 @@ async function main() {
   try {
     console.log("=== 1. ニュース収集 ===");
     await fetchNewsDaily();
+    
     console.log("\n=== 2. 自動お掃除 ===");
     await autoCleanupTrash();
+    
     console.log("\n=== 3. 学術大会情報 ===");
     if (DB_ACADEMIC_ID) await fetchAllConferences();
+    
     console.log("\n=== 4. PubMed要約 ===");
     await fillPubmedDataWithAI();
 
-    // --- ★ 追加機能：ここから ---
     console.log("\n=== 5. 蓄積された要約から『問い』を生成 ===");
     if (DB_ACTION_ID) await generateQuestionsFromSummaries();
-    // --- ★ 追加機能：ここまで ---
 
     console.log("\n✨ すべての処理が正常に完了しました");
   } catch (e) { console.error("メイン実行エラー:", e.message); }
 }
 
 // ==========================================
-// ★ 新機能：DB_Actionに「問い」を自動生成する
+// ★ 新機能：DB_Actionに「問い」だけを書き込む
 // ==========================================
 async function generateQuestionsFromSummaries() {
   try {
-    // 1. Make経由or手動要約分からPubMed論文を10件取得
+    // 1. DB_Inputから、要約が揃っているPubMed論文を直近10件取得
     const res = await notion.databases.query({
       database_id: DB_INPUT_ID,
       filter: {
@@ -54,17 +56,16 @@ async function generateQuestionsFromSummaries() {
       return;
     }
 
-    // 2. AIに渡すための要約リストを作成
     const materials = res.results.map(page => {
       const title = page.properties['タイトル和訳']?.rich_text[0]?.plain_text || "無題";
       const summary = page.properties['要約']?.rich_text[0]?.plain_text || "";
       return `【${title}】: ${summary}`;
     }).join("\n\n");
 
-    // 3. Groqに「問い」を考えさせる
-    const prompt = `あなたは理学療法の専門家かつ研究者です。以下の複数の論文要約を読み、これらを組み合わせて「次に解決すべき医学的な問い」を日本語で3つ作成してください。
-    出力は必ずJSON形式にしてください。
-    { "actions": [ { "q": "問いの内容", "reason": "背景" } ] }
+    // 2. Groqに「問い」を考えさせる
+    const prompt = `あなたは理学療法の専門家かつ研究者です。以下の複数の論文要旨を読み、それらを組み合わせて「次に解決すべき医学的な問い（リサーチクエスチョン）」を日本語で3つ提案してください。
+    出力は必ず以下のJSON形式にしてください。
+    { "actions": [ { "q": "問いの内容" } ] }
     
     論文リスト:
     ${materials}`;
@@ -77,8 +78,9 @@ async function generateQuestionsFromSummaries() {
 
     const aiData = JSON.parse(aiRes.data.choices[0].message.content);
 
-    // 4. DB_Action（問いDB）に書き込む
+    // 3. DB_Action（問いDB）に「問い」タイトルだけを書き込む
     for (const item of aiData.actions) {
+      // 重複チェック
       const exists = await notion.databases.query({
         database_id: DB_ACTION_ID,
         filter: { property: "問い", title: { equals: item.q } }
@@ -88,23 +90,19 @@ async function generateQuestionsFromSummaries() {
         await notion.pages.create({
           parent: { database_id: DB_ACTION_ID },
           properties: {
-            '問い': { title: [{ text: { content: item.q } }] },
-            'ステータス': { select: { name: "未解決" } }
-          },
-          children: [{ 
-            object: "block", 
-            type: "paragraph", 
-            paragraph: { rich_text: [{ text: { content: `🤖 AI考察: ${item.reason}` } }] } 
-          }]
+            '問い': { title: [{ text: { content: item.q } }] }
+          }
         });
-        console.log(`✅ 新しい問いを生成: ${item.q}`);
+        console.log(`✅ 投稿完了: ${item.q}`);
+      } else {
+        console.log(`⏩ スキップ（重複）: ${item.q}`);
       }
     }
   } catch (e) { console.error("問い生成エラー:", e.message); }
 }
 
 // ==========================================
-// 既存の関数（変更なし）
+// 既存の機能（変更なし）
 // ==========================================
 async function fetchAllConferences() {
   try {
@@ -133,7 +131,6 @@ async function fetchAllConferences() {
                 '備考': { rich_text: [{ text: { content: remarksText } }] }
               }
             });
-            console.log(`✅ 大会登録: ${conferenceName}`);
           }
         }
       }
