@@ -2,8 +2,8 @@ name: Notion Full Bot
 
 on:
   schedule:
-    - cron: '30 19 * * *'
-  workflow_dispatch:     
+    - cron: '30 19 * * *' # 毎日日本時間 04:30 (UTC 19:30) に実行
+  workflow_dispatch:      # 手動実行用
 
 jobs:
   build:
