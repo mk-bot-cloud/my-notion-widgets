@@ -24,4 +24,4 @@ jobs:
           DB_INPUT_ID: ${{ secrets.DB_INPUT_ID }}
           DB_ACADEMIC_EVENT_ID: ${{ secrets.DB_ACADEMIC_EVENT_ID }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          DB_ACTION_ID: ${{ secrets.DB_ACADEMIC_EVENT_ID }}
+          DB_ACTION_ID: ${{ secrets.DB_ACTION_ID }}
