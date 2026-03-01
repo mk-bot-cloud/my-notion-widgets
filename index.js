@@ -33,6 +33,69 @@ async function main() {
   } catch (e) { console.error("メイン実行エラー:", e.message); }
 }
 
+// --- 学術大会の日付整形用ヘルパー関数 ---
+async function formatDateWithAI(dateText) {
+  try {
+    const prompt = `以下の学会の日程テキストを解析し、Notionの日付プロパティ用JSONを生成してください。
+開始日のみの場合はendをnullに、期間がある場合はendも含めてください。形式はYYYY-MM-DDです。
+【日程】: ${dateText}
+【出力形式】: { "start": "YYYY-MM-DD", "end": "YYYY-MM-DD" or null }`;
+
+    const aiRes = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
+      model: "llama-3.1-8b-instant",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" }
+    }, { headers: { "Authorization": `Bearer ${GROQ_KEY.trim()}`, "Content-Type": "application/json" } });
+
+    return JSON.parse(aiRes.data.choices[0].message.content);
+  } catch (e) {
+    console.error("日付整形エラー:", e.message);
+    return null;
+  }
+}
+
+async function fetchAllConferences() {
+  try {
+    const res = await axios.get("https://www.jspt.or.jp/conference/", { headers: { "User-Agent": "Mozilla/5.0" } });
+    const $ = cheerio.load(res.data);
+    const rows = $('table tbody tr').get();
+    for (const row of rows) {
+      const cells = $(row).find('td');
+      if (cells.length >= 5) {
+        const conferenceCell = $(cells[1]);
+        const conferenceName = conferenceCell.text().trim();
+        const link = conferenceCell.find('a').attr('href');
+        const dateText = $(cells[2]).text().trim();
+        const venueText = $(cells[3]).text().trim();
+        const remarksText = $(cells[4]).text().trim();
+        if (link && link.startsWith('http')) {
+          const exists = await notion.databases.query({ database_id: DB_ACADEMIC_ID, filter: { property: "URL", url: { equals: link } } });
+          if (exists.results.length === 0) {
+            // AIで日付を整形
+            const dateObj = await formatDateWithAI(dateText);
+            
+            await notion.pages.create({
+              parent: { database_id: DB_ACADEMIC_ID },
+              properties: {
+                '大会名称': { title: [{ text: { content: conferenceName } }] },
+                'URL': { url: link },
+                // 日付プロパティとして登録
+                '開催年月日': { date: dateObj },
+                '会場': { rich_text: [{ text: { content: venueText } }] },
+                '備考': { rich_text: [{ text: { content: remarksText } }] }
+              }
+            });
+            console.log(`✅ 大会を登録: ${conferenceName}`);
+            // API制限回避のため少し待機
+            await new Promise(r => setTimeout(r, 3000));
+          }
+        }
+      }
+    }
+  } catch (e) { console.error("学術大会エラー:", e.message); }
+}
+
+// 既存の関数（generateQuestionsFromSummaries, fillPubmedDataWithAI, fetchNewsDaily, 等）は一切変更なし
 async function generateQuestionsFromSummaries() {
   try {
     const res = await notion.databases.query({
@@ -94,40 +157,6 @@ ${materials}`;
       }
     }
   } catch (e) { console.error("問い生成エラー:", e.message); }
-}
-
-async function fetchAllConferences() {
-  try {
-    const res = await axios.get("https://www.jspt.or.jp/conference/", { headers: { "User-Agent": "Mozilla/5.0" } });
-    const $ = cheerio.load(res.data);
-    const rows = $('table tbody tr').get();
-    for (const row of rows) {
-      const cells = $(row).find('td');
-      if (cells.length >= 5) {
-        const conferenceCell = $(cells[1]);
-        const conferenceName = conferenceCell.text().trim();
-        const link = conferenceCell.find('a').attr('href');
-        const dateText = $(cells[2]).text().trim();
-        const venueText = $(cells[3]).text().trim();
-        const remarksText = $(cells[4]).text().trim();
-        if (link && link.startsWith('http')) {
-          const exists = await notion.databases.query({ database_id: DB_ACADEMIC_ID, filter: { property: "URL", url: { equals: link } } });
-          if (exists.results.length === 0) {
-            await notion.pages.create({
-              parent: { database_id: DB_ACADEMIC_ID },
-              properties: {
-                '大会名称': { title: [{ text: { content: conferenceName } }] },
-                'URL': { url: link },
-                '開催年月日': { rich_text: [{ text: { content: dateText } }] },
-                '会場': { rich_text: [{ text: { content: venueText } }] },
-                '備考': { rich_text: [{ text: { content: remarksText } }] }
-              }
-            });
-          }
-        }
-      }
-    }
-  } catch (e) { console.error("学術大会エラー:", e.message); }
 }
 
 async function fillPubmedDataWithAI() {
