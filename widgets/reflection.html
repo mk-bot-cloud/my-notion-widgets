@@ -15,7 +15,7 @@
         }
         .container {
             width: 100%;
-            max-width: 500px; /* サイズを絞りました */
+            max-width: 500px;
             background: #191919;
         }
         .progress-bar {
@@ -46,7 +46,7 @@
             font-size: 14px; 
             line-height: 1.5;
             margin-bottom: 15px; 
-            min-height: 150px; /* 必要十分な高さ */
+            min-height: 150px; 
         }
         .btn-group { display: flex; gap: 8px; }
         button.main-btn { 
@@ -158,25 +158,30 @@
             { key: "Decisive", text: "D：明日意識する小さな挑戦は？" }
         ];
         let step = 0; let results = {}; let selectedScore = 0;
+
         window.onload = function() {
             const now = new Date();
             document.getElementById('ref-date').value = now.toISOString().split('T')[0];
         };
+
         function updateProgress() {
             document.getElementById('progress-fill').style.width = (step / qs.length * 100) + "%";
         }
+
         function start() {
             document.getElementById('step-start').classList.add('hidden');
             document.getElementById('step-q').classList.remove('hidden');
             document.getElementById('progress-wrapper').classList.remove('hidden');
             showQ();
         }
+
         function showQ() {
             document.getElementById('q-text').textContent = qs[step].text;
             document.getElementById('a-input').value = results[qs[step].key] || "";
             updateProgress();
             setTimeout(() => document.getElementById('a-input').focus(), 100);
         }
+
         function next() {
             results[qs[step].key] = document.getElementById('a-input').value;
             step++;
@@ -187,6 +192,7 @@
                 document.getElementById('progress-fill').style.width = "100%";
             }
         }
+
         function back() {
             if (step > 0) {
                 results[qs[step].key] = document.getElementById('a-input').value;
@@ -197,35 +203,47 @@
                 document.getElementById('step-start').classList.remove('hidden');
             }
         }
+
         function backToQ() {
             step = qs.length - 1;
             document.getElementById('step-score').classList.add('hidden');
             document.getElementById('step-q').classList.remove('hidden');
             showQ();
         }
+
         function setScore(s) {
             selectedScore = s;
             document.querySelectorAll('.score-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById('finish-btn').classList.remove('hidden');
         }
+
         async function finish() {
             const btn = document.getElementById('finish-btn');
+            const selectedDate = document.getElementById('ref-date').value;
             btn.disabled = true; btn.textContent = "送信中...";
+
+            // パラメータ設定
             const params = new URLSearchParams({
-                date: document.getElementById('ref-date').value,
+                title: selectedDate, // Notionの「名前(Title)」に日付を入れる用
+                date: selectedDate,  // Notionの「日付」プロパティ用
                 ...results,
                 score: selectedScore, 
-                mood: "⭐".repeat(selectedScore),
-                Summary: results.Objective ? results.Objective.substring(0, 30) + "..." : ""
+                mood: "⭐".repeat(selectedScore) // セレクトプロパティ用
             });
+
             try {
-                await fetch(`https://hook.eu2.make.com/8wk2uwkjqs3sijn2t1dfxvw28c56alli?${params.toString()}`, { method: 'GET', mode: 'no-cors' });
+                // MakeのWebhookへ送信
+                await fetch(`https://hook.eu2.make.com/8wk2uwkjqs3sijn2t1dfxvw28c56alli?${params.toString()}`, { 
+                    method: 'GET', 
+                    mode: 'no-cors' 
+                });
                 document.getElementById('step-score').classList.add('hidden');
                 document.getElementById('step-end').classList.remove('hidden');
             } catch (e) {
-                alert('エラー');
+                alert('エラーが発生しました');
                 btn.disabled = false;
+                btn.textContent = "保存";
             }
         }
     </script>
