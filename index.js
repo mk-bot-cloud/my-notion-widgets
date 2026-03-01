@@ -134,21 +134,29 @@ async function fillPubmedDataWithAI() {
       const $ = cheerio.load(response.data);
       const title = $('h1.heading-title').text().trim() || "タイトル不明";
       const abstract = $('.abstract-content').text().trim().substring(0, 1500) || "Abstractなし";
+      
       await new Promise(r => setTimeout(r, 20000));
+      
       const aiRes = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
         model: "llama-3.1-8b-instant",
-        messages: [{ role: "user", content: `医学論文をJSONで返せ。1. translatedTitle, 2. journal, 3. summary(180字程度)\n\nTitle: ${title}\nAbstract: ${abstract}` }],
+        messages: [{ role: "user", content: `医学論文を解析し、必ず以下のJSON形式で返せ。各値は必ず文字列(string)にすること。{ "translatedTitle": "タイトル和訳", "journal": "ジャーナル名", "summary": "180字程度の要約" }\n\nTitle: ${title}\nAbstract: ${abstract}` }],
         response_format: { type: "json_object" }
       }, { headers: { "Authorization": `Bearer ${GROQ_KEY.trim()}`, "Content-Type": "application/json" } });
+      
       const aiData = JSON.parse(aiRes.data.choices[0].message.content);
+      
+      // AIがジャーナル名をオブジェクトで返してきた場合の対策
+      const journalString = typeof aiData.journal === 'object' ? (aiData.journal.title || JSON.stringify(aiData.journal)) : (aiData.journal || "");
+
       await notion.pages.update({
         page_id: page.id,
         properties: {
-          "タイトル和訳": { rich_text: [{ text: { content: aiData.translatedTitle || "" } }] },
-          "ジャーナル名": { rich_text: [{ text: { content: aiData.journal || "" } }] },
-          "要約": { rich_text: [{ text: { content: aiData.summary || "" } }] }
+          "タイトル和訳": { rich_text: [{ text: { content: String(aiData.translatedTitle || "") } }] },
+          "ジャーナル名": { rich_text: [{ text: { content: String(journalString) } }] },
+          "要約": { rich_text: [{ text: { content: String(aiData.summary || "") } }] }
         }
       });
+      console.log(`✅ PubMed更新完了: ${title}`);
     } catch (e) { console.error(`❌ PubMedエラー: ${e.message}`); }
   }
 }
